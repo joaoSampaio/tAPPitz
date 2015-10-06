@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <item name="green" type="color">#8032CD32</item>
+    <item name="red" type="color">#80FF4444</item>
+    <item name="yellow" type="color">#80FFFF00</item>
+
+    <item name="greenA" type="color">#5099CC00</item>
+    <item name="redA" type="color">#50FF4444</item>
+    <item name="yellowA" type="color">#50FF9F00</item>
+
+    <!-- <item name="orange" type="color">#FBA046</item> a minha escolha suave -->
+    <!-- <item name="orange" type="color">#FFa500</item> -->
+    <!-- <item name="orange" type="color">#FF6600</item> pesquisa por "best Orange Color" -->
+    <item name="orange" type="color">#FF753F</item>  <!-- escolha da Dani Trony -->
+    <!-- <item name="orange" type="color">#FFA62F</item> -->
+    <!--  <item name="orange" type="color">#FFC72E</item> -->
+    <!-- <item name="orange" type="color">#FFAA00</item>-->
+
+
+    <item name="white" type="color">#FFFFFF</item>
+
+   <item name="brown" type="color">#343434</item>
+
+    <item name="android" type="color">#33b5e5</item>
+
+    <item name="sblue" type="color">#CCCCFF</item>
+
+
+    <!--
+    <color name="H1">#b0b0ff</color>
+    <color name="H2">#c5c5c5</color>
+    <color name="H3">#ff0000</color>
+    <color name="H4">#ff000000</color>
+    <color name="H5">#FF00FF</color> -->
+
+</resources>
