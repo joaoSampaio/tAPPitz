@@ -50,11 +50,19 @@ public class OutBoxFragment extends Fragment {
         pDialog.setMessage("Loading...");
         pDialog.show();
 
-        RestClient.getService().listMyOutbox(new Callback<List<photo_tAPPitz>>() {
+        RestClient.getService().getTapp(new Callback<List<photo_tAPPitz>>() {
             @Override
             public void success(List<photo_tAPPitz> photo_tAPPitzs, Response response) {
                 hidePDialog();
-                OnDoneLoading();
+
+                try {
+                    photos.addAll(photo_tAPPitzs);
+
+
+                    adapter.notifyDataSetChanged();
+                }catch (Exception e){
+                    ///
+                }
             }
 
             @Override

@@ -28,6 +28,10 @@ public interface Api {
     @GET("/56wu6")
     void teste( Callback<JsonElement> response);
 
+    @GET("/43uz2")
+    void getTapp( Callback<List<photo_tAPPitz>> response);
+
+
     @GET("/outbox")
     void listMyOutbox( Callback<List<photo_tAPPitz>> callback);
 
