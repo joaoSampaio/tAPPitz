@@ -15,8 +15,6 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.validators.EmailValidator;
-import com.tappitz.tappitz.validators.GPSValidator;
 import com.tappitz.tappitz.validators.NameValidator;
 
 /**
@@ -74,7 +72,7 @@ public class PaginaRegisto2 extends Activity {
 
         //definicao dos spinner para os meses do ano
         mesesSpinner = (Spinner) findViewById(R.id.mesesSpinner);
-        String[] meses = getResources().getStringArray(R.array.meses);
+        String[] meses = null;// getResources().getStringArray(R.array.meses);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, meses);
         mesesSpinner.setAdapter(adapter);
 

@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.communication;
+package com.tappitz.tappitz.server;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.tappitz.tappitz.Global;

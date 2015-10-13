@@ -1,16 +1,19 @@
-package com.tappitz.tappitz.communication;
+package com.tappitz.tappitz.server;
 
 import com.google.gson.JsonElement;
 import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.model.Photo;
+import com.tappitz.tappitz.model.RequestId;
+import com.tappitz.tappitz.model.UserLogin;
+import com.tappitz.tappitz.model.UserRegister;
 import com.tappitz.tappitz.model.photo_tAPPitz;
 
 import java.util.List;
 
 import retrofit.Callback;
+import retrofit.http.Body;
 import retrofit.http.GET;
-import retrofit.http.Multipart;
 import retrofit.http.POST;
-import retrofit.http.Part;
 import retrofit.http.Path;
 
 /**
@@ -19,10 +22,31 @@ import retrofit.http.Path;
 public interface Api {
 
 
-    @Multipart
+//    @Multipart
+//    @POST("/users/login")
+//    //void login(@Body LoginParams params, Callback<Response> response);
+//    void login(@Part("email") String email, @Part("password") String password, Callback<JsonElement> response);
+
+
     @POST("/users/login")
-    //void login(@Body LoginParams params, Callback<Response> response);
-    void login(@Part("email") String email, @Part("password") String password, Callback<JsonElement> response);
+        //void login(@Body LoginParams params, Callback<Response> response);
+    void login(@Body UserLogin user, Callback<JsonElement> response);
+
+    @POST("/users")
+    void register(@Body UserRegister user, Callback<JsonElement> response);
+
+
+    //Pede a lista de outbox
+    @GET("/users/outbox")
+    void requestOutbox(Callback<List<Photo>> response);
+
+    //Pede a imagem associada ao id
+    @POST("/users/outbox")
+    void requestOutbox(@Body RequestId request, Callback<JsonElement> response);
+
+
+    @POST("/picture/comments")
+    void requestPictureVotes(@Body RequestId request, Callback<JsonElement> response);
 
 
     @GET("/56wu6")

@@ -1,4 +1,4 @@
-package com.tappitz.tappitz;
+package com.tappitz.tappitz.ui;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -14,8 +14,10 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.squareup.picasso.Callback;
+import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
-import com.tappitz.tappitz.communication.RestClient;
+import com.tappitz.tappitz.server.RestClient;
 import com.tappitz.tappitz.model.Comment;
 
 import java.util.ArrayList;

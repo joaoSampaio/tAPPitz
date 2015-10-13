@@ -19,7 +19,7 @@
     <com.android.volley.toolbox.NetworkImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="fitEnd"
+        android:scaleType="fitCenter"
         android:id="@+id/picture"
         android:clickable="true"
         android:layout_alignParentBottom="true" />

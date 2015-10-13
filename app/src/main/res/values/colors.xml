@@ -18,13 +18,46 @@
     <!-- <item name="orange" type="color">#FFAA00</item>-->
 
 
-    <item name="white" type="color">#FFFFFF</item>
+    <!--<item name="white" type="color">#FFFFFF</item>-->
 
    <item name="brown" type="color">#343434</item>
 
     <item name="android" type="color">#33b5e5</item>
 
     <item name="sblue" type="color">#CCCCFF</item>
+
+
+
+    <!--<color name="primary">#ECEFF1</color>-->
+    <!--<color name="primary_dark">#CFD8DC</color>-->
+    <!--<color name="primary_darker">#90A4AE</color>-->
+    <!--<color name="accent">#000000</color>-->
+
+    <color name="black">#000000</color>
+    <color name="jet">#222222</color>
+    <color name="oil">#333333</color>
+    <color name="monsoon">#777777</color>
+    <color name="jumbo">#888888</color>
+    <color name="aluminum">#999999</color>
+    <color name="base">#AAAAAA</color>
+    <color name="iron">#CCCCCC</color>
+    <color name="white">#FFFFFF</color>
+
+
+
+
+    <color name="primary">#00BCD4</color>
+    <color name="primary_dark">#0097A7</color>
+    <color name="primary_light">#B2EBF2</color>
+    <color name="accent">#03A9F4</color>
+    <color name="primary_text">#212121</color>
+    <color name="secondary_text">#727272</color>
+    <color name="icons">#FFFFFF</color>
+    <color name="divider">#B6B6B6</color>
+
+    <color name="mdtp_accent_color">#009688</color>
+    <color name="mdtp_accent_color_dark">#00796b</color>
+
 
 
     <!--

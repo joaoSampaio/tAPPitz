@@ -92,7 +92,6 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             android:id="@+id/mesesSpinner"
-            android:entries="@array/meses"
             android:prompt="@string/month_prompt"
             android:dropDownWidth="wrap_content"
             android:textAlignment="center" />

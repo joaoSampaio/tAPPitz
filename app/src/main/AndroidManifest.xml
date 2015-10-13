@@ -13,49 +13,68 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
+    <!--
+     To retrieve OAuth 2.0 tokens or invalidate tokens to disconnect a user. This disconnect
+     option is required to comply with the Google+ Sign-In developer policies
+    -->
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" /> <!-- To retrieve the account name (email) as part of sign-in: -->
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" /> <!-- To auto-complete the email text field in the login form with the user's emails -->
+    <uses-permission android:name="android.permission.READ_PROFILE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+
     <application
         android:name=".app.AppController"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:hardwareAccelerated="true"
         android:theme="@style/AppTheme" >
-        <!--<activity-->
-            <!--android:name=".paginasRegisto.PaginaRegisto"-->
-            <!--android:label="tAPPitz" >-->
-        <!--</activity>-->
-        <!--<activity-->
-            <!--android:name=".PaginaVotacao"-->
-            <!--android:label="PaginaVotacao" >-->
-        <!--</activity>-->
-        <!--<activity-->
-            <!--android:name=".HomePage"-->
-            <!--android:label="PaginaMensagens" >-->
-        <!--</activity>-->
-        <!--<activity-->
-            <!--android:name=".paginasRegisto.PaginaRegisto2"-->
-            <!--android:label="PaginaRegisto2"-->
-            <!--android:windowSoftInputMode="adjustResize" >-->
 
-        <!--</activity>-->
-        <!--<activity-->
-            <!--android:name=".paginasRegisto.PaginaRegisto3"-->
-            <!--android:label="PaginaRegisto3"-->
-            <!--android:windowSoftInputMode="adjustResize" >-->
+        <!-- <activity -->
+        <!-- android:name=".paginasRegisto.PaginaRegisto" -->
+        <!-- android:label="tAPPitz" > -->
+        <!-- </activity> -->
+        <!-- <activity -->
+        <!-- android:name=".PaginaVotacao" -->
+        <!-- android:label="PaginaVotacao" > -->
+        <!-- </activity> -->
+        <!-- <activity -->
+        <!-- android:name=".HomePage" -->
+        <!-- android:label="PaginaMensagens" > -->
+        <!-- </activity> -->
+        <!-- <activity -->
+        <!-- android:name=".paginasRegisto.PaginaRegisto2" -->
+        <!-- android:label="PaginaRegisto2" -->
+        <!-- android:windowSoftInputMode="adjustResize" > -->
 
-        <!--</activity>-->
-        <!--<activity-->
-            <!--android:name=".cameraAccess.CameraControl"-->
-            <!--android:label="@string/CameraControl"-->
-            <!--android:screenOrientation="portrait" >-->
-        <!--</activity>-->
-        <!--<activity-->
-            <!--android:name=".FotosEnviadas"-->
-            <!--android:label="FotosEnviadas"-->
-            <!--android:windowSoftInputMode="adjustResize" >-->
-        <!--</activity>-->
+
+        <!-- </activity> -->
+        <!-- <activity -->
+        <!-- android:name=".paginasRegisto.PaginaRegisto3" -->
+        <!-- android:label="PaginaRegisto3" -->
+        <!-- android:windowSoftInputMode="adjustResize" > -->
+
+
+        <!-- </activity> -->
+        <!-- <activity -->
+        <!-- android:name=".cameraAccess.CameraControl" -->
+        <!-- android:label="@string/CameraControl" -->
+        <!-- android:screenOrientation="portrait" > -->
+        <!-- </activity> -->
+        <!-- <activity -->
+        <!-- android:name=".FotosEnviadas" -->
+        <!-- android:label="FotosEnviadas" -->
+        <!-- android:windowSoftInputMode="adjustResize" > -->
+        <!-- </activity> -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:label="@string/app_name"
+            android:screenOrientation="portrait" >
+
+        </activity>
+        <activity
+            android:name=".ui.LoginActivity"
+            android:label="@string/title_activity_login"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

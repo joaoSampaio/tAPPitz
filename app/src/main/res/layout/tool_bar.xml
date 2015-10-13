@@ -6,6 +6,56 @@
     >
     <!--android:background="@color/material_deep_teal_500"-->
 
+    <!--<LinearLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:weightSum="3"-->
+        <!--android:layout_centerHorizontal="true"-->
+        <!--android:id="@+id/tabsLayout"-->
+        <!--android:visibility="visible">-->
+
+        <!--<Button-->
+            <!--style="@style/TopBarBtn"-->
+            <!--android:text="In"-->
+            <!--android:id="@+id/inBtn" />-->
+
+        <!--<Button-->
+            <!--style="@style/TopBarBtn"-->
+            <!--android:id="@+id/outBtn"-->
+            <!--android:text="Out" />-->
+
+        <!--<Button-->
+            <!--style="@style/TopBarBtn"-->
+            <!--android:text="Friends"-->
+            <!--android:id="@+id/friendsBtn"-->
+             <!--/>-->
+    <!--</LinearLayout>-->
+
+    <!--<LinearLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="2dp"-->
+        <!--android:weightSum="3"-->
+        <!--android:layout_alignParentBottom="true">-->
+
+        <!--<View-->
+            <!--style="@style/SelectBar"-->
+            <!--android:id="@+id/select_op_in" />-->
+        <!--<View-->
+            <!--style="@style/SelectBar"-->
+            <!--android:id="@+id/select_op_out" />-->
+        <!--<View-->
+            <!--style="@style/SelectBar"-->
+            <!--android:id="@+id/select_op_friends" />-->
+
+    <!--</LinearLayout>-->
+
+
+
+
+
+
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
@@ -15,40 +65,46 @@
         android:id="@+id/tabsLayout"
         android:visibility="visible">
 
-        <Button
-            style="@style/TopBarBtn"
-            android:text="In"
-            android:id="@+id/inBtn" />
+        <RelativeLayout
+            android:id="@+id/inBtn"
+            style="@style/TopBarBtn">
+            <TextView
+                style="@style/SelectBar"
+                android:text="@string/bar_in"
+                android:id="@+id/textViewIN"
+                 />
+        </RelativeLayout>
 
-        <Button
-            style="@style/TopBarBtn"
+        <RelativeLayout
             android:id="@+id/outBtn"
-            android:text="Out" />
+            style="@style/TopBarBtn">
+            <TextView
+                style="@style/SelectBar"
+                android:text="@string/bar_out"
+                android:id="@+id/textViewOut" />
+        </RelativeLayout>
 
-        <Button
-            style="@style/TopBarBtn"
-            android:text="Friends"
+        <RelativeLayout
             android:id="@+id/friendsBtn"
-             />
-    </LinearLayout>
+            style="@style/TopBarBtn">
+            <TextView
+                style="@style/SelectBar"
+                android:text="@string/bar_friends"
+                android:id="@+id/textViewFriends"/>
+        </RelativeLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:weightSum="3"
-        android:layout_alignParentBottom="true">
 
-        <View
-            style="@style/SelectBar"
-            android:id="@+id/select_op_in" />
-        <View
-            style="@style/SelectBar"
-            android:id="@+id/select_op_out" />
-        <View
-            style="@style/SelectBar"
-            android:id="@+id/select_op_friends" />
+
+
+
+
 
     </LinearLayout>
+
+
+
+
+
+
 
 </RelativeLayout>

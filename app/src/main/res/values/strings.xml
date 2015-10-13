@@ -13,23 +13,11 @@
     <!-- pagina de registo 2 -->
     <string name="lastName">Last Name</string>
     <string name="firstName">First Name</string>
+    <string name="date_hint">Date of birth</string>
 
     <string name="month_prompt">MMMM</string>
     <string name="CameraControl">CameraControl</string>
-    <string-array name="meses">
-        <item>January</item>
-        <item>February</item>
-        <item>March</item>
-        <item>April</item>
-        <item>May</item>
-        <item>June</item>
-        <item>July</item>
-        <item>August</item>
-        <item>September</item>
-        <item>October</item>
-        <item>November</item>
-        <item>December</item>
-    </string-array>
+
 
     <string-array name="paises">
         <item>Select your Country</item>
@@ -293,6 +281,17 @@
     <string name="flash">flash</string>
     <string name="load">Load</string>
     <string name="camera">Camera</string>
+    <string name="title_activity_login">LoginActivity</string>
+
+    <!--<string name="bar_in">IN\u00A0</string>-->
+    <!--<string name="bar_out">OUT\u00A0</string>-->
+    <!--<string name="bar_friends">FRIENDS\u00A0</string>-->
+    <string name="bar_in">IN</string>
+    <string name="bar_out">OUT</string>
+    <string name="bar_friends">FRIENDS</string>
+
+
+
 
 
 </resources>

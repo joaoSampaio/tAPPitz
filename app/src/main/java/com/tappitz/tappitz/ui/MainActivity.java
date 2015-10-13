@@ -1,4 +1,4 @@
-package com.tappitz.tappitz;
+package com.tappitz.tappitz.ui;
 
 
 import android.os.Bundle;
@@ -12,11 +12,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
+import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.R;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     final static int[] CLICABLES = {R.id.outBtn, R.id.inBtn, R.id.friendsBtn};
-    final static int[] TAB_SELECT = {R.id.select_op_in, R.id.select_op_out, R.id.select_op_friends};
+//    final static int[] TAB_SELECT = {R.id.select_op_in, R.id.select_op_out, R.id.select_op_friends};
+final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textViewFriends};
+
     private int[] measures;
     private ViewPager viewPager;
     private int currentTab = -1;
@@ -29,13 +34,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             findViewById(id).setOnClickListener(this);
         }
 
-        displayView(Global.LOGIN);
+        displayView(Global.HOME);
 
     }
 
     @Override
     public void onStart(){
         super.onStart();
+
+
+
+
 
     }
 
@@ -77,7 +86,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         Fragment fragment = null;
-        android.app.Fragment fragment2 = null;
         switch (position) {
 
             case Global.HOME:
@@ -92,31 +100,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case Global.FRIENDS:
                 fragment = new FriendsFragment();
                 break;
-            case Global.LOGIN:
-                findViewById(R.id.toolbar).setVisibility(View.GONE);
-                fragment2 = new LoginFragment();
-                break;
             default:
                 Toast.makeText(getApplicationContext(),"Somethings Wrong", Toast.LENGTH_SHORT).show();
                 break;
         }
 
-        if(fragment2 != null) {
-            android.app.FragmentManager fragmentManager2 = getFragmentManager();
-            fragmentManager2.beginTransaction()
-                    .replace(R.id.frame, fragment2, position + "").commit();
-
-        }
 
         if(fragment != null){
 
-            findViewById(R.id.toolbar).setVisibility(View.VISIBLE);
-
-
-            fragment2 = getFragmentManager().findFragmentByTag(""+Global.LOGIN);
-            if(fragment2 != null)
-                getFragmentManager().beginTransaction().remove(fragment2).commit();
-
+            //findViewById(R.id.toolbar).setVisibility(View.VISIBLE);
             currentTab = position;
             selectTab(position);
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -126,14 +118,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void displayTabs(){
-        findViewById(R.id.toolbar).setVisibility(View.VISIBLE);
+        findViewById(R.id.toolbar).bringToFront();
+
+
     }
 
     //recebe a posição da tab a selecionar e esconde as restantes
     private void selectTab(int position){
         for(int id : TAB_SELECT){
+            findViewById(id).setBackgroundResource((position < TAB_SELECT.length && id == TAB_SELECT[position]) ? R.drawable.rounded_corner : 0);
 
-            findViewById(id).setVisibility((position < TAB_SELECT.length && id == TAB_SELECT[position]) ? View.VISIBLE : View.INVISIBLE);
+
+
+//            findViewById(id).setVisibility((position < TAB_SELECT.length && id == TAB_SELECT[position]) ? View.VISIBLE : View.INVISIBLE);
         }
     }
 

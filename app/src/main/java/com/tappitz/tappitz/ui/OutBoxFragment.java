@@ -1,4 +1,4 @@
-package com.tappitz.tappitz;
+package com.tappitz.tappitz.ui;
 
 import android.app.ProgressDialog;
 import android.os.Bundle;
@@ -10,7 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tappitz.tappitz.communication.RestClient;
+import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.server.RestClient;
 import com.tappitz.tappitz.model.photo_tAPPitz;
 
 import java.util.ArrayList;

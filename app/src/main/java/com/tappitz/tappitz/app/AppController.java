@@ -1,7 +1,9 @@
 package com.tappitz.tappitz.app;
 
 import android.app.Application;
+import android.hardware.Camera;
 import android.text.TextUtils;
+import android.view.SurfaceHolder;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -15,6 +17,12 @@ public class AppController extends Application {
 
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
+
+    public Camera mCamera;
+    public SurfaceHolder surfaceHolder;
+    public int currentCameraId;
+    public int width;
+    public int height;
 
     private static AppController mInstance;
 

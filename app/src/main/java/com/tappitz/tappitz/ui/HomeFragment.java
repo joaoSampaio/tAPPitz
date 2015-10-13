@@ -1,4 +1,4 @@
-package com.tappitz.tappitz;
+package com.tappitz.tappitz.ui;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -17,22 +17,31 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.Display;
 import android.view.LayoutInflater;
-import android.view.Surface;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.util.BitmapWorkerTask;
+import com.tappitz.tappitz.util.ControlCameraTask;
 import com.tappitz.tappitz.util.UriPath;
 
 import java.io.File;
@@ -48,9 +57,9 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private final int ANIMATION_DURATION = 500;
     private final int MEDIA_TYPE_IMAGE = 1;
     private final int MEDIA_TYPE_VIDEO = 2;
-    private Camera camera;
+    //private Camera camera;
     private SurfaceView surfaceView;
-    private SurfaceHolder surfaceHolder;
+    //private SurfaceHolder surfaceHolder;
     private Button btn_shutter;
     private LinearLayout btn_layout;
     private LinearLayout camera_options;
@@ -58,10 +67,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private String photoPath;
     private ImageView temp_pic;
     private boolean isLighOn = false;
-    private int currentCameraId;
+    //private int currentCameraId;
     private int viewWidth, viewHeight;
     private View textMsgWrapper;
     private boolean requestedFile = false;
+    RelativeLayout whiteBackground;
+    private EditText textMsg;
 
     final static int[] CLICABLES = {R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
 
@@ -86,15 +97,40 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         camera_options = (LinearLayout) rootView.findViewById(R.id.camera_options);
         photoPath = "";
         temp_pic = (ImageView) rootView.findViewById(R.id.temp_pic);
-        currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-        textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
 
-        textMsgWrapper.setVisibility(View.INVISIBLE);
-        btn_layout.setVisibility(View.INVISIBLE);
-        temp_pic.setVisibility(View.VISIBLE);
-        btn_shutter.setVisibility(View.VISIBLE);
-        surfaceView.setVisibility(View.VISIBLE);
-        camera_options.setVisibility(View.VISIBLE);
+        //AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+
+        textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
+        whiteBackground = (RelativeLayout)rootView.findViewById(R.id.whiteBackground);
+        textMsg = (EditText)rootView.findViewById(R.id.textMsg);
+
+
+
+
+        whiteBackground.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+
+                    case MotionEvent.ACTION_DOWN:
+                    case MotionEvent.ACTION_POINTER_DOWN:
+
+                        //=====Write down your Finger Pressed code here
+                        whiteBackground.setVisibility(View.INVISIBLE);
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_POINTER_UP:
+                        whiteBackground.setVisibility(View.VISIBLE);
+                        //=====Write down you code Finger Released code here
+
+                        return true;
+                }
+
+                return false;
+            }
+        });
+
 
         View v = rootView.findViewById(R.id.container);
         v.measure(View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
@@ -113,9 +149,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
         try
         {
-            surfaceHolder = surfaceView.getHolder();
-            surfaceHolder.addCallback(this);
-            surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            AppController.getInstance().surfaceHolder = surfaceView.getHolder();
+            //surfaceHolder = surfaceView.getHolder();
+            //surfaceHolder.addCallback(this);
+            //surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
 
         }
@@ -132,6 +169,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         super.onResume();
         Log.d("myapp", "onResume");
         setUP();
+
     }
 
 
@@ -141,20 +179,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         super.onStop();
         recycleImagesFromView(temp_pic);
 
-        try
-        {
-            if(null != camera)
-            {
-                camera.stopPreview();
-                camera.release();
-                camera = null;
-            }
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
+    }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        stop_camera();
 
     }
 
@@ -170,15 +200,14 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 animation.setRepeatCount(Animation.INFINITE);
                 animation.setRepeatMode(Animation.REVERSE);
                 surfaceView.startAnimation(animation);
-
-
-                camera.takePicture(null, null, mPicture);
+                AppController.getInstance().mCamera.takePicture(null, null, mPicture);
 
                 onTakePick(true);
                 break;
 
             case R.id.btnPhotoDelete:
 
+                textMsgWrapper.setVisibility(View.INVISIBLE);
                 deletePrevious();
                 recycleImagesFromView(temp_pic);
                 //camera.startPreview();
@@ -186,8 +215,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 onTakePick(false);
                 break;
             case R.id.btnText:
-                //textMsgWrapper.setVisibility(textMsgWrapper.isShown()? View.GONE: View.VISIBLE);
                 showEditText();
+
                 break;
             case R.id.btnPhotoAccept:
 
@@ -197,84 +226,81 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             case R.id.btn_load:
 
                 stop_camera();
-//                if (Build.VERSION.SDK_INT <19){
-//                    Intent intent = new Intent();
-//                    intent.setType("image/*");
-//                    intent.setAction(Intent.ACTION_GET_CONTENT);
-//                    startActivityForResult(Intent.createChooser(intent, "Seleccionar ficheiro"),Global.BROWSE_REQUEST);
-//                } else {
-//                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-//                    intent.addCategory(Intent.CATEGORY_OPENABLE);
-//                    intent.setType("image/*");
-//                    startActivityForResult(intent, Global.BROWSE_REQUEST_KITKAT);
-//                }
-
                 Intent intent = new Intent();
                 intent.setType("image/*");
-                //intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Seleccionar ficheiro"), Global.BROWSE_REQUEST);
 
-
-
-
                 break;
             case R.id.btn_flash:
-                Camera.Parameters params = camera.getParameters();
+                Camera.Parameters params = AppController.getInstance().mCamera.getParameters();
                 Button b = (Button)rootView.findViewById(R.id.btn_flash);
 
                 if (isLighOn) {
-
-                    Log.i("info", "torch is turn off!");
-
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-                    camera.setParameters(params);
-                    camera.startPreview();
+                    AppController.getInstance().mCamera.setParameters(params);
+                    AppController.getInstance().mCamera.startPreview();
+                    previewing = true;
                     isLighOn = false;
-                    b.setTextColor(Color.BLACK);
+                    b.setTextColor(Color.WHITE);
                 } else {
-
-                    Log.i("info", "torch is turn on!");
-
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
-
-                    camera.setParameters(params);
-                    camera.startPreview();
+                    AppController.getInstance().mCamera.setParameters(params);
+                    AppController.getInstance().mCamera.startPreview();
                     isLighOn = true;
+                    previewing = true;
                     b.setTextColor(Color.YELLOW);
-
                 }
                 break;
             case R.id.btn_toggle_camera:
-                if (previewing) {
-                    camera.stopPreview();
-                }
-//NB: if you don't release the current camera before switching, you app will crash
-                camera.release();
-
-//swap the id of the camera to be used
-                if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
-                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                Log.d("myapp", "/////////btn_toggle_camera:" );
+                if(AppController.getInstance().currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
                 }
                 else {
-                    currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+                    AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                 }
+                Log.d("myapp", "///////// btn_toggle_camera end:");
 
-                start_camera();
+                stop_camera(new ControlCameraTask.CallbackCamera() {
+                    @Override
+                    public void onDone() {
+                        start_camera();
+                    }
+                });
                 break;
-
-
         }
     }
 
     private void setUP(){
+        Log.d("MyCameraApp", "setUP ");
+        Log.d("MyCameraApp", "requestedFile " + requestedFile);
+        textMsgWrapper.setVisibility(View.INVISIBLE);
+        btn_layout.setVisibility(View.INVISIBLE);
+        temp_pic.setVisibility(View.VISIBLE);
+//        btn_shutter.setVisibility(View.VISIBLE);
+        surfaceView.setVisibility(View.VISIBLE);
+//        camera_options.setVisibility(View.VISIBLE);
+        whiteBackground.setVisibility(View.GONE);
 
+
+        if(!requestedFile) {
+            start_camera();
+
+        }
 
         ((MainActivity)getActivity()).displayTabs();
-        if(!requestedFile) {
-            Log.d("myapp", "**setUP*start_camera:");
-            start_camera();
-        }
+
+
+        camera_options.setVisibility(View.GONE);
+        btn_shutter.setVisibility(View.GONE);
+        Display d = ((WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int width = d.getWidth();
+        int height = d.getHeight();
+        AppController.getInstance().width = width;
+        AppController.getInstance().height = height;
+        Log.d("MyCameraApp", "setUP width: " + width + " height: " + height);
+//setUP width: 720 height: 1184
     }
 
 
@@ -297,7 +323,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
             //stop_camera();
             requestedFile = true;
-            loadBitmapFile(temp_pic, filePath, viewWidth, viewHeight);
+            loadBitmapFile(temp_pic, filePath, AppController.getInstance().width, AppController.getInstance().height);
             onTakePick(true);
         }else{
             start_camera();
@@ -334,87 +360,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
     {
-        try
-        {
-            if (previewing)
-            {
-                camera.stopPreview();
-            }
-
-            if(null != camera)
-            {
-
-                setCameraDisplayOrientation(getActivity(), currentCameraId, camera);
-                Camera.Parameters params = camera.getParameters();
-                if (params.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-                    params.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                } else {
-                    //Choose another supported mode
-                }
-                camera.setParameters(params);
-                camera.startPreview();
-                previewCamera();
-            }
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
-
-    public static void setCameraDisplayOrientation(Activity activity,
-                                                   int cameraId, android.hardware.Camera camera) {
-        android.hardware.Camera.CameraInfo info =
-                new android.hardware.Camera.CameraInfo();
-        android.hardware.Camera.getCameraInfo(cameraId, info);
-        int rotation = activity.getWindowManager().getDefaultDisplay()
-                .getRotation();
-        int degrees = 0;
-        switch (rotation) {
-            case Surface.ROTATION_0: degrees = 0; break;
-            case Surface.ROTATION_90: degrees = 90; break;
-            case Surface.ROTATION_180: degrees = 180; break;
-            case Surface.ROTATION_270: degrees = 270; break;
-        }
-
-        int result;
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360;
-            result = (360 - result) % 360;  // compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360;
-        }
-        camera.setDisplayOrientation(result);
-
-        Camera.Parameters parameters = camera.getParameters();
-
-        parameters.setRotation(degrees);
-        parameters.set("orientation", "portrait");
-        degrees = 90;
-        if(cameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
-            degrees = 270;
-        parameters.set("rotation", degrees);
-        camera.setParameters(parameters);
-    }
-
-    public void previewCamera()
-    {
-        try
-        {
-            camera.setPreviewDisplay(surfaceHolder);
-            camera.startPreview();
-            previewing = true;
-        }
-        catch(Exception e)
-        {
-            e.printStackTrace();
-        }
-    }
-
 
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback()
@@ -444,52 +394,59 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     public void deletePrevious(){
         //apaga a foto tirada ou recomeça a camera caso fosse foto da galeria
-        surfaceView.setVisibility(View.GONE);
         if(!photoPath.equals("")) {
             File file = new File(photoPath);
             file.delete();
             photoPath = "";
+            new ControlCameraTask().execute(true);
         }else{
-            start_camera();
+            new ControlCameraTask().execute(true);
+
         }
+    }
+
+    private void stop_camera(ControlCameraTask.CallbackCamera callback){
+        previewing = false;
+        ControlCameraTask c = new ControlCameraTask();
+        c.setCallback(callback);
+        c.execute(false);
     }
 
     private void stop_camera()
     {
-        if(!isCameraUsebyApp())
-            return;
-        camera.stopPreview();
-        camera.release();
+        previewing = false;
+        new ControlCameraTask().execute(false);
     }
 
-    public boolean isCameraUsebyApp() {
-        Camera camera = null;
-        try {
-            camera = Camera.open();
-        } catch (RuntimeException e) {
-            return true;
-        } finally {
-            if (camera != null) camera.release();
-        }
-        return false;
+
+    private void waitForCamera(){
+        btn_shutter.setVisibility(View.GONE);
+        camera_options.setVisibility(View.GONE);
     }
 
+    private void onCameraAvailable(){
+        Long pastTime = System.currentTimeMillis() - currentTime;
+        Log.d("MyCameraApp", "onCameraAvailable: " + pastTime);
+        Toast.makeText(getContext(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
+        previewing = true;
+        btn_shutter.setVisibility(View.VISIBLE);
+        camera_options.setVisibility(View.VISIBLE);
+    }
+
+    Long currentTime;
     private void start_camera()
     {
-        if(isCameraUsebyApp())
-            return;
-        camera = Camera.open(currentCameraId);
-        setCameraDisplayOrientation(getActivity(), currentCameraId, camera);
-//        try {
-//
-//            camera.setPreviewDisplay(surfaceHolder);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        camera.startPreview();
-        previewCamera();
-
-
+        currentTime = System.currentTimeMillis();
+        Log.d("MyCameraApp", "start_camera");
+        waitForCamera();
+        ControlCameraTask c = new ControlCameraTask();
+        c.setCallback(new ControlCameraTask.CallbackCamera() {
+            @Override
+            public void onDone() {
+                onCameraAvailable();
+            }
+        });
+        c.execute(true);
     }
 
     @SuppressLint("SimpleDateFormat") private File getOutputMediaFile(int type)
@@ -587,6 +544,20 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         final boolean isVisible = textMsgWrapper.isShown();
         int show = isVisible? 0 : -1;
         int hide = isVisible? -1 : 0;
+
+        rootView.findViewById( R.id.btnText).setEnabled(false);
+
+
+        if(!isVisible){
+            textMsg.requestFocus();
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
+        }else {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+        }
+
+
         final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_SELF, 0,
                 Animation.RELATIVE_TO_PARENT, show,
@@ -597,8 +568,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         anim_show.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                if(!isVisible)
+                if(!isVisible) {
                     textMsgWrapper.setVisibility(View.VISIBLE);
+
+                }
                 Log.d("myapp", "onAnimationStart");
 
             }
@@ -610,9 +583,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                if(isVisible)
+                if(isVisible) {
                     textMsgWrapper.setVisibility(View.INVISIBLE);
+                }
                 textMsgWrapper.setAnimation(null);
+                rootView.findViewById( R.id.btnText).setEnabled(true);
                 Log.d("myapp", "onAnimationEnd");
             }
         });
@@ -624,6 +599,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         //este metodo esconde o menu da camera ou mostra o botao para tirar foto, simplesmente tem animações porque era codigo que ja tinha feito para outra app
         if(!isFirst){
             temp_pic.setVisibility(View.GONE);
+            //start_camera();
             surfaceView.setVisibility(View.VISIBLE);
         }
 
@@ -654,8 +630,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
                 view1.setVisibility(View.GONE);
                 view1.setAnimation(null);
-                if (isFirst)
+                if (isFirst) {
                     camera_options.setVisibility(View.GONE);
+                    whiteBackground.setVisibility(View.VISIBLE);
+                }
                 final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                         Animation.RELATIVE_TO_SELF, 0,
                         Animation.RELATIVE_TO_PARENT, 1,
@@ -667,8 +645,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     @Override
                     public void onAnimationStart(Animation animation) {
                         view2.setVisibility(View.VISIBLE);
-                        if (!isFirst)
+                        if (!isFirst) {
                             camera_options.setVisibility(View.VISIBLE);
+                            whiteBackground.setVisibility(View.GONE);
+                        }
                     }
 
                     @Override
