@@ -24,9 +24,9 @@ import com.google.gson.JsonElement;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.model.UserRegister;
-import com.tappitz.tappitz.server.CallbackFromService;
-import com.tappitz.tappitz.server.commands.LoginService;
-import com.tappitz.tappitz.server.commands.RegisterService;
+import com.tappitz.tappitz.rest.service.CallbackFromService;
+import com.tappitz.tappitz.rest.service.LoginService;
+import com.tappitz.tappitz.rest.service.RegisterService;
 import com.tappitz.tappitz.validators.EmailValidator;
 import com.tappitz.tappitz.validators.NameValidator;
 import com.tappitz.tappitz.validators.PasswordValidator;
@@ -43,7 +43,7 @@ import retrofit.RetrofitError;
 public class LoginActivity extends Activity  implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
 
 
-    private final static int[] CLICKABLES = {R.id.btn_login, R.id.link_signup, R.id.backToPrevious, R.id.nextTo, R.id.offline};
+    private final static int[] CLICKABLES = {R.id.btn_login, R.id.link_signup, R.id.backToPrevious, R.id.nextTo, R.id.offline, R.id.offlineTabs};
     private final static int[] SCREENS = {R.id.screen_login, R.id.screen_reg1, R.id.screen_reg2, R.id.bottom_actions};
     private int curScreen, day, month, year;
     AppCompatEditText UsrEmail, UsrPassword, date_picker, firstname, lastname, registerEmail, registerPassword, registerPhoneNumber;
@@ -144,10 +144,19 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
             case R.id.offline:
                 onSuccessLogin();
                 break;
+            case R.id.offlineTabs:
+                Intent intent = new Intent(this, ScreenSlidePagerActivity.class);
+                startActivityForResult(intent, 0);
+                finish();
+                break;
             case R.id.link_signup:
                 Log.d("myapp", "****registerBtn**" + curScreen);
                 screens.add(R.id.screen_login);
                 showScreen(R.id.screen_reg1);
+
+
+                registerEmail.setText(UsrEmail.getText().toString());
+                registerPassword.setText(UsrPassword.getText().toString());
 
                 break;
             case R.id.backToPrevious:
@@ -320,6 +329,7 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
         //abre o fragmento HOME
         Intent intent = new Intent(this, MainActivity.class);
         startActivityForResult(intent, 0);
+        finish();
     }
 
     private boolean validateScreen(int screenId){

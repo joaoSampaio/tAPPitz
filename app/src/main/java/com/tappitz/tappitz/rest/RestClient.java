@@ -1,5 +1,7 @@
-package com.tappitz.tappitz.server;
+package com.tappitz.tappitz.rest;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
 import com.tappitz.tappitz.Global;
 
@@ -9,6 +11,7 @@ import java.net.CookiePolicy;
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
 import retrofit.client.OkClient;
+import retrofit.converter.GsonConverter;
 
 /**
  * Created by sampaio on 26-03-2015.
@@ -45,11 +48,16 @@ public class RestClient {
             client.setCookieHandler(cookieManager); //finally set the cookie handler on client
             OkClient serviceClient = new OkClient(client);
 
+            Gson gson = new GsonBuilder()
+                    //.registerTypeAdapterFactory(new ItemTypeAdapterFactory()) // This is the important line ;)
+                    .setDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSS'Z'")
+                    .create();
 
             RestClient.api = new RestAdapter.Builder()
                     .setEndpoint(Global.ENDPOINT)
                     .setRequestInterceptor(COOKIES_REQUEST_INTERCEPTOR)
                     .setLogLevel(RestAdapter.LogLevel.HEADERS)
+                    .setConverter(new GsonConverter(gson))
                     .setClient(serviceClient)
                     .build()
                     .create(Api.class);

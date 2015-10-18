@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.server;
+package com.tappitz.tappitz.rest.service;
 
 /**
  * Created by sampaio on 08-10-2015.

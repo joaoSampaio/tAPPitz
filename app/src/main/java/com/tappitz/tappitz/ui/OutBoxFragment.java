@@ -12,7 +12,7 @@ import android.view.ViewGroup;
 
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.server.RestClient;
+import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.model.photo_tAPPitz;
 
 import java.util.ArrayList;

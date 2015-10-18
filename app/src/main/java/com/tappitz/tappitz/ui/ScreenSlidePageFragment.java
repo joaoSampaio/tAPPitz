@@ -17,7 +17,7 @@ import com.squareup.picasso.Callback;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
-import com.tappitz.tappitz.server.RestClient;
+import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.model.Comment;
 
 import java.util.ArrayList;

@@ -86,6 +86,13 @@
             android:id="@+id/offline" />
 
 
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Offline Tabs"
+            android:id="@+id/offlineTabs" />
+
+
     </LinearLayout>
 
     <LinearLayout
@@ -209,8 +216,8 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Country:"
-            android:layout_marginTop="20dp"
+            android:text="Your Location:"
+            android:layout_marginTop="10dp"
             android:id="@+id/textView" />
 
         <android.support.v7.widget.AppCompatSpinner

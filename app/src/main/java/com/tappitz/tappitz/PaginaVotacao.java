@@ -2,7 +2,6 @@ package com.tappitz.tappitz;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -68,101 +67,101 @@ public class PaginaVotacao extends Activity {
     protected void onStart() {
         super.onStart();
 
-        corPressionada.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return true;
-            }
-        });
-
-    //5) define accoes para os tres botoes das cores. Faz-se a magia
-
-        verde.setOnLongClickListener(longClickListener);
-
-        verde.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch (event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        longPress = false;
-
-                        corPressionada.setBackgroundColor(getResources().getColor(R.color.green));
-                        corPressionada.bringToFront();
-                        return false; // if you want to handle the touch event (o que e' que isto quer dizer?)
-
-                    case MotionEvent.ACTION_UP:
-                        if (longPress)
-                            return true;
-
-                        //Colocar aqui o envio da pontuacao e encaminhar para ou: 1) paginaMensagens / 2) fora da App
-
-                        Intent intent = new Intent(v.getContext(), HomePage.class);
-                        startActivityForResult(intent, 0);
-
-                        return true; // if you want to handle the touch event (o que e' que isto quer dizer?)
-
-                }
-                return false;
-            }
-        });
-
-
-        amarelo.setOnLongClickListener(longClickListener);
-
-        amarelo.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                switch(event.getAction()) {
-                    case MotionEvent.ACTION_DOWN:
-                        longPress = false;
-
-                        corPressionada.setBackgroundColor(getResources().getColor(R.color.yellow));
-                        corPressionada.bringToFront();
-                        return false; // if you want to handle the touch event (o que e' que isto quer dizer?)
-
-                    case MotionEvent.ACTION_UP:
-                        if (longPress)
-                            return true;
-                        //Colocar aqui o envio da pontuacao e encaminhar para ou: 1) paginaMensagens / 2) fora da App
-
-                        Intent intent = new Intent(v.getContext(), HomePage.class);
-                        startActivityForResult(intent, 0);
-
-                        return true; // if you want to handle the touch event (o que e' que isto quer dizer?)
-
-                }
-                return false;
-
-            }
-        });
-
-        vermelho.setOnLongClickListener(longClickListener);
-
-        vermelho.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                    switch(event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            longPress = false;
-
-                            corPressionada.setBackgroundColor(getResources().getColor(R.color.red));
-                            corPressionada.bringToFront();
-                            return false; // if you want to handle the touch event (o que e' que isto quer dizer?)
-
-                        case MotionEvent.ACTION_UP:
-                            if (longPress)
-                                return true;
-                            //Colocar aqui o envio da pontuacao e encaminhar para ou: 1) paginaMensagens / 2) fora da App
-
-                            Intent intent = new Intent(v.getContext(), HomePage.class);
-                            startActivityForResult(intent, 0);
-
-                            return true; // if you want to handle the touch event (o que e' que isto quer dizer?)
-
-                    }
-                    return false;
-            }
-        });
+//        corPressionada.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return true;
+//            }
+//        });
+//
+//    //5) define accoes para os tres botoes das cores. Faz-se a magia
+//
+//        verde.setOnLongClickListener(longClickListener);
+//
+//        verde.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch (event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        longPress = false;
+//
+//                        corPressionada.setBackgroundColor(getResources().getColor(R.color.green));
+//                        corPressionada.bringToFront();
+//                        return false; // if you want to handle the touch event (o que e' que isto quer dizer?)
+//
+//                    case MotionEvent.ACTION_UP:
+//                        if (longPress)
+//                            return true;
+//
+//                        //Colocar aqui o envio da pontuacao e encaminhar para ou: 1) paginaMensagens / 2) fora da App
+//
+//                        Intent intent = new Intent(v.getContext(), HomePage.class);
+//                        startActivityForResult(intent, 0);
+//
+//                        return true; // if you want to handle the touch event (o que e' que isto quer dizer?)
+//
+//                }
+//                return false;
+//            }
+//        });
+//
+//
+//        amarelo.setOnLongClickListener(longClickListener);
+//
+//        amarelo.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                switch(event.getAction()) {
+//                    case MotionEvent.ACTION_DOWN:
+//                        longPress = false;
+//
+//                        corPressionada.setBackgroundColor(getResources().getColor(R.color.yellow));
+//                        corPressionada.bringToFront();
+//                        return false; // if you want to handle the touch event (o que e' que isto quer dizer?)
+//
+//                    case MotionEvent.ACTION_UP:
+//                        if (longPress)
+//                            return true;
+//                        //Colocar aqui o envio da pontuacao e encaminhar para ou: 1) paginaMensagens / 2) fora da App
+//
+//                        Intent intent = new Intent(v.getContext(), HomePage.class);
+//                        startActivityForResult(intent, 0);
+//
+//                        return true; // if you want to handle the touch event (o que e' que isto quer dizer?)
+//
+//                }
+//                return false;
+//
+//            }
+//        });
+//
+//        vermelho.setOnLongClickListener(longClickListener);
+//
+//        vermelho.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                    switch(event.getAction()) {
+//                        case MotionEvent.ACTION_DOWN:
+//                            longPress = false;
+//
+//                            corPressionada.setBackgroundColor(getResources().getColor(R.color.red));
+//                            corPressionada.bringToFront();
+//                            return false; // if you want to handle the touch event (o que e' que isto quer dizer?)
+//
+//                        case MotionEvent.ACTION_UP:
+//                            if (longPress)
+//                                return true;
+//                            //Colocar aqui o envio da pontuacao e encaminhar para ou: 1) paginaMensagens / 2) fora da App
+//
+//                            Intent intent = new Intent(v.getContext(), HomePage.class);
+//                            startActivityForResult(intent, 0);
+//
+//                            return true; // if you want to handle the touch event (o que e' que isto quer dizer?)
+//
+//                    }
+//                    return false;
+//            }
+//        });
 
 
 

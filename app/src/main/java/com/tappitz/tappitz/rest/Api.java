@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.server;
+package com.tappitz.tappitz.rest;
 
 import com.google.gson.JsonElement;
 import com.tappitz.tappitz.model.Comment;
@@ -7,6 +7,8 @@ import com.tappitz.tappitz.model.RequestId;
 import com.tappitz.tappitz.model.UserLogin;
 import com.tappitz.tappitz.model.UserRegister;
 import com.tappitz.tappitz.model.photo_tAPPitz;
+import com.tappitz.tappitz.rest.model.AnswerContactRequest;
+import com.tappitz.tappitz.rest.model.ContactSendId;
 
 import java.util.List;
 
@@ -47,6 +49,50 @@ public interface Api {
 
     @POST("/picture/comments")
     void requestPictureVotes(@Body RequestId request, Callback<JsonElement> response);
+
+
+
+    /*Contactos*/
+//    @GET("/contacts")
+    @GET("/listMyContacts.json")
+    void listMyContacts( Callback<JsonElement> callback);
+
+    /*Contactos - Procura*/
+    //@POST("/contacts")
+    //void searchContact(@Body ContactSendId search, Callback<JsonElement> callback);
+    @GET("/searchContact.json")
+    void searchContact(Callback<JsonElement> callback);
+
+
+    /*Contactos - Convidar*/
+    @POST("/contacts/invite")
+    void inviteContact(@Body ContactSendId id, Callback<JsonElement> callback);
+
+    /*Contactos - Convidar*/
+    @POST("/contacts/invite/undo")
+    void undoInviteContact(@Body ContactSendId id, Callback<JsonElement> callback);
+
+
+    /*Contactos - bloquear*/
+    @POST("/contacts/block")
+    void blockContact(@Body ContactSendId id, Callback<JsonElement> callback);
+
+    /*Contactos - apagar*/
+    @POST("/contacts/delete")
+    void deleteContact(@Body ContactSendId id, Callback<JsonElement> callback);
+
+
+
+    /*Contactos - Pedidos de contacto*/
+//    @GET("/contacts/requests")
+    @GET("/contactRequests.json")
+    void listContactRequests( Callback<JsonElement> callback);
+
+
+    /*Contacto - aceitar*/
+    @POST("/contacts/request")
+    void answerContactRequest(@Body AnswerContactRequest answer, Callback<JsonElement> callback);
+
 
 
     @GET("/56wu6")

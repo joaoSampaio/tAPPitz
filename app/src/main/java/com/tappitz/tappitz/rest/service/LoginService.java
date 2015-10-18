@@ -1,31 +1,31 @@
-package com.tappitz.tappitz.server.commands;
+package com.tappitz.tappitz.rest.service;
 
 
 import android.util.Log;
 
 import com.google.gson.JsonElement;
-import com.tappitz.tappitz.model.UserRegister;
-import com.tappitz.tappitz.server.CallbackFromService;
-import com.tappitz.tappitz.server.RestClient;
-import com.tappitz.tappitz.server.ServerCommunicationService;
+import com.tappitz.tappitz.model.UserLogin;
+import com.tappitz.tappitz.rest.RestClient;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class RegisterService implements ServerCommunicationService {
+public class LoginService implements ServerCommunicationService {
 
     private CallbackFromService callback;
-    private UserRegister user;
-    public RegisterService(UserRegister user, CallbackFromService callback){
-        this.user = user;
+    private String email, password;
+    public LoginService(String email, String password, CallbackFromService callback){
+        this.password = password;
+        this.email = email;
         this.callback = callback;
     }
 
     @Override
     public void execute() {
 
-        RestClient.getService().register(user, new Callback<JsonElement>() {
+        UserLogin login = new UserLogin(email, password);
+        RestClient.getService().login(login, new Callback<JsonElement>() {
             @Override
             public void success(JsonElement jsonElement, Response response) {
                 callback.success(jsonElement);

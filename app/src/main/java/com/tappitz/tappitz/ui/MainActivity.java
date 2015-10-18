@@ -1,7 +1,13 @@
 package com.tappitz.tappitz.ui;
 
 
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.ValueAnimator;
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
@@ -10,10 +16,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+
+import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -22,9 +32,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //    final static int[] TAB_SELECT = {R.id.select_op_in, R.id.select_op_out, R.id.select_op_friends};
 final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textViewFriends};
 
+    private RelativeLayout toolbar;
     private int[] measures;
     private ViewPager viewPager;
     private int currentTab = -1;
+    private AnimatorSet set;
+    private View loading;
+    private boolean isLoading;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,20 +47,130 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
         for(int id: CLICABLES){
             findViewById(id).setOnClickListener(this);
         }
+        toolbar = (RelativeLayout)findViewById(R.id.toolbar);
+        loading = findViewById(R.id.loading);
+        showLoadingScreen();
 
-        displayView(Global.HOME);
+
+        Intent intent = getIntent();
+        String action = null;
+        Log.d("myapp", "****onCreate " + intent.hasExtra("action"));
+        if(intent.getExtras() != null){
+            Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
+
+        }
+
+        if(intent.hasExtra("action"))
+            action = intent.getExtras().getString("action");
+        if(action != null){
+            Log.d("myapp", "****action: " + action);
+            switch (action){
+
+                case Global.NOTIFICATION_ACTION_INVITE:
+                    displayView(Global.FRIENDS);
+                    break;
+                case Global.NOTIFICATION_ACTION_NEW_PHOTO:
+                    displayView(Global.INBOX);
+                    break;
+            }
+
+        }else{
+            displayView(Global.HOME);
+        }
+
+
+        new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] params) {
+                GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+
+                String deviceToken = null;
+                try {
+                    deviceToken = gcm.register(Global.PROJECT_ID);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                Log.i("GCM", "Device token : " + deviceToken);
+                return null;
+            }
+
+        }.execute();
 
     }
 
     @Override
     public void onStart(){
         super.onStart();
+        showLoadingScreen();
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String action = null;
+        Log.d("myapp", "****onNewIntent " + intent.hasExtra("action"));
+        if(intent.getExtras() != null){
+            Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
 
+        }
 
+        if(intent.hasExtra("action"))
+            action = intent.getExtras().getString("action");
+        if(action != null){
+            Log.d("myapp", "****action: " + action);
+            switch (action){
+
+                case Global.NOTIFICATION_ACTION_INVITE:
+                    displayView(Global.FRIENDS);
+                    break;
+                case Global.NOTIFICATION_ACTION_NEW_PHOTO:
+                    displayView(Global.INBOX);
+                    break;
+            }
+
+        }
 
 
     }
+
+    private void showLoadingScreen(){
+
+        this.isLoading = true;
+        loading.setVisibility(View.VISIBLE);
+        loading.bringToFront();
+        View iconR = findViewById(R.id.iconR);
+        View iconY = findViewById(R.id.iconY);
+        View iconG = findViewById(R.id.iconG);
+        set = new AnimatorSet();
+
+        set.play(getIntroBallAnim(iconR, 0));
+        set.play(getIntroBallAnim(iconY, 500));
+        set.play(getIntroBallAnim(iconG, 1000));
+        set.start();
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                set.cancel();
+
+                loading.setVisibility(View.GONE);
+                isLoading = false;
+                displayTabs(true);
+            }
+        }, 5000);
+
+
+    }
+
+    private ObjectAnimator getIntroBallAnim(View v, int delay){
+        ObjectAnimator animator1 = ObjectAnimator.ofFloat(v, "translationY", -200f);
+        animator1.setRepeatCount(3);
+        animator1.setRepeatMode(ValueAnimator.REVERSE);
+        animator1.setDuration(1000);
+        animator1.setStartDelay(delay);
+        return animator1;
+    }
+
 
 
 
@@ -117,9 +241,13 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
         }
     }
 
-    public void displayTabs(){
-        findViewById(R.id.toolbar).bringToFront();
-
+    public void displayTabs(boolean show){
+        if(!isLoading) {
+            toolbar.setVisibility(show ? View.VISIBLE : View.GONE);
+            if (show) {
+                toolbar.bringToFront();
+            }
+        }
 
     }
 
@@ -150,6 +278,15 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
     }
 
 
+    @Override
+    public void onBackPressed() {
+        if(currentTab != Global.HOME)
+            displayView(Global.HOME);
+        else{
+            finish();
+        }
+
+    }
 
 
 }

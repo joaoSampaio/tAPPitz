@@ -289,9 +289,7 @@
     <string name="bar_in">IN</string>
     <string name="bar_out">OUT</string>
     <string name="bar_friends">FRIENDS</string>
-
-
-
+    <string name="no_contacts">No matches found in your contact list. \nTo add a new contact type the full email and search.</string>
 
 
 </resources>

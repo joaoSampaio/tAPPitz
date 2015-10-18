@@ -30,6 +30,8 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+//        Parse.initialize(this, "klnK5rk22iyv7pVQsNxBKV8x7cjwzCYZLlasKtgJ", "VJKKqDmJeXeJqCO8nAmfkquzaGyRo8QVa0n3EVSc");
+//        ParseInstallation.getCurrentInstallation().saveInBackground();
     }
 
     public static synchronized AppController getInstance() {

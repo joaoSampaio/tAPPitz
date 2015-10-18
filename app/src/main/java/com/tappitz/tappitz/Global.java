@@ -6,8 +6,18 @@ package com.tappitz.tappitz;
 public class Global {
 
     //https://api.myjson.com/bins/56wu6
+    public static final String ENDPOINT = "https://dl.dropboxusercontent.com/u/68830630/tAppitz";
     //public static final String ENDPOINT = "https://api.myjson.com/bins";
-    public static final String ENDPOINT = "http://176.111.104.39:8182";
+//    public static final String ENDPOINT = "http://176.111.104.39:8182";
+
+    // Google project id
+    public static final String PROJECT_ID = "324070600220";
+
+
+    public static final String NOTIFICATION_ACTION_INVITE = "invite";
+    public static final String NOTIFICATION_ACTION_NEW_PHOTO = "photo";
+
+
     public static String sessionKey;
     public final static int HOME = 3;
     public final static int INBOX = 0;

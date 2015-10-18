@@ -25,9 +25,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
-import android.view.animation.LinearInterpolator;
 import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -110,6 +108,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         whiteBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
                     case MotionEvent.ACTION_DOWN:
@@ -117,13 +116,18 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
                         //=====Write down your Finger Pressed code here
                         whiteBackground.setVisibility(View.INVISIBLE);
+                        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+
+
                         return true;
 
                     case MotionEvent.ACTION_UP:
                     case MotionEvent.ACTION_POINTER_UP:
                         whiteBackground.setVisibility(View.VISIBLE);
                         //=====Write down you code Finger Released code here
-
+                        if(textMsgWrapper.isShown()){
+                            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
+                        }
                         return true;
                 }
 
@@ -193,13 +197,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         switch (v.getId()){
             case R.id.btn_shutter:
 
-                //animação do flash, é terminada qd a foto for tirada
-                Animation animation = new AlphaAnimation(1, 0);
-                animation.setDuration(50);
-                animation.setInterpolator(new LinearInterpolator());
-                animation.setRepeatCount(Animation.INFINITE);
-                animation.setRepeatMode(Animation.REVERSE);
-                surfaceView.startAnimation(animation);
                 AppController.getInstance().mCamera.takePicture(null, null, mPicture);
 
                 onTakePick(true);
@@ -213,6 +210,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 //camera.startPreview();
                 //onRetakePic();
                 onTakePick(false);
+                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+                textMsg.setText("");
+
                 break;
             case R.id.btnText:
                 showEditText();
@@ -289,7 +290,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
         }
 
-        ((MainActivity)getActivity()).displayTabs();
+        if(getActivity() instanceof MainActivity)
+            ((MainActivity)getActivity()).displayTabs(true);
 
 
         camera_options.setVisibility(View.GONE);
@@ -315,13 +317,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             Log.d("myapp", "/////////selectedImageUri.toString():" + selectedImageUri.toString());
            // String filePath = selectedImageUri.getPath();
             Log.d("myapp", "/////////filePath before:" + filePath);
-//            if(!filePath.contains(".")){
-//                filePath = getRealPathFromUri(getActivity(), selectedImageUri);
-//
-//            }
-//            Log.d("myapp", "/////////filePath:" + filePath);
 
-            //stop_camera();
             requestedFile = true;
             loadBitmapFile(temp_pic, filePath, AppController.getInstance().width, AppController.getInstance().height);
             onTakePick(true);
@@ -372,7 +368,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             //decode the data obtained by the camera into a Bitmap
-            surfaceView.clearAnimation();
             FileOutputStream outStream = null;
             try {
                 File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
@@ -393,16 +388,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     };
 
     public void deletePrevious(){
-        //apaga a foto tirada ou recomeça a camera caso fosse foto da galeria
-        if(!photoPath.equals("")) {
-            File file = new File(photoPath);
-            file.delete();
-            photoPath = "";
-            new ControlCameraTask().execute(true);
-        }else{
-            new ControlCameraTask().execute(true);
-
-        }
+        //recomeça a camera caso fosse foto da galeria
+        new ControlCameraTask().execute(true);
     }
 
     private void stop_camera(ControlCameraTask.CallbackCamera callback){
@@ -554,7 +541,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
         }else {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
+            imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+            //imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         }
 
 
@@ -633,6 +621,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 if (isFirst) {
                     camera_options.setVisibility(View.GONE);
                     whiteBackground.setVisibility(View.VISIBLE);
+                    ((MainActivity)getActivity()).displayTabs(false);
                 }
                 final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                         Animation.RELATIVE_TO_SELF, 0,
@@ -648,6 +637,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                         if (!isFirst) {
                             camera_options.setVisibility(View.VISIBLE);
                             whiteBackground.setVisibility(View.GONE);
+                            ((MainActivity)getActivity()).displayTabs(true);
                         }
                     }
 
