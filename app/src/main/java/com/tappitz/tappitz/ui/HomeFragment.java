@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -42,12 +44,19 @@ import com.tappitz.tappitz.util.BitmapWorkerTask;
 import com.tappitz.tappitz.util.ControlCameraTask;
 import com.tappitz.tappitz.util.UriPath;
 
+import net.sourceforge.zbar.Config;
+import net.sourceforge.zbar.Image;
+import net.sourceforge.zbar.ImageScanner;
+import net.sourceforge.zbar.Symbol;
+import net.sourceforge.zbar.SymbolSet;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
 
 
 public class HomeFragment extends Fragment implements SurfaceHolder.Callback, View.OnClickListener {
@@ -71,6 +80,9 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private boolean requestedFile = false;
     RelativeLayout whiteBackground;
     private EditText textMsg;
+    private Handler autoFocusHandler;
+    private ImageScanner scanner;
+    private boolean barcodeScanned = false;
 
     final static int[] CLICABLES = {R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
 
@@ -101,9 +113,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
         whiteBackground = (RelativeLayout)rootView.findViewById(R.id.whiteBackground);
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
-
-
-
 
         whiteBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -154,16 +163,25 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         try
         {
             AppController.getInstance().surfaceHolder = surfaceView.getHolder();
-            //surfaceHolder = surfaceView.getHolder();
-            //surfaceHolder.addCallback(this);
-            //surfaceHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-
-
         }
         catch (Exception e)
         {
             e.printStackTrace();
         }
+
+        scanner = new ImageScanner();
+//        scanner.setConfig(0, Config.X_DENSITY, 400);
+//        scanner.setConfig(0, Config.Y_DENSITY, 400);
+        scanner.setConfig(0, Config.X_DENSITY, 3);
+        scanner.setConfig(0, Config.Y_DENSITY, 3);
+        //scanner.setConfig(0, Config.ENABLE, 0);
+//        scanner.setConfig(Symbol.EAN13, Config.ENABLE,1);
+//        scanner.setConfig(Symbol.EAN8, Config.ENABLE,1);
+//        scanner.setConfig(Symbol.UPCA, Config.ENABLE, 1);
+//        scanner.setConfig(Symbol.UPCE, Config.ENABLE, 1);
+//        scanner.setConfig(Symbol.QRCODE, Config.ENABLE, 1); //Only QRCODE is enable
+        autoFocusHandler = new Handler();
+
 
         return rootView;
     }
@@ -413,11 +431,23 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     private void onCameraAvailable(){
         Long pastTime = System.currentTimeMillis() - currentTime;
-        Log.d("MyCameraApp", "onCameraAvailable: " + pastTime);
+        Log.d("myapp", "onCameraAvailable: " + pastTime);
         Toast.makeText(getContext(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
         previewing = true;
         btn_shutter.setVisibility(View.VISIBLE);
         camera_options.setVisibility(View.VISIBLE);
+
+
+        try {
+            if(AppController.getInstance().mCamera != null){
+                Log.d("myapp", "setPreviewCallback: ");
+                AppController.getInstance().mCamera.setPreviewCallback(previewCb);
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
     }
 
     Long currentTime;
@@ -621,7 +651,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 if (isFirst) {
                     camera_options.setVisibility(View.GONE);
                     whiteBackground.setVisibility(View.VISIBLE);
-                    ((MainActivity)getActivity()).displayTabs(false);
+                    ((MainActivity) getActivity()).displayTabs(false);
                 }
                 final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                         Animation.RELATIVE_TO_SELF, 0,
@@ -637,7 +667,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                         if (!isFirst) {
                             camera_options.setVisibility(View.VISIBLE);
                             whiteBackground.setVisibility(View.GONE);
-                            ((MainActivity)getActivity()).displayTabs(true);
+                            ((MainActivity) getActivity()).displayTabs(true);
                         }
                     }
 
@@ -679,7 +709,75 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
     }
 
+    Camera.PreviewCallback previewCb = new Camera.PreviewCallback()
+    {
+        public void onPreviewFrame(byte[] data, Camera camera)
+        {
+            try {
+                if(barcodeScanned)
+                    return;
+                Camera.Parameters parameters = camera.getParameters();
+                Camera.Size size = parameters.getPreviewSize();
+                Image barcode = new Image(size.width, size.height, "Y800");
 
+                barcode.setData(data);
+                int result = scanner.scanImage(barcode);
+                Log.d("myapp", "*************************onPreviewFrame: " + result);
+                if (result != 0)
+                {
+                    barcodeScanned = true;
+                    //previewing = false;
+                    //stop_camera();
+
+
+                    SymbolSet syms = scanner.getResults();
+                    Log.d("myapp", "*************************syms: " + syms.size());
+                    for (Symbol sym : syms)
+                    {
+                        barcodeScanned = true;
+
+                        Toast.makeText(getActivity(), "Encontrou QR code!", Toast.LENGTH_SHORT).show();
+                        AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+                        alertDialog.setTitle("qr code");
+                        alertDialog.setMessage("data: " + sym.getData());
+
+                        alertDialog.setButton("Continue..", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                // here you can add functions
+                                barcodeScanned = false;
+                            }
+                        });
+                        alertDialog.show();
+    //                    Intent returnIntent = new Intent();
+    //                    returnIntent.putExtra("BARCODE", sym.getData());
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    };
+
+    // Mimic continuous auto-focusing
+    Camera.AutoFocusCallback autoFocusCB = new Camera.AutoFocusCallback()
+    {
+        public void onAutoFocus(boolean success, Camera camera)
+        {
+            Log.d("myapp", "*************************onAutoFocus: " );
+            autoFocusHandler.postDelayed(doAutoFocus, 2000);
+        }
+    };
+
+    private Runnable doAutoFocus = new Runnable()
+    {
+        public void run()
+        {
+            Log.d("myapp", "*************************doAutoFocus run: " );
+            if (previewing)
+                AppController.getInstance().mCamera.autoFocus(autoFocusCB);
+        }
+    };
 
 
 }

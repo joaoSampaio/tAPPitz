@@ -43,21 +43,6 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
                     app.mCamera.setPreviewDisplay(app.surfaceHolder);
                     app.mCamera.startPreview();
 
-
-
-
-
-//                    Camera.Parameters parameters = mCamera.getParameters();
-//                    parameters.setPictureFormat(PixelFormat.JPEG);
-//                    parameters.setPreviewSize(854, 480);
-//                    parameters.setFocusMode("auto");
-//                    parameters.setPictureSize(2592, 1456);
-//                    mCamera.setParameters(parameters);
-//                    mCamera.startPreview();
-
-
-
-
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -147,7 +132,6 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
         parameters.setPictureSize(sizeCamera.width, sizeCamera.height);
 
 
-
         parameters.setPictureFormat(PixelFormat.JPEG);
         parameters.set("jpeg-quality", 90);
         parameters.setRotation(degrees);
@@ -162,7 +146,6 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
 
     public interface CallbackCamera {
         public void onDone();
-
     }
 }
 

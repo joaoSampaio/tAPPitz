@@ -157,14 +157,14 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
                 isLoading = false;
                 displayTabs(true);
             }
-        }, 5000);
+        }, 3000);
 
 
     }
 
     private ObjectAnimator getIntroBallAnim(View v, int delay){
         ObjectAnimator animator1 = ObjectAnimator.ofFloat(v, "translationY", -200f);
-        animator1.setRepeatCount(3);
+        animator1.setRepeatCount(1);
         animator1.setRepeatMode(ValueAnimator.REVERSE);
         animator1.setDuration(1000);
         animator1.setStartDelay(delay);
