@@ -5,7 +5,6 @@ import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -19,11 +18,8 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
-
-import java.io.IOException;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -49,7 +45,7 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
         }
         toolbar = (RelativeLayout)findViewById(R.id.toolbar);
         loading = findViewById(R.id.loading);
-        showLoadingScreen();
+        //showLoadingScreen();
 
 
         Intent intent = getIntent();
@@ -79,29 +75,34 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
         }
 
 
-        new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] params) {
-                GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-
-                String deviceToken = null;
-                try {
-                    deviceToken = gcm.register(Global.PROJECT_ID);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Log.i("GCM", "Device token : " + deviceToken);
-                return null;
-            }
-
-        }.execute();
+//        new AsyncTask() {
+//            @Override
+//            protected Object doInBackground(Object[] params) {
+//
+//                try {
+//                    GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+//
+//                    String deviceToken = null;
+//                    try {
+//                        deviceToken = gcm.register(Global.PROJECT_ID);
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Log.i("GCM", "Device token : " + deviceToken);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//
+//        }.execute();
 
     }
 
     @Override
     public void onStart(){
         super.onStart();
-        showLoadingScreen();
+        //showLoadingScreen();
     }
 
     @Override
@@ -138,26 +139,26 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
         this.isLoading = true;
         loading.setVisibility(View.VISIBLE);
         loading.bringToFront();
-        View iconR = findViewById(R.id.iconR);
-        View iconY = findViewById(R.id.iconY);
-        View iconG = findViewById(R.id.iconG);
-        set = new AnimatorSet();
-
-        set.play(getIntroBallAnim(iconR, 0));
-        set.play(getIntroBallAnim(iconY, 500));
-        set.play(getIntroBallAnim(iconG, 1000));
-        set.start();
+//        View iconR = findViewById(R.id.iconR);
+//        View iconY = findViewById(R.id.iconY);
+//        View iconG = findViewById(R.id.iconG);
+//        set = new AnimatorSet();
+//
+//        set.play(getIntroBallAnim(iconR, 0));
+//        set.play(getIntroBallAnim(iconY, 500));
+//        set.play(getIntroBallAnim(iconG, 1000));
+//        set.start();
 
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                set.cancel();
+                //set.cancel();
 
                 loading.setVisibility(View.GONE);
                 isLoading = false;
                 displayTabs(true);
             }
-        }, 3000);
+        }, 1500);
 
 
     }
@@ -285,8 +286,6 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
         else{
             finish();
         }
-
     }
-
 
 }

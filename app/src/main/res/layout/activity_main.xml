@@ -17,6 +17,7 @@
     <include
         android:id="@+id/loading"
         layout="@layout/loading_credits"
+
         />
 
 

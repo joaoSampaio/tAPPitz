@@ -123,7 +123,8 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
             @Override
             public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
                 if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    Toast.makeText(getActivity(), "Pedido ao servidor", Toast.LENGTH_SHORT).show();
+                    showToast("Pedido ao servidor");
+                    //Toast.makeText(getActivity(), "Pedido ao servidor", Toast.LENGTH_SHORT).show();
                     searchContact();
                     return true;
                 }
@@ -151,7 +152,7 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
     private void checkIfHasContacts(int size){
         Log.d("myapp", "checkIfHasContacts: " + allContactsList.size());
 
-        text_no_contact.setVisibility(size > 0? View.GONE: View.VISIBLE);
+        text_no_contact.setVisibility(size > 0 ? View.GONE : View.VISIBLE);
     }
 
 
@@ -173,7 +174,8 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void failed(Object error) {
-                Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
+                showToast("Erro");
+                //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
                 swipeLayout.setRefreshing(false);
             }
         }).execute();
@@ -198,7 +200,8 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void failed(Object error) {
-                Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
+                showToast("Erro");
+                //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
                 swipeLayout.setRefreshing(false);
             }
         }).execute();
@@ -232,7 +235,8 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
 
             @Override
             public void failed(Object error) {
-                Toast.makeText(getActivity(), "Erro2", Toast.LENGTH_SHORT).show();
+                showToast("Erro2");
+                //Toast.makeText(getActivity(), "Erro2", Toast.LENGTH_SHORT).show();
             }
         }).execute();
 
@@ -248,6 +252,17 @@ public class FriendsFragment extends Fragment implements SwipeRefreshLayout.OnRe
         //pede a lista de todos os contactos
         loadContacts();
     }
+
+    public void showToast(String msg){
+        try {
+            if(getActivity() != null)
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     public void onRefresh() {

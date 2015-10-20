@@ -180,7 +180,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 //        scanner.setConfig(Symbol.UPCA, Config.ENABLE, 1);
 //        scanner.setConfig(Symbol.UPCE, Config.ENABLE, 1);
 //        scanner.setConfig(Symbol.QRCODE, Config.ENABLE, 1); //Only QRCODE is enable
-        autoFocusHandler = new Handler();
+        //autoFocusHandler = new Handler();
 
 
         return rootView;
@@ -432,7 +432,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private void onCameraAvailable(){
         Long pastTime = System.currentTimeMillis() - currentTime;
         Log.d("myapp", "onCameraAvailable: " + pastTime);
-        Toast.makeText(getContext(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
+        showToast(pastTime + " Miliseconds");
+        //Toast.makeText(getActivity(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
         previewing = true;
         btn_shutter.setVisibility(View.VISIBLE);
         camera_options.setVisibility(View.VISIBLE);
@@ -538,7 +539,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
         if (false == ((mExternalStorageAvailable) && (mExternalStorageWriteable)))
         {
-             Toast.makeText(getActivity(), "SD card not present", Toast.LENGTH_LONG);
+            showToast("SD card not present");
+            //Toast.makeText(getActivity(), "SD card not present", Toast.LENGTH_LONG);
         }
 
         return (mExternalStorageAvailable) && (mExternalStorageWriteable);
@@ -736,7 +738,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     {
                         barcodeScanned = true;
 
-                        Toast.makeText(getActivity(), "Encontrou QR code!", Toast.LENGTH_SHORT).show();
+                        showToast("Encontrou QR code!");
+                        //Toast.makeText(getActivity(), "Encontrou QR code!", Toast.LENGTH_SHORT).show();
                         AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
                         alertDialog.setTitle("qr code");
                         alertDialog.setMessage("data: " + sym.getData());
@@ -760,24 +763,33 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     };
 
     // Mimic continuous auto-focusing
-    Camera.AutoFocusCallback autoFocusCB = new Camera.AutoFocusCallback()
-    {
-        public void onAutoFocus(boolean success, Camera camera)
-        {
-            Log.d("myapp", "*************************onAutoFocus: " );
-            autoFocusHandler.postDelayed(doAutoFocus, 2000);
-        }
-    };
+//    Camera.AutoFocusCallback autoFocusCB = new Camera.AutoFocusCallback()
+//    {
+//        public void onAutoFocus(boolean success, Camera camera)
+//        {
+//            Log.d("myapp", "*************************onAutoFocus: " );
+//            autoFocusHandler.postDelayed(doAutoFocus, 2000);
+//        }
+//    };
+//
+//    private Runnable doAutoFocus = new Runnable()
+//    {
+//        public void run()
+//        {
+//            Log.d("myapp", "*************************doAutoFocus run: " );
+//            if (previewing)
+//                AppController.getInstance().mCamera.autoFocus(autoFocusCB);
+//        }
+//    };
 
-    private Runnable doAutoFocus = new Runnable()
-    {
-        public void run()
-        {
-            Log.d("myapp", "*************************doAutoFocus run: " );
-            if (previewing)
-                AppController.getInstance().mCamera.autoFocus(autoFocusCB);
+    public void showToast(String msg){
+        try {
+            if(getActivity() != null)
+                Toast.makeText(getActivity(), msg, Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    };
+    }
 
 
 }

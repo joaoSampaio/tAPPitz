@@ -30,6 +30,7 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
         AppController app = AppController.getInstance();
         if (!requestOpen && app.mCamera != null) {
             app.mCamera.stopPreview();
+            app.mCamera.setPreviewCallback(null);
             app.mCamera.release();
             app.mCamera = null;
         }
