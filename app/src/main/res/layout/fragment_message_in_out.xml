@@ -18,14 +18,14 @@
         <!--&lt;!&ndash;</android.support.v4.view.PagerTabStrip>&ndash;&gt;-->
     <!--</android.support.v4.view.ViewPager>-->
 
-    <!--<com.directionalviewpager.DirectionalViewPager-->
-        <!--android:id="@+id/viewPager"-->
-        <!--android:layout_height="fill_parent"-->
-        <!--android:orientation="vertical"-->
-        <!--android:layout_width="fill_parent" />-->
 
-    <fr.castorflex.android.verticalviewpager.VerticalViewPager
-        android:id="@+id/viewPager"
+    <!--<com.tappitz.tappitz.util.InfiniteViewPager-->
+        <!--android:id="@+id/viewPagerMessage"-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="match_parent"/>-->
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/viewPagerMessage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

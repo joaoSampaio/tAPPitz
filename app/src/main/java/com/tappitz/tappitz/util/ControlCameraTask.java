@@ -39,11 +39,15 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
 
             if(app.mCamera == null) {
                 try {
+                    Thread.sleep(100);
                     app.mCamera = Camera.open(app.currentCameraId);
+                    Log.d("MyCameraApp", "Camera.open");
                     setCameraDisplayOrientation(app.currentCameraId, app.mCamera);
+                    Log.d("MyCameraApp", "setCameraDisplayOrientation");
                     app.mCamera.setPreviewDisplay(app.surfaceHolder);
+                    Log.d("MyCameraApp", "Camera.setPreviewDisplay");
                     app.mCamera.startPreview();
-
+                    Log.d("MyCameraApp", "Camera.startPreview");
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

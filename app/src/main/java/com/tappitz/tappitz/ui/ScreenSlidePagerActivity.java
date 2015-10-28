@@ -15,7 +15,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     /**
      * The number of pages (wizard steps) to show in this demo.
      */
-    private static final int NUM_PAGES = 4;
+    private static final int NUM_PAGES = 3;
 
     /**
      * The pager widget, which handles animation and allows swiping horizontally to access previous
@@ -35,20 +35,31 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
         // Instantiate a ViewPager and a PagerAdapter.
         mPager = (ViewPager) findViewById(R.id.pager);
+        mPager.setOffscreenPageLimit(2);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
         mPager.setCurrentItem(1);
     }
 
+//    @Override
+//    public void onBackPressed() {
+//        if (mPager.getCurrentItem() == 0) {
+//            // If the user is currently looking at the first step, allow the system to handle the
+//            // Back button. This calls finish() on this activity and pops the back stack.
+//            super.onBackPressed();
+//        } else {
+//            // Otherwise, select the previous step.
+//            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+//        }
+//    }
+
+
     @Override
     public void onBackPressed() {
-        if (mPager.getCurrentItem() == 0) {
-            // If the user is currently looking at the first step, allow the system to handle the
-            // Back button. This calls finish() on this activity and pops the back stack.
-            super.onBackPressed();
-        } else {
-            // Otherwise, select the previous step.
-            mPager.setCurrentItem(mPager.getCurrentItem() - 1);
+        if(mPager.getCurrentItem() != 1)
+            mPager.setCurrentItem(1);
+        else{
+            finish();
         }
     }
 
@@ -65,16 +76,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         public Fragment getItem(int position) {
             Fragment fragment = null;
             switch (position){
+
+                case 0:
+                    fragment = new MessageInOutFragment();
+                    break;
                 case 1:
                     fragment = new HomeFragment();
                     break;
-                case 0:
-                    fragment = new InBoxFragment();
-                    break;
                 case 2:
-                    fragment = new OutBoxFragment();
-                    break;
-                case 3:
                     fragment = new FriendsFragment();
                     break;
             }

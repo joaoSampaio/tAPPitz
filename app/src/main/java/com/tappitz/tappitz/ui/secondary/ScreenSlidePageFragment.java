@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.ui;
+package com.tappitz.tappitz.ui.secondary;
 
 import android.content.Context;
 import android.os.Bundle;

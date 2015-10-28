@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,11 +13,13 @@ import android.view.ViewGroup;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.rest.RestClient;
-import com.tappitz.tappitz.model.photo_tAPPitz;
+import com.tappitz.tappitz.rest.model.photo_tAPPitz;
+import com.tappitz.tappitz.ui.secondary.ScreenSlidePageFragment;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -43,14 +45,15 @@ public class OutBoxFragment extends Fragment {
         //depois de pedir ao servidor um json com os dados crio uma lista de modelos e crio o pageview
         photos = new ArrayList<>();
         adapter = new MyAdapter(getChildFragmentManager(), photos);
-        ViewPager viewPager = (ViewPager) rootView.findViewById(R.id.viewPager);
+        Log.d("myapp2", "**--new OutBoxFragment:");
+        VerticalViewPager viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
 
-        pDialog = new ProgressDialog(getActivity());
-        // Showing progress dialog before making http request
-        pDialog.setMessage("Loading...");
-        pDialog.show();
+//        pDialog = new ProgressDialog(getActivity());
+//        // Showing progress dialog before making http request
+//        pDialog.setMessage("Loading...");
+//        pDialog.show();
 
         RestClient.getService().getTapp(new Callback<List<photo_tAPPitz>>() {
             @Override

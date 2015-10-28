@@ -260,6 +260,9 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
             case Global.FRIENDS:
                 fragment = new FriendsFragment();
                 break;
+//            case Global.SELECTCONTACT:
+//                fragment = new SelectContactFragment();
+//                break;
             default:
                 Toast.makeText(getApplicationContext(),"Somethings Wrong", Toast.LENGTH_SHORT).show();
                 break;

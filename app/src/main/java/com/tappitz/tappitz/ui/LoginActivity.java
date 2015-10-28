@@ -23,7 +23,7 @@ import android.widget.Toast;
 import com.google.gson.JsonElement;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.model.UserRegister;
+import com.tappitz.tappitz.rest.model.UserRegister;
 import com.tappitz.tappitz.rest.service.CallbackFromService;
 import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.rest.service.RegisterService;

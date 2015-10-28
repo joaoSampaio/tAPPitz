@@ -7,6 +7,7 @@ public class Global {
 
     //https://api.myjson.com/bins/56wu6
     public static final String ENDPOINT = "https://dl.dropboxusercontent.com/u/68830630/tAppitz";
+    public static final String ENDPOINT_SIGMA = "http://web.ist.utl.pt/ist170638/tappitz";
     //public static final String ENDPOINT = "https://api.myjson.com/bins";
 //    public static final String ENDPOINT = "http://176.111.104.39:8182";
 
@@ -23,7 +24,7 @@ public class Global {
     public final static int INBOX = 0;
     public final static int OUTBOX = 1;
     public final static int FRIENDS = 2;
-    public final static int LOGIN = 4;
+    public final static int SELECTCONTACT = 4;
 
     public static final int 	BROWSE_REQUEST = 2010;
     public static final int 	BROWSE_REQUEST_KITKAT = 2011;

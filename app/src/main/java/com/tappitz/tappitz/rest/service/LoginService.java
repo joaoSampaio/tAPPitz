@@ -4,7 +4,7 @@ package com.tappitz.tappitz.rest.service;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
-import com.tappitz.tappitz.model.UserLogin;
+import com.tappitz.tappitz.rest.model.UserLogin;
 import com.tappitz.tappitz.rest.RestClient;
 
 import retrofit.Callback;

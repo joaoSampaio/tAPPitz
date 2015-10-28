@@ -161,7 +161,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 
 
         }
-        Log.d("myapp", "listViewItemType: " + listViewItemType);
+        //Log.d("myapp", "listViewItemType: " + listViewItemType);
         if (listViewItemType == ListViewContactItem.HASCONTACT) {
 
             holder.pos = position;

@@ -2,11 +2,12 @@ package com.tappitz.tappitz.rest;
 
 import com.google.gson.JsonElement;
 import com.tappitz.tappitz.model.Comment;
-import com.tappitz.tappitz.model.Photo;
-import com.tappitz.tappitz.model.RequestId;
-import com.tappitz.tappitz.model.UserLogin;
-import com.tappitz.tappitz.model.UserRegister;
-import com.tappitz.tappitz.model.photo_tAPPitz;
+import com.tappitz.tappitz.rest.model.CreatePhoto;
+import com.tappitz.tappitz.rest.model.Photo;
+import com.tappitz.tappitz.rest.model.RequestId;
+import com.tappitz.tappitz.rest.model.UserLogin;
+import com.tappitz.tappitz.rest.model.UserRegister;
+import com.tappitz.tappitz.rest.model.photo_tAPPitz;
 import com.tappitz.tappitz.rest.model.AnswerContactRequest;
 import com.tappitz.tappitz.rest.model.ContactSendId;
 
@@ -22,12 +23,6 @@ import retrofit.http.Path;
  * Created by sampaio on 26-03-2015.
  */
 public interface Api {
-
-
-//    @Multipart
-//    @POST("/users/login")
-//    //void login(@Body LoginParams params, Callback<Response> response);
-//    void login(@Part("email") String email, @Part("password") String password, Callback<JsonElement> response);
 
 
     @POST("/users/login")
@@ -92,6 +87,21 @@ public interface Api {
     /*Contacto - aceitar*/
     @POST("/contacts/request")
     void answerContactRequest(@Body AnswerContactRequest answer, Callback<JsonElement> callback);
+
+
+
+
+
+
+/*********Create photo************/
+//    @POST("/photo")
+    @POST("/save_json.php")
+    void sendphoto(@Body CreatePhoto photo, Callback<JsonElement> callback);
+
+
+
+
+
 
 
 

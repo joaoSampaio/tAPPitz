@@ -6,18 +6,20 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
+import android.util.Base64;
+import android.util.Base64OutputStream;
 import android.util.Log;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -40,6 +42,9 @@ import android.widget.Toast;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.CreatePhotoService;
+import com.tappitz.tappitz.ui.secondary.SelectContactFragment;
 import com.tappitz.tappitz.util.BitmapWorkerTask;
 import com.tappitz.tappitz.util.ControlCameraTask;
 import com.tappitz.tappitz.util.UriPath;
@@ -50,13 +55,16 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
+import java.util.List;
 
 
 public class HomeFragment extends Fragment implements SurfaceHolder.Callback, View.OnClickListener {
@@ -64,9 +72,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private final int ANIMATION_DURATION = 500;
     private final int MEDIA_TYPE_IMAGE = 1;
     private final int MEDIA_TYPE_VIDEO = 2;
-    //private Camera camera;
     private SurfaceView surfaceView;
-    //private SurfaceHolder surfaceHolder;
     private Button btn_shutter;
     private LinearLayout btn_layout;
     private LinearLayout camera_options;
@@ -74,7 +80,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private String photoPath;
     private ImageView temp_pic;
     private boolean isLighOn = false;
-    //private int currentCameraId;
     private int viewWidth, viewHeight;
     private View textMsgWrapper;
     private boolean requestedFile = false;
@@ -83,6 +88,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private Handler autoFocusHandler;
     private ImageScanner scanner;
     private boolean barcodeScanned = false;
+    private String picture;
+
+    static {
+        System.loadLibrary("iconv");
+    }
 
     final static int[] CLICABLES = {R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
 
@@ -169,19 +179,24 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             e.printStackTrace();
         }
 
-        scanner = new ImageScanner();
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN){
+            //nao funciona
+            barcodeScanned = true;
+        }else {
+
+            scanner = new ImageScanner();
 //        scanner.setConfig(0, Config.X_DENSITY, 400);
 //        scanner.setConfig(0, Config.Y_DENSITY, 400);
-        scanner.setConfig(0, Config.X_DENSITY, 3);
-        scanner.setConfig(0, Config.Y_DENSITY, 3);
-        //scanner.setConfig(0, Config.ENABLE, 0);
+            scanner.setConfig(0, Config.X_DENSITY, 3);
+            scanner.setConfig(0, Config.Y_DENSITY, 3);
+            //scanner.setConfig(0, Config.ENABLE, 0);
 //        scanner.setConfig(Symbol.EAN13, Config.ENABLE,1);
 //        scanner.setConfig(Symbol.EAN8, Config.ENABLE,1);
 //        scanner.setConfig(Symbol.UPCA, Config.ENABLE, 1);
 //        scanner.setConfig(Symbol.UPCE, Config.ENABLE, 1);
 //        scanner.setConfig(Symbol.QRCODE, Config.ENABLE, 1); //Only QRCODE is enable
-        //autoFocusHandler = new Handler();
-
+            //autoFocusHandler = new Handler();
+        }
 
         return rootView;
     }
@@ -225,13 +240,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 textMsgWrapper.setVisibility(View.INVISIBLE);
                 deletePrevious();
                 recycleImagesFromView(temp_pic);
-                //camera.startPreview();
-                //onRetakePic();
-                onTakePick(false);
+                   onTakePick(false);
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
                 textMsg.setText("");
-
+                picture = "";
                 break;
             case R.id.btnText:
                 showEditText();
@@ -240,6 +253,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             case R.id.btnPhotoAccept:
 
                 cameraReturn();
+                showDialog();
+//                SelectContactFragment newFragment = new SelectContactFragment();
+//                newFragment.show(getFragmentManager(), "dialog");
+
+
                 break;
 
             case R.id.btn_load:
@@ -272,15 +290,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 }
                 break;
             case R.id.btn_toggle_camera:
-                Log.d("myapp", "/////////btn_toggle_camera:" );
                 if(AppController.getInstance().currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
                     AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
                 }
                 else {
                     AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                 }
-                Log.d("myapp", "///////// btn_toggle_camera end:");
-
                 stop_camera(new ControlCameraTask.CallbackCamera() {
                     @Override
                     public void onDone() {
@@ -293,23 +308,19 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     private void setUP(){
         Log.d("MyCameraApp", "setUP ");
-        Log.d("MyCameraApp", "requestedFile " + requestedFile);
         textMsgWrapper.setVisibility(View.INVISIBLE);
         btn_layout.setVisibility(View.INVISIBLE);
         temp_pic.setVisibility(View.VISIBLE);
-//        btn_shutter.setVisibility(View.VISIBLE);
         surfaceView.setVisibility(View.VISIBLE);
-//        camera_options.setVisibility(View.VISIBLE);
         whiteBackground.setVisibility(View.GONE);
-
-
+        if(getActivity() instanceof MainActivity)
+            ((MainActivity)getActivity()).displayTabs(false);
         if(!requestedFile) {
             start_camera();
-
         }
 
-        if(getActivity() instanceof MainActivity)
-            ((MainActivity)getActivity()).displayTabs(true);
+//        if(getActivity() instanceof MainActivity)
+//            ((MainActivity)getActivity()).displayTabs(true);
 
 
         camera_options.setVisibility(View.GONE);
@@ -319,15 +330,107 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         int height = d.getHeight();
         AppController.getInstance().width = width;
         AppController.getInstance().height = height;
-        Log.d("MyCameraApp", "setUP width: " + width + " height: " + height);
-//setUP width: 720 height: 1184
+        //Log.d("MyCameraApp", "setUP width: " + width + " height: " + height);
     }
+
+
+    void showDialog() {
+
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+
+        if(picture == null || picture.equals("")){
+
+
+            try {
+                InputStream inputStream = null;//You can get an inputStream using any IO API
+                inputStream = new FileInputStream(photoPath);
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+
+
+
+
+
+
+
+
+
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                Base64OutputStream output64 = new Base64OutputStream(output, Base64.DEFAULT);
+                try {
+                    while ((bytesRead = inputStream.read(buffer)) != -1) {
+                        output64.write(buffer, 0, bytesRead);
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                output64.close();
+
+                picture = output.toString();
+                Log.d("myapp", "picture:" + picture);
+
+
+
+//                Bitmap bm = BitmapFactory.decodeFile(photoPath);
+//                Log.d("myapp", "height:" + bm.getHeight() + " width:" + bm.getWidth());
+//
+//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//                bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+//                byte[] b = baos.toByteArray();
+//                picture = Base64.encodeToString(b, Base64.URL_SAFE);
+//                Log.d("myapp", "picture:" + picture);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+        }
+
+
+        final String comment = textMsgWrapper.isShown()? textMsg.getText().toString() : "";
+        SelectContactFragment newFragment = new SelectContactFragment();
+        newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
+            @Override
+            public void sendPhoto(List<String> contacts) {
+                new CreatePhotoService(comment, contacts, picture, new CallbackMultiple<Boolean>() {
+                    @Override
+                    public void success(Boolean response) {
+
+                    }
+
+                    @Override
+                    public void failed(Object error) {
+
+                    }
+                }).execute();
+                Toast.makeText(getActivity(), "Photo sent", Toast.LENGTH_SHORT).show();
+            }
+        });
+        newFragment.show(ft, "dialog");
+
+    }
+
+
+
+
 
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        Log.d("myapp", "onActivityResult");
         if(requestCode == Global.BROWSE_REQUEST && resultCode == Activity.RESULT_OK&& null != data) {
             stop_camera();
             Uri selectedImageUri = data.getData();
@@ -344,21 +447,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
 
 
-    }
-
-    public static String getRealPathFromUri(Context context, Uri contentUri) {
-        Cursor cursor = null;
-        try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
-            int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } finally {
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
     }
 
     public void loadBitmapFile(ImageView imageView,String path, int width, int height) {
@@ -437,6 +525,9 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         previewing = true;
         btn_shutter.setVisibility(View.VISIBLE);
         camera_options.setVisibility(View.VISIBLE);
+
+        if(getActivity() instanceof MainActivity)
+            ((MainActivity)getActivity()).displayTabs(true);
 
 
         try {
@@ -653,7 +744,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 if (isFirst) {
                     camera_options.setVisibility(View.GONE);
                     whiteBackground.setVisibility(View.VISIBLE);
-                    ((MainActivity) getActivity()).displayTabs(false);
+                    if(getActivity() instanceof MainActivity)
+                        ((MainActivity) getActivity()).displayTabs(false);
                 }
                 final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
                         Animation.RELATIVE_TO_SELF, 0,
@@ -669,7 +761,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                         if (!isFirst) {
                             camera_options.setVisibility(View.VISIBLE);
                             whiteBackground.setVisibility(View.GONE);
-                            ((MainActivity) getActivity()).displayTabs(true);
+                            if(getActivity() instanceof MainActivity)
+                                ((MainActivity) getActivity()).displayTabs(true);
                         }
                     }
 
@@ -724,7 +817,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
                 barcode.setData(data);
                 int result = scanner.scanImage(barcode);
-                Log.d("myapp", "*************************onPreviewFrame: " + result);
+                //Log.d("myapp", "*************************onPreviewFrame: " + result);
                 if (result != 0)
                 {
                     barcodeScanned = true;

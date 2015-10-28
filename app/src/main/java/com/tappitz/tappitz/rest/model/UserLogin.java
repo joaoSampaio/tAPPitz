@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.model;
+package com.tappitz.tappitz.rest.model;
 
 
 public class UserLogin {

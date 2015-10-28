@@ -105,13 +105,12 @@
     <Button
         android:id="@+id/btn_shutter"
         android:text="Capture"
-        android:background="@drawable/botao_castanho"
-        android:textColor="@color/texto_botao_castanho"
+        android:background="@drawable/photo_button"
+        android:textColor="@color/black"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="50dp"/>
+        android:layout_alignParentBottom="false"
+        android:layout_centerInParent="true" />
 
 
 
