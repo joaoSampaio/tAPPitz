@@ -94,7 +94,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         System.loadLibrary("iconv");
     }
 
-    final static int[] CLICABLES = {R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
+    final static int[] CLICABLES = {R.id.button_friends, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
 
 
     View rootView;
@@ -303,8 +303,34 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     }
                 });
                 break;
+            case R.id.button_friends:
+                showFriends();
+                break;
         }
     }
+
+
+    private void showFriends(){
+        // DialogFragment.show() will take care of adding the fragment
+        // in a transaction.  We also want to remove any currently showing
+        // dialog, so make our own transaction and take care of that here.
+        FragmentTransaction ft = getFragmentManager().beginTransaction();
+        Fragment prev = getFragmentManager().findFragmentByTag("friends");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        // Create and show the dialog.
+
+
+
+
+        Friends2Fragment newFragment = new Friends2Fragment();
+        newFragment.show(ft, "friends");
+    }
+
+
 
     private void setUP(){
         Log.d("MyCameraApp", "setUP ");

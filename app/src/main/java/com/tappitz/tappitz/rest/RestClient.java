@@ -1,5 +1,7 @@
 package com.tappitz.tappitz.rest;
 
+import android.util.Log;
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.squareup.okhttp.OkHttpClient;
@@ -18,9 +20,17 @@ import retrofit.converter.GsonConverter;
  */
 public class RestClient {
 
-
+    private static String sessionId;
 
     private static Api api;
+
+    public static String getSessionId(){
+        return sessionId;
+    }
+
+    public static void setSessionId(String sessionId) {
+        RestClient.sessionId = sessionId;
+    }
 
     public static Api getApi(){
         return api;
@@ -32,11 +42,13 @@ public class RestClient {
     private static final RequestInterceptor COOKIES_REQUEST_INTERCEPTOR = new RequestInterceptor() {
         @Override
         public void intercept(RequestFacade request) {
-//            if (null != cookies && cookies.length() > 0) {
-//                //request.addHeader("Cookie", cookies);
-//            }
+            Log.d("myapp", "***************RequestInterceptor:" +sessionId);
+            if (null != sessionId && sessionId.length() > 0) {
+                request.addHeader("Session-Id", sessionId);
+            }
             request.addHeader("Content-type", "application/json");
             request.addHeader("Accept", "application/json");
+            request.addHeader("coco", "tapp");
         }
     };
 
@@ -61,7 +73,11 @@ public class RestClient {
                     .setClient(serviceClient)
                     .build()
                     .create(Api.class);
+
         }
+
+
+
         return RestClient.getApi();
     }
 

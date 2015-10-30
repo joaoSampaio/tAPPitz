@@ -29,6 +29,9 @@ public class LoginService implements ServerCommunicationService {
             @Override
             public void success(JsonElement jsonElement, Response response) {
                 callback.success(jsonElement);
+
+
+
             }
 
             @Override

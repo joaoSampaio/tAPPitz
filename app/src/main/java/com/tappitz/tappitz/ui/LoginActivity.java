@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.google.gson.JsonElement;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.UserRegister;
 import com.tappitz.tappitz.rest.service.CallbackFromService;
 import com.tappitz.tappitz.rest.service.LoginService;
@@ -196,10 +197,27 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
                                 JsonElement r = (JsonElement)response;
                                 Log.d("myapp", "***get(status)***" + r.getAsJsonObject().get("status"));
                                 String status = r.getAsJsonObject().get("status").toString();
+
                                 TextInputLayout textMsgWrapperUser = (TextInputLayout)findViewById(R.id.textMsgWrapperUser);
                                 if(status.equals("true")){
                                     Log.d("myapp", "***get(status)**true*" );
                                     textMsgWrapperUser.setErrorEnabled(false);
+
+
+                                    try {
+                                        String sessionId = r.getAsJsonObject().get("sessionId").toString();
+                                        SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+                                        SharedPreferences.Editor editor = sp.edit();
+                                        editor.putString("sessionId", sessionId);
+                                        editor.commit();
+                                        Log.d("myapp", "***login**sessionId*" + sessionId );
+                                        RestClient.setSessionId(sessionId);
+
+
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+
                                     onSuccessLogin();
                                 }else{
                                     Log.d("myapp", "***get(status)**false*" );
@@ -239,7 +257,8 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
         firstName = firstname.getText().toString();
         lastName = lastname.getText().toString();
         lastName = lastname.getText().toString();
-        gender = Boolean.toString(male.isChecked());
+        gender = male.isChecked()? "1": "0";
+        //gender = Boolean.toString(male.isChecked());
         birthDate = day + "_" + month + "_" + year;
         phoneNumber = registerPhoneNumber.getText().toString();
         country = paisesSpinner.getSelectedItemPosition() + "";

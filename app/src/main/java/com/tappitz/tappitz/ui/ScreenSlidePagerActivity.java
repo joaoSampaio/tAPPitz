@@ -78,13 +78,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
             switch (position){
 
                 case 0:
-                    fragment = new MessageInOutFragment();
+                    fragment = new InBoxFragment();
                     break;
                 case 1:
                     fragment = new HomeFragment();
                     break;
                 case 2:
-                    fragment = new FriendsFragment();
+                    fragment = new OutBoxFragment();
                     break;
             }
 

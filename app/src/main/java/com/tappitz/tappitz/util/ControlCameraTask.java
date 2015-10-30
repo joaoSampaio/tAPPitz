@@ -49,7 +49,8 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
                     app.mCamera.startPreview();
                     Log.d("MyCameraApp", "Camera.startPreview");
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Log.e("myapp",  e.getMessage());
+
                 }
             }else{
                 try {

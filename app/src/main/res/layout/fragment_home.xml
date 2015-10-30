@@ -160,11 +160,66 @@
             android:text="@string/camera" />
     </LinearLayout>
 
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="friends"
+        android:id="@+id/button_friends"
+         />
+
+    <RelativeLayout
+        android:id="@+id/camera"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="10dp">
+        <TextView
+            style="@style/SelectBar"
+            android:text="Camera"
+            android:id="@+id/textViewOut"
+            android:textSize="25sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/camera"
+        android:id="@+id/layout_camera"
+        >
 
 
+        </LinearLayout>
 
 
+    <RelativeLayout
+        android:id="@+id/go_to"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="false"
+        android:layout_alignParentLeft="true"
+        android:layout_margin="10dp">
+        <TextView
+            style="@style/SelectBar"
+            android:text="Go To"
+            android:id="@+id/textViewgoto"
+            android:textSize="25sp" />
+    </RelativeLayout>
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/camera"
+        android:id="@+id/layout_goto"
+        >
+
+
+    </LinearLayout>
 
 
 

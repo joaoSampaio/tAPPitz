@@ -76,6 +76,8 @@ public interface Api {
     @POST("/contacts/delete")
     void deleteContact(@Body ContactSendId id, Callback<JsonElement> callback);
 
+    @GET("/users/login")
+    void isLogin(Callback<JsonElement> callback);
 
 
     /*Contactos - Pedidos de contacto*/
