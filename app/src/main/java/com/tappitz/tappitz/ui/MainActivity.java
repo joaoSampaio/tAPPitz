@@ -258,7 +258,7 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
                 fragment = new OutBoxFragment();
                 break;
             case Global.FRIENDS:
-                fragment = new FriendsFragment();
+                fragment = new OldFriendsFragment();
                 break;
 //            case Global.SELECTCONTACT:
 //                fragment = new SelectContactFragment();
@@ -325,5 +325,9 @@ final static int[] TAB_SELECT = {R.id.textViewIN, R.id.textViewOut, R.id.textVie
             finish();
         }
     }
+
+
+
+
 
 }

@@ -2,7 +2,6 @@ package com.tappitz.tappitz.ui;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
@@ -14,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AbsListView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -34,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Friends2Fragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class OldFriendsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
     private ListView listView;
     private ContactAdapter adapter;
@@ -48,7 +46,7 @@ public class Friends2Fragment extends DialogFragment implements SwipeRefreshLayo
     private TextView text_no_contact;
 
 
-    public Friends2Fragment() {
+    public OldFriendsFragment() {
         // Required empty public constructor
     }
 
@@ -91,22 +89,6 @@ public class Friends2Fragment extends DialogFragment implements SwipeRefreshLayo
             }
         });
         listView.setAdapter(adapter);
-
-        listView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView view, int scrollState) {
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm.isAcceptingText()) {
-                    imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-                }
-
-            }
-
-            @Override
-            public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-
-            }
-        });
 
         mSearchTw=new TextWatcher() {
 

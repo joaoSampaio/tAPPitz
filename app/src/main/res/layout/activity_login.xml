@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:custom="http://schemas.android.com/apk/res-auto">
 
     <RelativeLayout
         android:orientation="vertical"
@@ -9,6 +10,7 @@
         android:layout_height="match_parent"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"
         android:id="@+id/paginaregisto">
 
 
@@ -24,58 +26,65 @@
             android:layout_height="match_parent"
             android:id="@+id/screen_login"
             android:visibility="visible"
-            android:paddingTop="56dp"
             android:paddingLeft="24dp"
             android:paddingRight="24dp">
 
+
             <ImageView
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:id="@+id/logotipo"
-                android:layout_marginBottom="24dp"
-                android:layout_gravity="center_horizontal"
-                />
-
-
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/textMsgWrapperUser"
-                style="@style/TextLabel"
-                >
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/loginEmail"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textEmailAddress"
-                    android:hint="@string/emailHint"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/textMsgWrapperPass"
-                style="@style/TextLabel"
-                android:theme="@style/TextLabel"
-                >
-
-                <android.support.v7.widget.AppCompatEditText
-                    android:id="@+id/loginPassword"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPassword"
-                    android:hint="@string/passwordHint"/>
-
-            </android.support.design.widget.TextInputLayout>
-
-
-            <Button
-                android:id="@+id/btn_login"
-                android:layout_width="fill_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:layout_marginBottom="24dp"
-                android:padding="12dp"
-                android:text="@string/loginBtnText"/>
+                android:id="@+id/imageView"
+                android:src="@drawable/logo_tappitz"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="40dp"
+                android:layout_marginTop="20dp" />
+
+            <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/loginEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress"
+                android:layout_marginBottom="16dp"
+                android:hint="@string/emailHint"/>
+
+
+            <android.support.v7.widget.AppCompatEditText
+                android:id="@+id/loginPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword"
+                android:layout_marginBottom="16dp"
+                android:hint="@string/passwordHint"/>
+
+
+
+            <com.dd.processbutton.iml.ActionProcessButton
+                android:id="@+id/btn_login"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginBottom="16dp"
+                android:text="@string/Sign_in"
+                android:textColor="@android:color/white"
+                android:textSize="18sp"
+                custom:pb_colorComplete="@color/green_complete"
+                custom:pb_colorNormal="@color/blue_normal"
+                custom:pb_colorPressed="@color/blue_pressed"
+                custom:pb_colorProgress="@color/purple_progress"
+                custom:pb_textComplete="@string/Success"
+                custom:pb_textError="@string/Failed"
+
+
+                custom:pb_textProgress="@string/Loading" />
+
+
+            <!--<Button-->
+                <!--android:id="@+id/btn_login"-->
+                <!--android:layout_width="fill_parent"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_marginTop="24dp"-->
+                <!--android:layout_marginBottom="24dp"-->
+                <!--android:padding="12dp"-->
+                <!--android:text="@string/loginBtnText"/>-->
 
             <TextView android:id="@+id/link_signup"
                 android:layout_width="fill_parent"
@@ -85,19 +94,6 @@
                 android:gravity="center"
                 android:textColor="@color/orange"
                 android:textSize="16dip"/>
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Offline"
-                android:id="@+id/offline" />
-
-
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Offline Tabs"
-                android:id="@+id/offlineTabs" />
 
 
         </LinearLayout>

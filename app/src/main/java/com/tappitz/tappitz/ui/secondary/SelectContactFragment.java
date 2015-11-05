@@ -126,7 +126,7 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
                 if(selected.size() > 0){
                     if(listener != null) {
                         listener.sendPhoto(selected);
-
+                        dismiss();
                     }
                 }else{
                     Toast.makeText(getActivity(), "Select a contact", Toast.LENGTH_SHORT).show();

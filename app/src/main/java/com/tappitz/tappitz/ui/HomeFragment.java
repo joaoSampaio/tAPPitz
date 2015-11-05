@@ -29,8 +29,6 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.animation.Animation;
-import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -75,7 +73,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private SurfaceView surfaceView;
     private Button btn_shutter;
     private LinearLayout btn_layout;
-    private LinearLayout camera_options;
     private boolean previewing = false;
     private String photoPath;
     private ImageView temp_pic;
@@ -88,14 +85,15 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private Handler autoFocusHandler;
     private ImageScanner scanner;
     private boolean barcodeScanned = false;
-    private String picture;
+    private String pictureBase64;
+    private int previewCount = 0;
+    private int qrCodeSampleTime = 5;
 
-    static {
-        System.loadLibrary("iconv");
-    }
+//    static {
+//        System.loadLibrary("iconv");
+//    }
 
-    final static int[] CLICABLES = {R.id.button_friends, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
-
+    final static int[] CLICABLES = {R.id.camera_options, R.id.go_to, R.id.btn_goto_in, R.id.btn_goto_out, R.id.btn_goto_friends, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
 
     View rootView;
     public HomeFragment() {
@@ -109,16 +107,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         rootView = inflater.inflate(R.layout.fragment_home, container, false);
 
 
-
         Log.d("myapp", "onCreateView");
         surfaceView = (SurfaceView) rootView.findViewById(R.id.surfaceview);
         btn_shutter = (Button) rootView.findViewById(R.id.btn_shutter);
         btn_layout = (LinearLayout) rootView.findViewById(R.id.btn_layout);
-        camera_options = (LinearLayout) rootView.findViewById(R.id.camera_options);
         photoPath = "";
         temp_pic = (ImageView) rootView.findViewById(R.id.temp_pic);
-
-        //AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
 
         textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
         whiteBackground = (RelativeLayout)rootView.findViewById(R.id.whiteBackground);
@@ -185,8 +179,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }else {
 
             scanner = new ImageScanner();
-//        scanner.setConfig(0, Config.X_DENSITY, 400);
-//        scanner.setConfig(0, Config.Y_DENSITY, 400);
             scanner.setConfig(0, Config.X_DENSITY, 3);
             scanner.setConfig(0, Config.Y_DENSITY, 3);
             //scanner.setConfig(0, Config.ENABLE, 0);
@@ -200,6 +192,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
         return rootView;
     }
+
+
 
     @Override
     public void onResume() {
@@ -227,24 +221,38 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     @Override
     public void onClick(View v) {
+        View view;
         switch (v.getId()){
+            case R.id.camera_options:
+                view = rootView.findViewById(R.id.layout_camera);
+                view.setVisibility(view.isShown()? View.GONE : View.VISIBLE);
+                break;
+            case R.id.go_to:
+                view = rootView.findViewById(R.id.layout_goto);
+                view.setVisibility(view.isShown()? View.GONE : View.VISIBLE);
+                break;
+            case R.id.btn_goto_in:
+                ((ScreenSlidePagerActivity)getActivity()).showPage(0);
+                break;
+            case R.id.btn_goto_out:
+                ((ScreenSlidePagerActivity)getActivity()).showPage(2);
+                break;
+            case R.id.btn_goto_friends:
+                ((ScreenSlidePagerActivity)getActivity()).showFriends();
+                break;
             case R.id.btn_shutter:
 
                 AppController.getInstance().mCamera.takePicture(null, null, mPicture);
-
+                ((ScreenSlidePagerActivity)getActivity()).enableSwipe(false);
                 onTakePick(true);
                 break;
 
             case R.id.btnPhotoDelete:
 
-                textMsgWrapper.setVisibility(View.INVISIBLE);
+                Log.d("myapp", "btnPhotoDelete");
                 deletePrevious();
-                recycleImagesFromView(temp_pic);
-                   onTakePick(false);
-                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-                textMsg.setText("");
-                picture = "";
+
+
                 break;
             case R.id.btnText:
                 showEditText();
@@ -252,12 +260,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 break;
             case R.id.btnPhotoAccept:
 
+                if(v.getTag() != null && v.getTag() instanceof String){
+                    textMsg.setText((String)v.getTag());
+                }
+
                 cameraReturn();
                 showDialog();
-//                SelectContactFragment newFragment = new SelectContactFragment();
-//                newFragment.show(getFragmentManager(), "dialog");
-
-
                 break;
 
             case R.id.btn_load:
@@ -303,68 +311,45 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     }
                 });
                 break;
-            case R.id.button_friends:
-                showFriends();
-                break;
+
         }
     }
 
 
-    private void showFriends(){
-        // DialogFragment.show() will take care of adding the fragment
-        // in a transaction.  We also want to remove any currently showing
-        // dialog, so make our own transaction and take care of that here.
-        FragmentTransaction ft = getFragmentManager().beginTransaction();
-        Fragment prev = getFragmentManager().findFragmentByTag("friends");
-        if (prev != null) {
-            ft.remove(prev);
-        }
-        ft.addToBackStack(null);
 
-        // Create and show the dialog.
-
-
-
-
-        Friends2Fragment newFragment = new Friends2Fragment();
-        newFragment.show(ft, "friends");
-    }
 
 
 
     private void setUP(){
-        Log.d("MyCameraApp", "setUP ");
+        Log.d("MyCameraApp", "setUP home");
         textMsgWrapper.setVisibility(View.INVISIBLE);
-        btn_layout.setVisibility(View.INVISIBLE);
+//        btn_layout.setVisibility(View.INVISIBLE);
         temp_pic.setVisibility(View.VISIBLE);
         surfaceView.setVisibility(View.VISIBLE);
-        whiteBackground.setVisibility(View.GONE);
+
         if(getActivity() instanceof MainActivity)
             ((MainActivity)getActivity()).displayTabs(false);
         if(!requestedFile) {
             start_camera();
+            showBtnOptions(false);
+            whiteBackground.setVisibility(View.GONE);
+        }else {
+            onTakePick(true);
         }
 
-//        if(getActivity() instanceof MainActivity)
-//            ((MainActivity)getActivity()).displayTabs(true);
 
 
-        camera_options.setVisibility(View.GONE);
         btn_shutter.setVisibility(View.GONE);
         Display d = ((WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int width = d.getWidth();
         int height = d.getHeight();
         AppController.getInstance().width = width;
         AppController.getInstance().height = height;
-        //Log.d("MyCameraApp", "setUP width: " + width + " height: " + height);
     }
 
 
     void showDialog() {
 
-        // DialogFragment.show() will take care of adding the fragment
-        // in a transaction.  We also want to remove any currently showing
-        // dialog, so make our own transaction and take care of that here.
         FragmentTransaction ft = getFragmentManager().beginTransaction();
         Fragment prev = getFragmentManager().findFragmentByTag("dialog");
         if (prev != null) {
@@ -374,7 +359,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
         // Create and show the dialog.
 
-        if(picture == null || picture.equals("")){
+        if(pictureBase64 == null || pictureBase64.equals("")){
 
 
             try {
@@ -382,14 +367,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 inputStream = new FileInputStream(photoPath);
                 byte[] buffer = new byte[8192];
                 int bytesRead;
-
-
-
-
-
-
-
-
 
                 ByteArrayOutputStream output = new ByteArrayOutputStream();
                 Base64OutputStream output64 = new Base64OutputStream(output, Base64.DEFAULT);
@@ -402,26 +379,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 }
                 output64.close();
 
-                picture = output.toString();
-                Log.d("myapp", "picture:" + picture);
-
-
-
-//                Bitmap bm = BitmapFactory.decodeFile(photoPath);
-//                Log.d("myapp", "height:" + bm.getHeight() + " width:" + bm.getWidth());
-//
-//                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//                bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-//                byte[] b = baos.toByteArray();
-//                picture = Base64.encodeToString(b, Base64.URL_SAFE);
-//                Log.d("myapp", "picture:" + picture);
-
+                pictureBase64 = output.toString();
+                Log.d("myapp", "pictureBase64:" + pictureBase64);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
         }
 
 
@@ -429,16 +392,21 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         SelectContactFragment newFragment = new SelectContactFragment();
         newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
             @Override
-            public void sendPhoto(List<String> contacts) {
-                new CreatePhotoService(comment, contacts, picture, new CallbackMultiple<Boolean>() {
+            public void sendPhoto(final List<String> contacts) {
+                new CreatePhotoService(comment, contacts, pictureBase64, new CallbackMultiple<Boolean>() {
                     @Override
                     public void success(Boolean response) {
-
+                        if (getActivity() != null)
+                            ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
+                        deletePrevious();
+                        //rootView.findViewById(R.id.btnPhotoDelete).callOnClick();
                     }
 
                     @Override
                     public void failed(Object error) {
-
+                        if (getActivity() != null)
+                            Toast.makeText(getActivity(), "Photo not sent" ,Toast.LENGTH_SHORT).show();
+                            //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
                     }
                 }).execute();
                 Toast.makeText(getActivity(), "Photo sent", Toast.LENGTH_SHORT).show();
@@ -448,31 +416,22 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     }
 
-
-
-
-
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.d("myapp", "onActivityResult");
         if(requestCode == Global.BROWSE_REQUEST && resultCode == Activity.RESULT_OK&& null != data) {
             stop_camera();
+            ((ScreenSlidePagerActivity)getActivity()).enableSwipe(false);
             Uri selectedImageUri = data.getData();
             String filePath = UriPath.getPath(getActivity(), selectedImageUri);
-            Log.d("myapp", "/////////selectedImageUri.toString():" + selectedImageUri.toString());
-           // String filePath = selectedImageUri.getPath();
-            Log.d("myapp", "/////////filePath before:" + filePath);
-
             requestedFile = true;
             loadBitmapFile(temp_pic, filePath, AppController.getInstance().width, AppController.getInstance().height);
             onTakePick(true);
+            //((ScreenSlidePagerActivity)getActivity()).callbackPhotoAvailable();
         }else{
             start_camera();
         }
-
-
     }
 
     public void loadBitmapFile(ImageView imageView,String path, int width, int height) {
@@ -482,7 +441,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
-
     }
 
     @Override
@@ -493,7 +451,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
     }
-
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback()
     {
@@ -521,7 +478,19 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     public void deletePrevious(){
         //recomeça a camera caso fosse foto da galeria
-        new ControlCameraTask().execute(true);
+
+        start_camera();
+        ((ScreenSlidePagerActivity)getActivity()).enableSwipe(true);
+        textMsgWrapper.setVisibility(View.INVISIBLE);
+
+        recycleImagesFromView(temp_pic);
+        onTakePick(false);
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+        textMsg.setText("");
+        pictureBase64 = "";
+
+
     }
 
     private void stop_camera(ControlCameraTask.CallbackCamera callback){
@@ -540,18 +509,20 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     private void waitForCamera(){
         btn_shutter.setVisibility(View.GONE);
-        camera_options.setVisibility(View.GONE);
+        showBtnOptions(false);
     }
 
     private void onCameraAvailable(){
+        ((ScreenSlidePagerActivity)getActivity()).callbackCameraAvailable();
+
         Long pastTime = System.currentTimeMillis() - currentTime;
         Log.d("myapp", "onCameraAvailable: " + pastTime);
         showToast(pastTime + " Miliseconds");
         //Toast.makeText(getActivity(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
         previewing = true;
         btn_shutter.setVisibility(View.VISIBLE);
-        camera_options.setVisibility(View.VISIBLE);
-
+        //camera_options.setVisibility(View.VISIBLE);
+        showBtnOptions(true);
         if(getActivity() instanceof MainActivity)
             ((MainActivity)getActivity()).displayTabs(true);
 
@@ -675,14 +646,13 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 //        finish();
     }
 
+
     private void showEditText(){
         Log.d("myapp", "showEditText");
         final boolean isVisible = textMsgWrapper.isShown();
-        int show = isVisible? 0 : -1;
-        int hide = isVisible? -1 : 0;
-
         rootView.findViewById( R.id.btnText).setEnabled(false);
-
+        textMsgWrapper.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+        rootView.findViewById(R.id.btnText).setEnabled(true);
 
         if(!isVisible){
             textMsg.requestFocus();
@@ -691,123 +661,108 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }else {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-            //imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
         }
-
-
-        final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_PARENT, show,
-                Animation.RELATIVE_TO_PARENT, hide);
-        anim_show.setDuration(ANIMATION_DURATION);
-        anim_show.setFillAfter(true);
-
-        anim_show.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-                if(!isVisible) {
-                    textMsgWrapper.setVisibility(View.VISIBLE);
-
-                }
-                Log.d("myapp", "onAnimationStart");
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-                if(isVisible) {
-                    textMsgWrapper.setVisibility(View.INVISIBLE);
-                }
-                textMsgWrapper.setAnimation(null);
-                rootView.findViewById( R.id.btnText).setEnabled(true);
-                Log.d("myapp", "onAnimationEnd");
-            }
-        });
-        textMsgWrapper.startAnimation(anim_show);
     }
 
-    private void onTakePick(final boolean isFirst)
+    private void showBtnOptions(boolean show){
+        rootView.findViewById(R.id.camera_options).setVisibility(!show ? View.GONE : View.VISIBLE);
+        rootView.findViewById(R.id.layout_camera).setVisibility(View.GONE);
+        rootView.findViewById(R.id.go_to).setVisibility(!show ? View.GONE : View.VISIBLE);
+        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
+    }
+
+    private void onTakePick(final boolean takePhoto)
     {
+        Log.d("myapp", "onTakePick " + takePhoto);
         //este metodo esconde o menu da camera ou mostra o botao para tirar foto, simplesmente tem animações porque era codigo que ja tinha feito para outra app
-        if(!isFirst){
+        if(!takePhoto){
             temp_pic.setVisibility(View.GONE);
-            //start_camera();
             surfaceView.setVisibility(View.VISIBLE);
         }
 
-
-        final TranslateAnimation anim_hide = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_SELF, 0,
-                Animation.RELATIVE_TO_PARENT, 0,
-                Animation.RELATIVE_TO_PARENT, 1);
-        anim_hide.setDuration(ANIMATION_DURATION);
-        anim_hide.setFillAfter(true);
-
-        final View view1 = isFirst? btn_shutter : btn_layout;
-        final View view2 = isFirst? btn_layout : btn_shutter ;
-
-        anim_hide.setAnimationListener(new Animation.AnimationListener() {
-            @Override
-            public void onAnimationStart(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationRepeat(Animation animation) {
-
-            }
-
-            @Override
-            public void onAnimationEnd(Animation animation) {
-
-                view1.setVisibility(View.GONE);
-                view1.setAnimation(null);
-                if (isFirst) {
-                    camera_options.setVisibility(View.GONE);
-                    whiteBackground.setVisibility(View.VISIBLE);
-                    if(getActivity() instanceof MainActivity)
-                        ((MainActivity) getActivity()).displayTabs(false);
-                }
-                final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
-                        Animation.RELATIVE_TO_SELF, 0,
-                        Animation.RELATIVE_TO_PARENT, 1,
-                        Animation.RELATIVE_TO_PARENT, 0);
-                anim_show.setDuration(ANIMATION_DURATION);
-                anim_show.setFillAfter(true);
-
-                anim_show.setAnimationListener(new Animation.AnimationListener() {
-                    @Override
-                    public void onAnimationStart(Animation animation) {
-                        view2.setVisibility(View.VISIBLE);
-                        if (!isFirst) {
-                            camera_options.setVisibility(View.VISIBLE);
-                            whiteBackground.setVisibility(View.GONE);
-                            if(getActivity() instanceof MainActivity)
-                                ((MainActivity) getActivity()).displayTabs(true);
-                        }
-                    }
-
-                    @Override
-                    public void onAnimationRepeat(Animation animation) {
-
-                    }
-
-                    @Override
-                    public void onAnimationEnd(Animation animation) {
-                        view2.setAnimation(null);
-                    }
-                });
-                view2.startAnimation(anim_show);
-            }
-        });
-
-        view1.startAnimation(anim_hide);
+        btn_shutter.setVisibility(takePhoto ? View.GONE : View.VISIBLE);
+        showBtnOptions(!takePhoto);
+        whiteBackground.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
     }
+
+
+//    private void onTakePick2(final boolean isFirst)
+//    {
+//        //este metodo esconde o menu da camera ou mostra o botao para tirar foto, simplesmente tem animações porque era codigo que ja tinha feito para outra app
+//        if(!isFirst){
+//            temp_pic.setVisibility(View.GONE);
+//            //start_camera();
+//            surfaceView.setVisibility(View.VISIBLE);
+//        }
+//
+//
+//        final TranslateAnimation anim_hide = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
+//                Animation.RELATIVE_TO_SELF, 0,
+//                Animation.RELATIVE_TO_PARENT, 0,
+//                Animation.RELATIVE_TO_PARENT, 1);
+//        anim_hide.setDuration(ANIMATION_DURATION);
+//        anim_hide.setFillAfter(true);
+//
+//        final View view1 = isFirst? btn_shutter : btn_layout;
+//        final View view2 = isFirst? btn_layout : btn_shutter ;
+//
+//        anim_hide.setAnimationListener(new Animation.AnimationListener() {
+//            @Override
+//            public void onAnimationStart(Animation animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationRepeat(Animation animation) {
+//
+//            }
+//
+//            @Override
+//            public void onAnimationEnd(Animation animation) {
+//
+//                view1.setVisibility(View.GONE);
+//                view1.setAnimation(null);
+//                if (isFirst) {
+//                    camera_options.setVisibility(View.GONE);
+//                    whiteBackground.setVisibility(View.VISIBLE);
+//                    if(getActivity() instanceof MainActivity)
+//                        ((MainActivity) getActivity()).displayTabs(false);
+//                }
+//                final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
+//                        Animation.RELATIVE_TO_SELF, 0,
+//                        Animation.RELATIVE_TO_PARENT, 1,
+//                        Animation.RELATIVE_TO_PARENT, 0);
+//                anim_show.setDuration(ANIMATION_DURATION);
+//                anim_show.setFillAfter(true);
+//
+//                anim_show.setAnimationListener(new Animation.AnimationListener() {
+//                    @Override
+//                    public void onAnimationStart(Animation animation) {
+//                        view2.setVisibility(View.VISIBLE);
+//                        if (!isFirst) {
+//                            camera_options.setVisibility(View.VISIBLE);
+//                            whiteBackground.setVisibility(View.GONE);
+//                            if(getActivity() instanceof MainActivity)
+//                                ((MainActivity) getActivity()).displayTabs(true);
+//                        }
+//                    }
+//
+//                    @Override
+//                    public void onAnimationRepeat(Animation animation) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onAnimationEnd(Animation animation) {
+//                        view2.setAnimation(null);
+//                    }
+//                });
+//                view2.startAnimation(anim_show);
+//            }
+//        });
+//
+//        view1.startAnimation(anim_hide);
+//    }
 
 
 
@@ -834,9 +789,21 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     {
         public void onPreviewFrame(byte[] data, Camera camera)
         {
+//            if(true)
+//                return;
             try {
+
+
+
+
                 if(barcodeScanned)
                     return;
+
+                previewCount++;
+                //so verifica qr code X em X vezes
+                if((previewCount % qrCodeSampleTime) != 0)
+                    return;
+                previewCount = 0;
                 Camera.Parameters parameters = camera.getParameters();
                 Camera.Size size = parameters.getPreviewSize();
                 Image barcode = new Image(size.width, size.height, "Y800");

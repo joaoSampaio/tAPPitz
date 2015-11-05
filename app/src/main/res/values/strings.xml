@@ -290,6 +290,8 @@
     <string name="bar_out">OUT</string>
     <string name="bar_friends">FRIENDS</string>
     <string name="no_contacts">No matches found in your contact list. \nTo add a new contact type the full email and search.</string>
-
-
+    <string name="Sign_in">Sign in</string>
+    <string name="Success">Success</string>
+    <string name="Loading">Loading..</string>
+    <string name="Failed">Failed!</string>
 </resources>

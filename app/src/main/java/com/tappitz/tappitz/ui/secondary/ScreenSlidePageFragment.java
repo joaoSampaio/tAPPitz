@@ -1,6 +1,5 @@
 package com.tappitz.tappitz.ui.secondary;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -13,12 +12,11 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
-import com.squareup.picasso.Callback;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
-import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.rest.RestClient;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -62,18 +60,7 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
         String text = getArguments().getString(Global.TEXT_RESOURCE);
         String id = getArguments().getString(Global.ID_RESOURCE);
 
-        Context context = getActivity();
-        Callback call = new Callback() {
-            @Override
-            public void onSuccess() {
 
-            }
-
-            @Override
-            public void onError() {
-
-            }
-        };
 
         if (imageLoader == null)
             imageLoader = AppController.getInstance().getImageLoader();

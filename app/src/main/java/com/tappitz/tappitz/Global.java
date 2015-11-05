@@ -6,12 +6,12 @@ package com.tappitz.tappitz;
 public class Global {
 
     //https://api.myjson.com/bins/56wu6
-    //public static final String ENDPOINT = "https://dl.dropboxusercontent.com/u/68830630/tAppitz";
-    //public static final String ENDPOINT_SIGMA = "http://web.ist.utl.pt/ist170638/tappitz";
-    public static final String ENDPOINT_SIGMA = "http://192.168.43.104:8182";
+    public static final String ENDPOINT = "https://dl.dropboxusercontent.com/u/68830630/tAppitz";
+    public static final String ENDPOINT_SIGMA = "http://web.ist.utl.pt/ist170638/tappitz";
+    //public static final String ENDPOINT_SIGMA = "http://192.168.43.104:8182";
     //public static final String ENDPOINT = "https://api.myjson.com/bins";
     //public static final String ENDPOINT = "http://176.111.104.39:8182";
-    public static final String ENDPOINT = "http://192.168.43.104:8182";
+//    public static final String ENDPOINT = "http://192.168.43.104:8182";
 
     // Google project id
     public static final String PROJECT_ID = "324070600220";

@@ -20,6 +20,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.dd.processbutton.iml.ActionProcessButton;
 import com.google.gson.JsonElement;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
@@ -28,6 +29,7 @@ import com.tappitz.tappitz.rest.model.UserRegister;
 import com.tappitz.tappitz.rest.service.CallbackFromService;
 import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.rest.service.RegisterService;
+import com.tappitz.tappitz.util.ProgressGenerator;
 import com.tappitz.tappitz.validators.EmailValidator;
 import com.tappitz.tappitz.validators.NameValidator;
 import com.tappitz.tappitz.validators.PasswordValidator;
@@ -41,16 +43,17 @@ import java.util.Locale;
 
 import retrofit.RetrofitError;
 
-public class LoginActivity extends Activity  implements View.OnClickListener, DatePickerDialog.OnDateSetListener {
+public class LoginActivity extends Activity  implements View.OnClickListener, DatePickerDialog.OnDateSetListener, ProgressGenerator.OnCompleteListener {
 
 
-    private final static int[] CLICKABLES = {R.id.btn_login, R.id.link_signup, R.id.backToPrevious, R.id.nextTo, R.id.offline, R.id.offlineTabs};
+    private final static int[] CLICKABLES = {R.id.btn_login, R.id.link_signup, R.id.backToPrevious, R.id.nextTo};
     private final static int[] SCREENS = {R.id.screen_login, R.id.screen_reg1, R.id.screen_reg2, R.id.bottom_actions};
     private int curScreen, day, month, year;
-    AppCompatEditText UsrEmail, UsrPassword, date_picker, firstname, lastname, registerEmail, registerPassword, registerPhoneNumber;
+    AppCompatEditText editEmail, editPassword, date_picker, firstname, lastname, registerEmail, registerPassword, registerPhoneNumber;
     private AppCompatRadioButton female, male;
     private Spinner paisesSpinner;
-    private Button login;
+    private ActionProcessButton login;
+    private ProgressGenerator progressGenerator;
 
     private List<Integer> screens;
 
@@ -63,8 +66,8 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
 
         for (int id: CLICKABLES)
             findViewById(id).setOnClickListener(this);
-        UsrEmail = (AppCompatEditText) findViewById(R.id.loginEmail);
-        UsrPassword = (AppCompatEditText) findViewById(R.id.loginPassword);
+        editEmail = (AppCompatEditText) findViewById(R.id.loginEmail);
+        editPassword = (AppCompatEditText) findViewById(R.id.loginPassword);
 
         firstname = (AppCompatEditText) findViewById(R.id.firstname);
         lastname = (AppCompatEditText) findViewById(R.id.lastname);
@@ -76,14 +79,16 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
         registerPassword = (AppCompatEditText) findViewById(R.id.registerPassword);
         registerPhoneNumber = (AppCompatEditText) findViewById(R.id.registerPhoneNumber);
 
-        login = (Button)findViewById(R.id.btn_login);
+        login = (ActionProcessButton)findViewById(R.id.btn_login);
+        login.setMode(ActionProcessButton.Mode.ENDLESS);
+
         curScreen = R.id.screen_login;
 
         SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
         String user = prefs.getString(Global.KEY_USER, "");
         String pass = prefs.getString(Global.KEY_PASS, "");
-        UsrEmail.setText(user);
-        UsrPassword.setText(pass);
+        editEmail.setText(user);
+        editPassword.setText(pass);
 
 
 
@@ -111,6 +116,9 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
             paisesSpinner.setSelection(spinnerPosition);
         }
 
+        progressGenerator = new ProgressGenerator(this);
+//        final ActionProcessButton btnSignIn = (ActionProcessButton) findViewById(R.id.btnSignIn);
+//        btnSignIn.setMode(ActionProcessButton.Mode.ENDLESS);
 
 
 
@@ -142,22 +150,22 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.offline:
-                onSuccessLogin();
-                break;
-            case R.id.offlineTabs:
-                Intent intent = new Intent(this, ScreenSlidePagerActivity.class);
-                startActivityForResult(intent, 0);
-                finish();
-                break;
+//            case R.id.offline:
+//                onSuccessLogin();
+//                break;
+//            case R.id.offlineTabs:
+//                Intent intent = new Intent(this, ScreenSlidePagerActivity.class);
+//                startActivityForResult(intent, 0);
+//                finish();
+//                break;
             case R.id.link_signup:
                 Log.d("myapp", "****registerBtn**" + curScreen);
                 screens.add(R.id.screen_login);
                 showScreen(R.id.screen_reg1);
 
 
-                registerEmail.setText(UsrEmail.getText().toString());
-                registerPassword.setText(UsrPassword.getText().toString());
+                registerEmail.setText(editEmail.getText().toString());
+                registerPassword.setText(editPassword.getText().toString());
 
                 break;
             case R.id.backToPrevious:
@@ -185,50 +193,54 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
                     Log.d("myapp", "****validators**");
 
                     login.setEnabled(false);
-
+                    editEmail.setEnabled(false);
+                    editPassword.setEnabled(false);
+                    //progressGenerator.start(login);
+                    login.setProgress(50);
                     final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
 
 
 
-                    new LoginService(UsrEmail.getText().toString(), UsrPassword.getText().toString(), new CallbackFromService() {
+                    new LoginService(editEmail.getText().toString(), editPassword.getText().toString(), new CallbackFromService() {
                         @Override
                         public void success(Object response) {
                             if (response != null && response instanceof JsonElement) {
-                                JsonElement r = (JsonElement)response;
-                                Log.d("myapp", "***get(status)***" + r.getAsJsonObject().get("status"));
-                                String status = r.getAsJsonObject().get("status").toString();
+                                try {
+                                    JsonElement r = (JsonElement)response;
+                                    Log.d("myapp", "***get(status)***" + r.getAsJsonObject().get("status"));
+                                    String status = r.getAsJsonObject().get("status").toString();
 
-                                TextInputLayout textMsgWrapperUser = (TextInputLayout)findViewById(R.id.textMsgWrapperUser);
-                                if(status.equals("true")){
-                                    Log.d("myapp", "***get(status)**true*" );
-                                    textMsgWrapperUser.setErrorEnabled(false);
-
-
-                                    try {
-                                        String sessionId = r.getAsJsonObject().get("sessionId").toString();
-                                        SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
-                                        SharedPreferences.Editor editor = sp.edit();
-                                        editor.putString("sessionId", sessionId);
-                                        editor.commit();
-                                        Log.d("myapp", "***login**sessionId*" + sessionId );
-                                        RestClient.setSessionId(sessionId);
+                                    if(status.equals("true")){
+                                        Log.d("myapp", "***get(status)**true*");
+                                        try {
+                                            String sessionId = r.getAsJsonObject().get("sessionId").toString();
+                                            SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+                                            SharedPreferences.Editor editor = sp.edit();
+                                            editor.putString("sessionId", sessionId);
+                                            editor.commit();
+                                            Log.d("myapp", "***login**sessionId*" + sessionId );
+                                            RestClient.setSessionId(sessionId);
 
 
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
+                                        } catch (Exception e) {
+                                            e.printStackTrace();
+                                        }
+                                        login.setProgress(100);
+                                        onSuccessLogin();
+                                    }else{
+                                        Log.d("myapp", "***get(status)**false*" );
+                                        String error = r.getAsJsonObject().get("error").toString();
+                                        editEmail.setError(error);
+
+                                        onSuccessLogin();
                                     }
 
-                                    onSuccessLogin();
-                                }else{
-                                    Log.d("myapp", "***get(status)**false*" );
-                                    textMsgWrapperUser.setErrorEnabled(true);
-                                    String error = r.getAsJsonObject().get("error").toString();
-                                    textMsgWrapperUser.setError(error);
+
+                                    Log.d("myapp", "******" + r.toString());
+                                    Log.d("myapp", "***get(\"status\")***" + r.getAsJsonObject().get("status"));
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-
-
-                                Log.d("myapp", "******" + r.toString());
-                                Log.d("myapp", "***get(\"status\")***" + r.getAsJsonObject().get("status"));
 
                             }
                             login.setEnabled(true);
@@ -239,8 +251,14 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
                         public void failed(Object error) {
                             if (error != null && error instanceof RetrofitError) {
                                 //onSuccessLogin();
+
                                 login.setEnabled(true);
+                                editEmail.setEnabled(true);
+                                editPassword.setEnabled(true);
                                 progressDialog.dismiss();
+                                login.setProgress(-1);
+
+                                onSuccessLogin();
                             }
                         }
                     }).execute();
@@ -274,21 +292,18 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
             @Override
             public void success(Object response) {
                 JsonElement json = (JsonElement) response;
-                TextInputLayout email_holder = (TextInputLayout)findViewById(R.id.email_holder);
                 Log.d("myapp", "***get(status)***" + json.getAsJsonObject().get("status"));
                 String status = json.getAsJsonObject().get("status").toString();
                 if(status.equals("true")){
-                    Log.d("myapp", "***get(status)**true*" );
-                    email_holder.setErrorEnabled(false);
-                    UsrEmail.setText(registerEmail.getText().toString());
-                    UsrPassword.setText(registerPassword.getText().toString());
+                    Log.d("myapp", "***get(status)**true*");
+                    editEmail.setText(registerEmail.getText().toString());
+                    editPassword.setText(registerPassword.getText().toString());
                     screens.add(R.id.screen_reg2);
                     showScreen(R.id.screen_login);
                 }else{
-                    Log.d("myapp", "***get(status)**false*" );
-                    email_holder.setErrorEnabled(true);
+                    Log.d("myapp", "***get(status)**false*");
                     String error = json.getAsJsonObject().get("error").toString();
-                    email_holder.setError(error);
+                    editPassword.setError(error);
                 }
                 progressDialog.dismiss();
 
@@ -341,12 +356,12 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
         SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
         ;
         SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(Global.KEY_USER, UsrEmail.getText().toString());
-        editor.putString(Global.KEY_PASS, UsrPassword.getText().toString());
+        editor.putString(Global.KEY_USER, editEmail.getText().toString());
+        editor.putString(Global.KEY_PASS, editPassword.getText().toString());
         editor.apply();
 
         //abre o fragmento HOME
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, ScreenSlidePagerActivity.class);
         startActivityForResult(intent, 0);
         finish();
     }
@@ -462,23 +477,24 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
         EmailValidator emailValidator = new EmailValidator();
         PasswordValidator passwordValidator = new PasswordValidator();
 
-        boolean emailValidated = emailValidator.validate(UsrEmail.getText().toString());
-        boolean passwordValidated = passwordValidator.validate(UsrPassword.getText().toString());
-        TextInputLayout textMsgWrapperUser = (TextInputLayout)findViewById(R.id.textMsgWrapperUser);
-        TextInputLayout textMsgWrapperPass = (TextInputLayout)findViewById(R.id.textMsgWrapperPass);
+        boolean emailValidated = emailValidator.validate(editEmail.getText().toString());
+        boolean passwordValidated = passwordValidator.validate(editPassword.getText().toString());
+
         if(!emailValidated) {
-            textMsgWrapperUser.setErrorEnabled(true);
-            textMsgWrapperUser.setError("Email must ...");
+            editEmail.setError("Email must ...");
         }else
-            textMsgWrapperUser.setErrorEnabled(false);
+            editEmail.setError(null);
 
         if(!passwordValidated){
-            textMsgWrapperPass.setErrorEnabled(true);
-            textMsgWrapperPass.setError("Password must ...");
+            editPassword.setError("Password must ...");
         }else
-            textMsgWrapperPass.setErrorEnabled(false);
+            editPassword.setError(null);
 
         return emailValidated && passwordValidated;
     }
 
+    @Override
+    public void onComplete() {
+
+    }
 }
