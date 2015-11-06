@@ -346,11 +346,15 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
     private void onSuccessLogin(){
 
         //esconde o teclado caso estiver aberto
-        InputMethodManager inputManager = (InputMethodManager)
-                getSystemService(Context.INPUT_METHOD_SERVICE);
+        try {
+            InputMethodManager inputManager = (InputMethodManager)
+                    getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
-                InputMethodManager.HIDE_NOT_ALWAYS);
+            inputManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         //guarda o mail e pass para nao ser preciso introduzi-los a toda a hora
         SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);

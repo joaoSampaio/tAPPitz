@@ -10,6 +10,7 @@ import android.widget.RemoteViews;
 
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.ui.MainActivity;
+import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 
 import java.util.UUID;
 
@@ -66,7 +67,7 @@ public class GcmIntentService extends IntentService {
         contentView.setTextViewText(R.id.text, message);
         notification.contentView = contentView;
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, ScreenSlidePagerActivity.class);
 
         String xId = UUID.randomUUID().toString();
         notificationIntent.putExtra("x_id", xId);

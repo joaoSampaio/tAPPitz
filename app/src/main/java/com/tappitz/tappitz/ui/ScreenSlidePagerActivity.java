@@ -281,6 +281,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
             switch (position){
 
                 case 0:
+//                    fragment = new BlankFragment();
                     fragment = new InBoxFragment();
                     break;
                 case 1:
@@ -288,6 +289,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                     fragment = new BlankFragment();
                     break;
                 case 2:
+                    fragment = new BlankFragment();
                     fragment = new OutBoxFragment();
                     break;
             }

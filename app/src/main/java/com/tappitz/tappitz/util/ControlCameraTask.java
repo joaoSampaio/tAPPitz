@@ -15,6 +15,7 @@ import java.util.List;
 public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
 
     private CallbackCamera callback;
+    private boolean error = false;
     public ControlCameraTask(){
 
     }
@@ -26,9 +27,11 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
     @Override
     protected Void doInBackground(Boolean... params) {
         Log.d("MyCameraApp", "doInBackground");
+        error = false;
         boolean requestOpen = params[0];
         AppController app = AppController.getInstance();
         if (!requestOpen && app.mCamera != null) {
+            Log.d("myApp", "Cameratask stop");
             app.mCamera.stopPreview();
             app.mCamera.setPreviewCallback(null);
             app.mCamera.release();
@@ -39,7 +42,8 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
 
             if(app.mCamera == null) {
                 try {
-                    Thread.sleep(100);
+//                    Thread.sleep(100);
+                    Log.d("MyCameraApp", "Camera.open antes");
                     app.mCamera = Camera.open(app.currentCameraId);
                     Log.d("MyCameraApp", "Camera.open");
                     setCameraDisplayOrientation(app.currentCameraId, app.mCamera);
@@ -49,7 +53,9 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
                     app.mCamera.startPreview();
                     Log.d("MyCameraApp", "Camera.startPreview");
                 } catch (Exception e) {
+                    Log.e("myapp",  "erro2");
                     Log.e("myapp",  e.getMessage());
+                    error = true;
 
                 }
             }else{
@@ -59,7 +65,9 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
                     app.mCamera.startPreview();
                     //previewing = true;
                 } catch (Exception e) {
+                    Log.e("myapp",  "erro3");
                     e.printStackTrace();
+                    error = true;
                 }
             }
         }
@@ -70,8 +78,12 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
     @Override
     protected void onPostExecute(Void aVoid) {
         super.onPostExecute(aVoid);
-        if(callback != null)
-            callback.onDone();
+        if(callback != null ) {
+            if( !error)
+                callback.onDone();
+            else
+                callback.onError();
+        }
     }
 
 
@@ -101,41 +113,41 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
         }
 
         //temos de trocar os valores caso a width seja mais baixa que o height
-        int maxWidth = app.width > app.height? app.width : app.height;
-        int maxHeight = app.width > app.height? app.height : app.width;
-
-
-
-        List<Camera.Size> sizes = sizes = parameters.getSupportedPreviewSizes();
-        Camera.Size sizeScreen = sizes.get(0);
-        for (int i = 0; i < sizes.size(); i++) {
-
-            if (sizes.get(i).width > sizeScreen.width)
-                sizeScreen = sizes.get(i);
-            if(sizes.get(i).height == maxHeight) {
-                sizeScreen = sizes.get(i);
-                break;
-            }
-        }
-        Log.d("MyCameraApp", "sizeScreen size.width: " + sizeScreen.width + " size.height: " + sizeScreen.height);
-        parameters.setPreviewSize(sizeScreen.width, sizeScreen.height);
-
-
-        sizes = parameters.getSupportedPictureSizes();
-        Camera.Size sizeCamera = sizes.get(0);
-        for (int i = 0; i < sizes.size(); i++) {
-            Log.d("myapp", "size.width: " +sizes.get(i).width + " size.height: " + +sizes.get(i).height);
-            if (sizes.get(i).width > sizeCamera.width)
-                sizeCamera = sizes.get(i);
-            if(sizes.get(i).height == maxHeight) {
-                sizeCamera = sizes.get(i);
-                break;
-            }
-        }
-
-
-        Log.d("MyCameraApp", "best size.width: " + sizeCamera.width + " size.height: " + sizeCamera.height);
-        parameters.setPictureSize(sizeCamera.width, sizeCamera.height);
+//        int maxWidth = app.width > app.height? app.width : app.height;
+//        int maxHeight = app.width > app.height? app.height : app.width;
+//
+//
+//
+//        List<Camera.Size> sizes = sizes = parameters.getSupportedPreviewSizes();
+//        Camera.Size sizeScreen = sizes.get(0);
+//        for (int i = 0; i < sizes.size(); i++) {
+//
+//            if (sizes.get(i).width > sizeScreen.width)
+//                sizeScreen = sizes.get(i);
+//            if(sizes.get(i).height == maxHeight) {
+//                sizeScreen = sizes.get(i);
+//                break;
+//            }
+//        }
+//        Log.d("MyCameraApp", "sizeScreen size.width: " + sizeScreen.width + " size.height: " + sizeScreen.height);
+//        parameters.setPreviewSize(sizeScreen.width, sizeScreen.height);
+//
+//
+//        sizes = parameters.getSupportedPictureSizes();
+//        Camera.Size sizeCamera = sizes.get(0);
+//        for (int i = 0; i < sizes.size(); i++) {
+//            Log.d("myapp", "size.width: " +sizes.get(i).width + " size.height: " + +sizes.get(i).height);
+//            if (sizes.get(i).width > sizeCamera.width)
+//                sizeCamera = sizes.get(i);
+//            if(sizes.get(i).height == maxHeight) {
+//                sizeCamera = sizes.get(i);
+//                break;
+//            }
+//        }
+//
+//
+//        Log.d("MyCameraApp", "best size.width: " + sizeCamera.width + " size.height: " + sizeCamera.height);
+//        parameters.setPictureSize(sizeCamera.width, sizeCamera.height);
 
 
         parameters.setPictureFormat(PixelFormat.JPEG);
@@ -152,6 +164,7 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
 
     public interface CallbackCamera {
         public void onDone();
+        public void onError();
     }
 }
 

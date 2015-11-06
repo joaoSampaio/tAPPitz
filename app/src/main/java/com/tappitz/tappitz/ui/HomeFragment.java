@@ -217,6 +217,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     @Override
     public void onPause() {
         super.onPause();
+        Log.d("myapp", "onPause");
         stop_camera();
 
     }
@@ -248,9 +249,21 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 break;
             case R.id.btn_shutter:
 
-                AppController.getInstance().mCamera.takePicture(null, null, mPicture);
-                ((ScreenSlidePagerActivity)getActivity()).enableSwipe(false);
-                onTakePick(true);
+                Log.d("myapp", "btn_shutter");
+
+                if(AppController.getInstance().mCamera != null) {
+                    Log.d("myapp", "btn_shutter2**");
+                    AppController.getInstance().mCamera.takePicture(null, null, mPicture);
+                    Log.d("myapp", "btn_shutter2");
+                    ((ScreenSlidePagerActivity) getActivity()).enableSwipe(false);
+                    onTakePick(true);
+                }else{
+                    Log.d("myapp", "****************btn_shutter erro");
+                    Log.d("myapp", "btn_shutter erro");
+                    Log.d("myapp", "btn_shutter erro");
+                    Log.d("myapp", "btn_shutter erro");
+                    Log.d("myapp", "btn_shutter erro");
+                }
                 break;
 
             case R.id.btnPhotoDelete:
@@ -314,6 +327,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 stop_camera(new ControlCameraTask.CallbackCamera() {
                     @Override
                     public void onDone() {
+                        start_camera();
+                    }
+
+                    @Override
+                    public void onError() {
+                        stop_camera();
                         start_camera();
                     }
                 });
@@ -462,9 +481,9 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             //decode the data obtained by the camera into a Bitmap
-
+            Log.d("myapp", "PictureCallback");
             photoData = data;
-
+            stop_camera();
 //            FileOutputStream outStream = null;
 //            try {
 //                File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
@@ -562,7 +581,13 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         try {
             if(AppController.getInstance().mCamera != null){
                 Log.d("myapp", "setPreviewCallback: ");
-                AppController.getInstance().mCamera.setPreviewCallback(previewCb);
+
+                //isto parte o tlm do Paulo!!!
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+                    //nao funciona
+                    AppController.getInstance().mCamera.setPreviewCallback(previewCb);
+                }
+                //
 
             }
         } catch (Exception e) {
@@ -582,6 +607,15 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             @Override
             public void onDone() {
                 onCameraAvailable();
+
+            }
+
+            @Override
+            public void onError() {
+
+
+                stop_camera();
+                start_camera();
             }
         });
         c.execute(true);
