@@ -89,6 +89,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private int previewCount = 0;
     private int qrCodeSampleTime = 5;
 
+    private byte[] photoData;
+
 //    static {
 //        System.loadLibrary("iconv");
 //    }
@@ -226,10 +228,14 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             case R.id.camera_options:
                 view = rootView.findViewById(R.id.layout_camera);
                 view.setVisibility(view.isShown()? View.GONE : View.VISIBLE);
+
+                rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
                 break;
             case R.id.go_to:
                 view = rootView.findViewById(R.id.layout_goto);
                 view.setVisibility(view.isShown()? View.GONE : View.VISIBLE);
+
+                rootView.findViewById(R.id.layout_camera).setVisibility(View.GONE);
                 break;
             case R.id.btn_goto_in:
                 ((ScreenSlidePagerActivity)getActivity()).showPage(0);
@@ -260,9 +266,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 break;
             case R.id.btnPhotoAccept:
 
-                if(v.getTag() != null && v.getTag() instanceof String){
-                    textMsg.setText((String)v.getTag());
-                }
+//                if(v.getTag() != null && v.getTag() instanceof String){
+//                    textMsg.setText((String)v.getTag());
+//                }
+                savePhotoToFile();
 
                 cameraReturn();
                 showDialog();
@@ -338,7 +345,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
 
 
-
+        requestedFile = false;
         btn_shutter.setVisibility(View.GONE);
         Display d = ((WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int width = d.getWidth();
@@ -429,8 +436,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             loadBitmapFile(temp_pic, filePath, AppController.getInstance().width, AppController.getInstance().height);
             onTakePick(true);
             //((ScreenSlidePagerActivity)getActivity()).callbackPhotoAvailable();
-        }else{
-            start_camera();
         }
     }
 
@@ -457,38 +462,65 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             //decode the data obtained by the camera into a Bitmap
+
+            photoData = data;
+
+//            FileOutputStream outStream = null;
+//            try {
+//                File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+//                outStream = new FileOutputStream(file);
+//                outStream.write(data);
+//                outStream.close();
+//
+//                photoPath = file.getAbsolutePath();
+//                getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+//
+//            } catch (FileNotFoundException e){
+//                Log.d("CAMERA", e.getMessage());
+//            } catch (IOException e){
+//                Log.d("CAMERA", e.getMessage());
+//            }
+
+        }
+    };
+
+    private void savePhotoToFile(){
+
+        if(photoData != null) {
             FileOutputStream outStream = null;
             try {
                 File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
                 outStream = new FileOutputStream(file);
-                outStream.write(data);
+                outStream.write(photoData);
                 outStream.close();
 
                 photoPath = file.getAbsolutePath();
                 getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
 
-            } catch (FileNotFoundException e){
+            } catch (FileNotFoundException e) {
                 Log.d("CAMERA", e.getMessage());
-            } catch (IOException e){
+            } catch (IOException e) {
                 Log.d("CAMERA", e.getMessage());
             }
-
+            photoData = null;
         }
-    };
+    }
 
     public void deletePrevious(){
         //recomeça a camera caso fosse foto da galeria
 
+        textMsg.setText("");
+        pictureBase64 = "";
+        photoData = null;
         start_camera();
-        ((ScreenSlidePagerActivity)getActivity()).enableSwipe(true);
+        ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
         textMsgWrapper.setVisibility(View.INVISIBLE);
 
         recycleImagesFromView(temp_pic);
         onTakePick(false);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-        textMsg.setText("");
-        pictureBase64 = "";
+
 
 
     }

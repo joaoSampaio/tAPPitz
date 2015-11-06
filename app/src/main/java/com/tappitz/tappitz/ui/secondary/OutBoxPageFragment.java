@@ -24,7 +24,7 @@ import java.util.List;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class ScreenSlidePageFragment extends Fragment implements View.OnClickListener {
+public class OutBoxPageFragment extends Fragment implements View.OnClickListener {
 
     private View rootView, comment_layout;
     private TextView commentText, comment_user, comment_date;
@@ -38,8 +38,8 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
 
-    public static ScreenSlidePageFragment newInstance(Bundle args) {
-        ScreenSlidePageFragment fragment = new ScreenSlidePageFragment();
+    public static OutBoxPageFragment newInstance(Bundle args) {
+        OutBoxPageFragment fragment = new OutBoxPageFragment();
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,7 +53,7 @@ public class ScreenSlidePageFragment extends Fragment implements View.OnClickLis
 
         //position = getArguments().getInt(POSITION_KEY);
 
-        rootView = inflater.inflate(R.layout.fragment_pager_child, container, false);
+        rootView = inflater.inflate(R.layout.fragment_outbox_child, container, false);
         NetworkImageView imageView = (NetworkImageView)rootView.findViewById(R.id.picture);
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);

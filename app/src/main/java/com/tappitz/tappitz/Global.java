@@ -38,6 +38,11 @@ public class Global {
     public static final String IMAGE_RESOURCE_URL = "IMAGE_RESOURCE_URL";
     public static final String TEXT_RESOURCE = "TEXT_RESOURCE";
     public static final String ID_RESOURCE = "ID_RESOURCE";
+    public static final String OWNER_RESOURCE = "OWNER_RESOURCE";
+    public static final String DATE_RESOURCE = "DATE_RESOURCE";
+    public static final String MYCOMMENT_RESOURCE = "MYCOMMENT_RESOURCE";
+    public static final String HAS_VOTED_RESOURCE = "HAS_VOTED_RESOURCE";
+    public static final String CHOICE_RESOURCE = "CHOICE_RESOURCE";
 
     public final static int RED = 0;
     public final static int YELLOW = 1;

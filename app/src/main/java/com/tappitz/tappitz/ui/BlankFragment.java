@@ -44,10 +44,14 @@ public class BlankFragment extends Fragment  {
                     case R.id.camera_options:
                         view = rootView.findViewById(R.id.layout_camera);
                         view.setVisibility(view.isShown() ? View.GONE : View.VISIBLE);
+
+                        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
                         break;
                     case R.id.go_to:
                         view = rootView.findViewById(R.id.layout_goto);
                         view.setVisibility(view.isShown() ? View.GONE : View.VISIBLE);
+
+                        rootView.findViewById(R.id.layout_camera).setVisibility(View.GONE);
                         break;
 
 //                    case R.id.btn_shutter:

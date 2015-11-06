@@ -91,26 +91,41 @@
         android:id="@+id/btn_shutter"
         android:text="Capture"
         android:background="@drawable/photo_button"
-        android:textColor="@color/black"
         android:layout_width="100dp"
         android:layout_height="100dp"
+        style="@style/SelectBar"
         android:layout_alignParentBottom="false"
         android:layout_centerInParent="true" />
 
-    <RelativeLayout
+
+    <Button
         android:id="@+id/camera_options"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp">
-        <TextView
-            style="@style/SelectBar"
-            android:text="Camera"
-            android:id="@+id/textViewOut"
-            android:textSize="25sp" />
-    </RelativeLayout>
+        android:layout_marginBottom="10dp"
+        android:text="Camera"
+        style="@style/SelectBar"
+        android:background="#00000000"
+        android:textSize="20sp"/>
+
+
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/camera_options"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentRight="true"-->
+        <!--android:layout_marginRight="10dp"-->
+        <!--android:layout_marginBottom="10dp">-->
+        <!--<TextView-->
+            <!--style="@style/SelectBar"-->
+            <!--android:text="Camera"-->
+            <!--android:id="@+id/textViewOut"-->
+            <!--android:textSize="25sp" />-->
+    <!--</RelativeLayout>-->
 
     <LinearLayout
         android:orientation="vertical"
@@ -125,10 +140,7 @@
             android:id="@+id/btn_load"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="33"
-            android:background="@null"
+            android:background="#00000000"
             android:text="Load"
             style="@style/SelectBar" />
 
@@ -136,10 +148,7 @@
             android:id="@+id/btn_flash"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="33"
-            android:background="@null"
+            android:background="#00000000"
             android:text="@string/flash"
             style="@style/SelectBar" />
 
@@ -147,32 +156,45 @@
             android:id="@+id/btn_toggle_camera"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="33"
-            android:background="@null"
+            android:background="#00000000"
             android:text="Turn"
             style="@style/SelectBar" />
 
     </LinearLayout>
 
 
-    <RelativeLayout
+    <Button
         android:id="@+id/go_to"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="false"
         android:layout_alignParentLeft="true"
-        android:layout_margin="10dp"
-        android:visibility="visible">
-        <TextView
-            style="@style/SelectBar"
-            android:text="Go To"
-            android:id="@+id/textViewgoto"
-            android:textSize="25sp"
-            />
-    </RelativeLayout>
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="10dp"
+        android:visibility="visible"
+        android:text="Go To"
+        style="@style/SelectBar"
+        android:background="#00000000"
+        android:textSize="20sp"/>
+
+
+    <!--<RelativeLayout-->
+        <!--android:id="@+id/go_to"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentRight="false"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_margin="10dp"-->
+        <!--android:visibility="visible">-->
+        <!--<TextView-->
+            <!--style="@style/SelectBar"-->
+            <!--android:text="Go To"-->
+            <!--android:id="@+id/textViewgoto"-->
+            <!--android:textSize="25sp"-->
+            <!--/>-->
+    <!--</RelativeLayout>-->
 
     <LinearLayout
         android:orientation="vertical"
@@ -187,34 +209,25 @@
             android:id="@+id/btn_goto_in"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="33"
-            android:background="@null"
             android:text="Inbox"
-            style="@style/SelectBar" />
+            style="@style/SelectBar"
+            android:background="#00000000" />
 
         <Button
             android:id="@+id/btn_goto_out"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="33"
-            android:background="@null"
             android:text="OutBox"
-            style="@style/SelectBar" />
+            style="@style/SelectBar"
+            android:background="#00000000" />
 
         <Button
             android:id="@+id/btn_goto_friends"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
-            android:layout_weight="33"
-            android:background="@null"
             android:text="Friends"
-            style="@style/SelectBar" />
+            style="@style/SelectBar"
+            android:background="#00000000" />
 
     </LinearLayout>
 

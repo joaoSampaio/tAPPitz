@@ -1,20 +1,16 @@
 package com.tappitz.tappitz.ui;
 
-import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.adapter.OutBoxPagerAdapter;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.photo_tAPPitz;
-import com.tappitz.tappitz.ui.secondary.ScreenSlidePageFragment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,9 +25,8 @@ public class OutBoxFragment extends Fragment {
 
 
     View rootView;
-    private MyAdapter adapter;
+    private OutBoxPagerAdapter adapter;
     private List<photo_tAPPitz> photos;
-    private ProgressDialog pDialog;
     public OutBoxFragment() {
         // Required empty public constructor
     }
@@ -44,26 +39,17 @@ public class OutBoxFragment extends Fragment {
 
         //depois de pedir ao servidor um json com os dados crio uma lista de modelos e crio o pageview
         photos = new ArrayList<>();
-        adapter = new MyAdapter(getChildFragmentManager(), photos);
+        adapter = new OutBoxPagerAdapter(getChildFragmentManager(), photos);
         Log.d("myapp2", "**--new OutBoxFragment:");
         VerticalViewPager viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
-
-//        pDialog = new ProgressDialog(getActivity());
-//        // Showing progress dialog before making http request
-//        pDialog.setMessage("Loading...");
-//        pDialog.show();
-
         RestClient.getService().getTapp(new Callback<List<photo_tAPPitz>>() {
             @Override
             public void success(List<photo_tAPPitz> photo_tAPPitzs, Response response) {
-                hidePDialog();
 
                 try {
                     photos.addAll(photo_tAPPitzs);
-
-
                     adapter.notifyDataSetChanged();
                 }catch (Exception e){
                     ///
@@ -72,26 +58,15 @@ public class OutBoxFragment extends Fragment {
 
             @Override
             public void failure(RetrofitError error) {
-                hidePDialog();
                 OnDoneLoading();
             }
         });
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                hidePDialog();
-//                OnDoneLoading();
-//            }
-//        }, 2000);
-
-
         return rootView;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        hidePDialog();
     }
 
 
@@ -111,45 +86,7 @@ public class OutBoxFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
-    private void hidePDialog() {
-        if (pDialog != null) {
-            pDialog.dismiss();
-            pDialog = null;
-        }
-    }
 
-
-    public class MyAdapter extends FragmentPagerAdapter {
-
-        private List<photo_tAPPitz> photos;
-        public MyAdapter(FragmentManager fm, List<photo_tAPPitz> photos) {
-            super(fm);
-            this.photos = photos;
-        }
-
-        @Override
-        public int getCount() {
-            return photos.size();
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            Bundle args = new Bundle();
-            //args.putInt(ScreenSlidePageFragment.POSITION_KEY, position);
-            args.putString(Global.IMAGE_RESOURCE_URL, photos.get(position).getUrl());
-            args.putString(Global.TEXT_RESOURCE, photos.get(position).getText());
-            args.putString(Global.TEXT_RESOURCE, photos.get(position).getText());
-            args.putString(Global.ID_RESOURCE, photos.get(position).getId());
-
-            return ScreenSlidePageFragment.newInstance(args);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return "Child Fragment " + position;
-        }
-
-    }
 
 
 }

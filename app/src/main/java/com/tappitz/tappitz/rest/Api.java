@@ -2,14 +2,14 @@ package com.tappitz.tappitz.rest;
 
 import com.google.gson.JsonElement;
 import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.rest.model.AnswerContactRequest;
+import com.tappitz.tappitz.rest.model.ContactSendId;
 import com.tappitz.tappitz.rest.model.CreatePhoto;
 import com.tappitz.tappitz.rest.model.Photo;
 import com.tappitz.tappitz.rest.model.RequestId;
 import com.tappitz.tappitz.rest.model.UserLogin;
 import com.tappitz.tappitz.rest.model.UserRegister;
 import com.tappitz.tappitz.rest.model.photo_tAPPitz;
-import com.tappitz.tappitz.rest.model.AnswerContactRequest;
-import com.tappitz.tappitz.rest.model.ContactSendId;
 
 import java.util.List;
 
@@ -47,6 +47,16 @@ public interface Api {
 
 
 
+
+    /*********InBox************/
+    //Pede a lista de inbox
+//    @GET("/users/inbox")
+    @GET("/inbox.json")
+    void requestInbox(Callback<JsonElement> response);
+
+
+
+
     /*Contactos*/
 //    @GET("/contacts")
     @GET("/listMyContacts.json")
@@ -79,8 +89,7 @@ public interface Api {
     @GET("/users/login")
     void isLogin(Callback<JsonElement> callback);
 
-
-    /*Contactos - Pedidos de contacto*/
+    /*******Contactos - Pedidos de contacto********/
 //    @GET("/contacts/requests")
     @GET("/contactRequests.json")
     void listContactRequests( Callback<JsonElement> callback);
