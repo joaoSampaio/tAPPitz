@@ -58,7 +58,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         String text = getArguments().getString(Global.TEXT_RESOURCE);
-        String id = getArguments().getString(Global.ID_RESOURCE);
+        int id = getArguments().getInt(Global.ID_RESOURCE);
 
 
 

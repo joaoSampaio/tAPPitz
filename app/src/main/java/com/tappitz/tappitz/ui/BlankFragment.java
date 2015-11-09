@@ -1,9 +1,11 @@
 package com.tappitz.tappitz.ui;
 
+import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -16,7 +18,7 @@ import com.tappitz.tappitz.R;
 public class BlankFragment extends Fragment  {
 
     final static int[] CLICABLES = {R.id.camera_options, R.id.go_to, R.id.btn_goto_in, R.id.btn_goto_out, R.id.btn_goto_friends, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter,  R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
-    View rootView;
+    View rootView, camera_options;
     private Button btn_shutter;
     RelativeLayout whiteBackground;
     private View textMsgWrapper;
@@ -42,6 +44,7 @@ public class BlankFragment extends Fragment  {
                 View view;
                 switch (v.getId()) {
                     case R.id.camera_options:
+                        v.setTag(null);
                         view = rootView.findViewById(R.id.layout_camera);
                         view.setVisibility(view.isShown() ? View.GONE : View.VISIBLE);
 
@@ -79,40 +82,42 @@ public class BlankFragment extends Fragment  {
             }
         };
 
+        camera_options = rootView.findViewById(R.id.camera_options);
         btn_shutter = (Button) rootView.findViewById(R.id.btn_shutter);
         textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
         whiteBackground = (RelativeLayout)rootView.findViewById(R.id.whiteBackground);
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
 
-//        whiteBackground.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//                switch (event.getAction() & MotionEvent.ACTION_MASK) {
-//
-//                    case MotionEvent.ACTION_DOWN:
-//                    case MotionEvent.ACTION_POINTER_DOWN:
-//
-//                        //=====Write down your Finger Pressed code here
-//                        whiteBackground.setVisibility(View.INVISIBLE);
-//                        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-//
-//
-//                        return true;
-//
-//                    case MotionEvent.ACTION_UP:
-//                    case MotionEvent.ACTION_POINTER_UP:
-//                        whiteBackground.setVisibility(View.VISIBLE);
-//                        //=====Write down you code Finger Released code here
-//                        if(textMsgWrapper.isShown()){
-//                            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
-//                        }
-//                        return true;
-//                }
-//
-//                return false;
-//            }
-//        });
+        whiteBackground.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d("myapp", "setOnTouchListener blank ");
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+
+                    case MotionEvent.ACTION_DOWN:
+                        Log.d("myapp", "inbox ACTION_DOWN");
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        Log.d("myapp", "inbox ACTION_POINTER_DOWN");
+                        //=====Write down your Finger Pressed code here
+
+                        camera_options.setTag("hide");
+                        ((ScreenSlidePagerActivity) getActivity()).pass(camera_options);
+
+
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        Log.d("myapp", "inbox ACTION_UP");
+                    case MotionEvent.ACTION_POINTER_UP:
+                        //=====Write down you code Finger Released code here
+                    case MotionEvent.ACTION_MOVE:
+                        Log.d("myapp", "inbox ACTION_MOVE");
+
+                }
+
+                return false;
+            }
+        });
 
 
 
@@ -150,9 +155,11 @@ public class BlankFragment extends Fragment  {
     }
 
     private void setUP(){
+
         Log.d("myapp", "setUP blank ");
         textMsgWrapper.setVisibility(View.INVISIBLE);
-        whiteBackground.setVisibility(View.GONE);
+        whiteBackground.setVisibility(View.VISIBLE);
+
         showBtnOptions(false);
         btn_shutter.setVisibility(View.GONE);
         ((ScreenSlidePagerActivity)getActivity()).setListenerCamera(new ScreenSlidePagerActivity.HomeToBlankListener() {
@@ -163,13 +170,26 @@ public class BlankFragment extends Fragment  {
                 showBtnOptions(true);
             }
 
-            @Override
-            public void onLoadPhotoAvailable() {
-//                btn_shutter.setVisibility(View.VISIBLE);
-//                showBtnOptions(true);
-            }
+
         });
 
+        if(isCameraInUse()){
+            Log.d("myapp", "isCameraInUse blank ");
+            btn_shutter.setVisibility(View.VISIBLE);
+            showBtnOptions(true);
+        }
+    }
+
+    public boolean isCameraInUse() {
+        Camera c = null;
+        try {
+            c = Camera.open();
+        } catch (RuntimeException e) {
+            return true;
+        } finally {
+            if (c != null) c.release();
+        }
+        return false;
     }
 
 //    private void onCameraAvailable(){

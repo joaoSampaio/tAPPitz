@@ -1,5 +1,7 @@
 package com.tappitz.tappitz.ui.secondary;
 
+import android.animation.Animator;
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,25 +10,33 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.SendVotePictureService;
+import com.tappitz.tappitz.ui.InBoxFragment;
 
-public class InBoxPageFragment extends Fragment implements View.OnClickListener {
+import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 
-    private View rootView, layout_vote;
+public class InBoxPageFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
+
+    private View rootView, layout_vote, layout_container;
     private TextView textViewOwner, textViewDate;
     private Button botaoVermelho, botaoAmarelo, botaoVerde;
     private ImageView color_background;
     private EditText editTextComment;
+    private int id;
 
 
     private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
@@ -48,7 +58,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener 
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         String text = getArguments().getString(Global.TEXT_RESOURCE);
-        String id = getArguments().getString(Global.ID_RESOURCE);
+        id = getArguments().getInt(Global.ID_RESOURCE);
         String owner = getArguments().getString(Global.OWNER_RESOURCE);
         String date = getArguments().getString(Global.DATE_RESOURCE);
         String myComment = getArguments().getString(Global.MYCOMMENT_RESOURCE);
@@ -63,14 +73,20 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener 
 
         for(int idBtn: CLICKABLE) {
             rootView.findViewById(idBtn).setOnClickListener(this);
+            rootView.findViewById(idBtn).setOnLongClickListener(this);
         }
+
+
         botaoVerde = (Button)rootView.findViewById(R.id.botaoVerde);
         botaoAmarelo = (Button)rootView.findViewById(R.id.botaoAmarelo);
         botaoVermelho = (Button)rootView.findViewById(R.id.botaoVermelho);
         color_background = (ImageView)rootView.findViewById(R.id.color_background);
 
+
         editTextComment = (EditText)rootView.findViewById(R.id.editTextComment);
         layout_vote = rootView.findViewById(R.id.layout_vote);
+        layout_container = rootView.findViewById(R.id.container);
+
         TextView textview = (TextView) rootView.findViewById(R.id.photo_description);
         textview.setText(text);
 
@@ -96,91 +112,38 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener 
             rootView.findViewById(R.id.layout_vote).setVisibility(View.VISIBLE);
         }
 
-
-
-        //Picasso.with(context).load(url).fit().into(imageView, call);
-
-
-        //Picasso.with(context).load(url).fit().memoryPolicy(MemoryPolicy.NO_CACHE).into(imageView);
-//        int[] measures = ((MainActivity)getActivity()).getContainerSize();
-//        int MAX_WIDTH = measures[0];
-//        int MAX_HEIGHT = measures[1];
-//        Log.d("myapp", "MAX_WIDTH2: " + MAX_WIDTH + " MAX_HEIGHT2: " + MAX_HEIGHT);
-//
-//        int size = (int) Math.ceil(Math.sqrt(MAX_WIDTH * MAX_HEIGHT));
-        // Loads given image
-//        Picasso.with(imageView.getContext())
-//                .load(url)
-//                .transform(new BitmapTransform(MAX_WIDTH, MAX_HEIGHT))
-//                .skipMemoryCache()
-//                .resize(size, size)
-//                .centerInside()
-//                .into(imageView);
-
-        rootView.findViewById(R.id.background).setOnTouchListener(new View.OnTouchListener() {
+        rootView.findViewById(R.id.picture).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
                     case MotionEvent.ACTION_DOWN:
+                        Log.d("myapp", "inbox ACTION_DOWN");
                     case MotionEvent.ACTION_POINTER_DOWN:
                         Log.d("myapp", "inbox ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
-                        layout_vote.setVisibility(View.INVISIBLE);
+                        layout_container.setVisibility(View.INVISIBLE);
                         imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-
-
                         return true;
 
                     case MotionEvent.ACTION_UP:
+                        Log.d("myapp", "inbox ACTION_UP");
+                        layout_container.setVisibility(View.VISIBLE);
                     case MotionEvent.ACTION_POINTER_UP:
-                        layout_vote.setVisibility(View.VISIBLE);
                         //=====Write down you code Finger Released code here
+                    case MotionEvent.ACTION_MOVE:
+                        Log.d("myapp", "inbox ACTION_MOVE");
+                        layout_container.setVisibility(View.VISIBLE);
 
-                        return true;
                 }
 
                 return false;
             }
         });
 
-
-
-
-
         return rootView;
     }
-
-
-    private void dummyListComments(){
-//        List<Comment> comments = new ArrayList<>();
-//        comments.add(new Comment(Global.RED, "Não é bonito", "04-10-2015", "João Sampaio"));
-//        comments.add(new Comment(Global.YELLOW, "É razoavel", "04-10-2015", "Jorge A."));
-//        comments.add(new Comment(Global.RED, "texto, texto, é feio, bla bla", "05-10-2015", "João Sampaio"));
-//        comments.add(new Comment(Global.GREEN, "Muito bom, continua!", "05-10-2015", "João Sampaio"));
-//        comments.add(new Comment(Global.GREEN, "Adorei!!!!!", "05-10-2015", "Marisa S."));
-//        comments.add(new Comment(Global.YELLOW, "lindo.", "06-10-2015", "João Sampaio"));
-//
-//        for(Comment c: comments){
-//            switch (c.getRate()){
-//                case Global.RED:
-//                    listRed.add(c);
-//                    break;
-//                case Global.YELLOW:
-//                    listYellow.add(c);
-//                    break;
-//                case Global.GREEN:
-//                    listGreen.add(c);
-//                    break;
-//            }
-//        }
-    }
-
-
-
-
-
 
     private int getColor(int order){
         int color = 0;
@@ -199,24 +162,112 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener 
     }
 
 
-
-
-
-
     @Override
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.botaoVerde:
-
+                toggleButtons(false);
+                sendVote(Global.GREEN);
                 break;
             case R.id.botaoAmarelo:
-
+                toggleButtons(false);
+                sendVote(Global.YELLOW);
                 break;
             case R.id.botaoVermelho:
-
+                toggleButtons(false);
+                sendVote(Global.RED);
                 break;
 
         }
         //Toast.makeText(v.getContext(), "Clicked Position: " + position, Toast.LENGTH_LONG).show();
     }
+
+    @Override
+    public boolean onLongClick(View v) {
+        editTextComment.setVisibility(editTextComment.isShown()? View.INVISIBLE : View.VISIBLE);
+        return true;
+    }
+
+
+    private void animatePagerTransition(final boolean forward, final VerticalViewPager viewPager) {
+
+        ValueAnimator animator = ValueAnimator.ofInt(0, viewPager.getWidth());
+        animator.addListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                viewPager.endFakeDrag();
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                viewPager.endFakeDrag();
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+            }
+        });
+
+        animator.setInterpolator(new AccelerateInterpolator());
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+
+            private int oldDragPosition = 0;
+
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                int dragPosition = (Integer) animation.getAnimatedValue();
+                int dragOffset = dragPosition - oldDragPosition;
+                oldDragPosition = dragPosition;
+                viewPager.fakeDragBy(dragOffset * (forward ? -1 : 1));
+            }
+        });
+
+        animator.setDuration(500);
+        viewPager.beginFakeDrag();
+        animator.start();
+    }
+
+    private void sendVote(int vote){
+        Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
+        String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
+        new SendVotePictureService(comment, id, vote, new CallbackMultiple() {
+            @Override
+            public void success(Object response) {
+
+                if(getActivity() != null && getParentFragment() != null){
+                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
+                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
+                    color_background.setVisibility(View.VISIBLE);
+                    color_background.setBackgroundColor(getResources().getColor(getColor(Global.GREEN)));
+
+                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
+                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
+
+                    if(nextPage > 0) {
+                        animatePagerTransition(true, pager);
+                        //pager.setCurrentItem(nextPage, true);
+
+                    }
+                }
+            }
+
+            @Override
+            public void failed(Object error) {
+                toggleButtons(true);
+            }
+        }).execute();
+    }
+
+    private void toggleButtons(boolean enable){
+        botaoVerde.setEnabled(enable);
+        botaoAmarelo.setEnabled(enable);
+        botaoVermelho.setEnabled(enable);
+    }
+
+
+
 }

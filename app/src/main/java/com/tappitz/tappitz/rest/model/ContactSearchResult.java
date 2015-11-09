@@ -6,12 +6,14 @@ package com.tappitz.tappitz.rest.model;
 public class ContactSearchResult {
     private String name;
     private String email;
+    private int id;
     private boolean isInvited;
 
-    public ContactSearchResult(String name, String email, boolean isInvited) {
+    public ContactSearchResult(String name, String email, int id, boolean isInvited) {
         this.name = name;
         this.email = email;
         this.isInvited = isInvited;
+        this.id = id;
     }
 
     public String getName() {
@@ -36,5 +38,13 @@ public class ContactSearchResult {
 
     public void setIsInvited(boolean isInvited) {
         this.isInvited = isInvited;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

@@ -46,7 +46,7 @@ public class ListContactRequestService implements ServerCommunicationService {
                     List<ListViewContactItem> contacts = new ArrayList<ListViewContactItem>();
                     Contact contact;
                     for (GenericContact c : genericContacts) {
-                        contact = new Contact(c.getName(), c.getEmail());
+                        contact = new Contact(c.getName(), c.getEmail(), c.getId());
                         contact.setIsInviteRequest(true);
                         contacts.add(new ListViewContactItem(contact));
                     }

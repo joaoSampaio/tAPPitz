@@ -7,10 +7,12 @@ public class GenericContact {
 
     private String name;
     private String email;
+    private int id;
 
-    public GenericContact(String name, String email) {
-        this.name = name;
+    public GenericContact(String email, int id, String name) {
         this.email = email;
+        this.id = id;
+        this.name = name;
     }
 
     public String getName() {
@@ -29,7 +31,13 @@ public class GenericContact {
         this.email = email;
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
 //    {
 //        "status": "true",

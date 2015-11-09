@@ -3,7 +3,6 @@ package com.tappitz.tappitz.ui;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,7 +23,6 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactAdapter;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.model.ListViewContactItem;
-import com.tappitz.tappitz.rest.model.ContactSendId;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListContactRequestService;
 import com.tappitz.tappitz.rest.service.ListContactsService;
@@ -226,9 +224,9 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
     }
 
     private void searchContact(){
-        String id = mSearchEdt.getText().toString();
+        String searchParam = mSearchEdt.getText().toString();
 
-        new SearchContactService(new ContactSendId(id), new CallbackMultiple<Contact>() {
+        new SearchContactService(searchParam, new CallbackMultiple<Contact>() {
             @Override
             public void success(Contact response) {
 

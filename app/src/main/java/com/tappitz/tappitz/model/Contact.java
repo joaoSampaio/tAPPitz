@@ -5,29 +5,33 @@ public class Contact {
 
     private String name;
     private String email;
+    private int id;
 //    private String phone;
     private boolean isFriend;
     private boolean isInvited;
 
     private boolean isInviteRequest;
 
-    public Contact(String name, String email, boolean isFriend) {
+    public Contact(String name, String email, int id, boolean isFriend) {
         this.name = name;
         this.email = email;
 //        this.phone = phone;
         this.isFriend = isFriend;
+        this.id = id;
     }
 
-    public Contact(String name, String email, boolean isFriend, boolean isInvited) {
+    public Contact(String name, String email, int id, boolean isFriend, boolean isInvited) {
         this.name = name;
         this.email = email;
         this.isFriend = isFriend;
         this.isInvited = isInvited;
+        this.id = id;
     }
 
-    public Contact(String name, String email) {
+    public Contact(String name, String email, int id) {
         this.name = name;
         this.email = email;
+        this.id = id;
     }
 
     public boolean isInviteRequest() {
@@ -76,5 +80,13 @@ public class Contact {
 
     public void setIsInvited(boolean isInvited) {
         this.isInvited = isInvited;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

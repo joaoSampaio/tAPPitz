@@ -1,6 +1,8 @@
 package com.tappitz.tappitz.ui;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,13 +11,16 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.widget.SlidingPaneLayout;
 import android.util.Log;
 import android.view.View;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.CheckLoggedStateService;
+import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.util.MainViewPager;
 
 import org.apache.http.HttpResponse;
@@ -35,10 +40,11 @@ import java.util.List;
 public class ScreenSlidePagerActivity extends FragmentActivity {
 
 
-    SlidingPaneLayout pane;
+    private boolean cameraReady;
+    private boolean signIn;
     View frame;
     private HomeToBlankListener listenerCamera;
-
+//    private SplashScreenListener listenerSplash;
 
 
     /**
@@ -62,27 +68,143 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide);
 
-        frame = findViewById(R.id.frame);
 
+        frame = findViewById(R.id.frame);
         // Instantiate a ViewPager and a PagerAdapter.
+
+    }
+
+    @Override
+    public void onStart(){
+        super.onStart();
+        signIn = false;
+        cameraReady = false;
+        findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
+        FragmentTransaction mCurTransaction = getSupportFragmentManager().beginTransaction();
+
+        String tag = "home";
+        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
+        if (fragment != null) {
+            mCurTransaction.attach(fragment);
+
+
+        } else {
+            fragment = new HomeFragment();
+            mCurTransaction.add(R.id.frame, fragment, tag);
+        }
+
+        mCurTransaction.commitAllowingStateLoss();
+
+
+
+
+        checkIsSignedIn();
+    }
+
+
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        String action = null;
+        Log.d("myapp", "****onNewIntent " + intent.hasExtra("action"));
+        if(intent.getExtras() != null){
+            Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
+
+        }
+
+        if(intent.hasExtra("action"))
+            action = intent.getExtras().getString("action");
+        if(action != null){
+            Log.d("myapp", "****action: " + action);
+            switch (action){
+
+                case Global.NOTIFICATION_ACTION_INVITE:
+                    showFriends();
+                    break;
+                case Global.NOTIFICATION_ACTION_NEW_PHOTO:
+                    mPager.setCurrentItem(0);
+                    break;
+            }
+
+        }
+
+
+    }
+
+
+    private void checkIsSignedIn(){
+//        SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        String sessionid = sp.getString("sessionId", "");
+        RestClient.setSessionId(sessionid);
+
+        final String email = sp.getString(Global.KEY_USER, "");
+        final String password  = sp.getString(Global.KEY_PASS, "");
+        Log.d("myapp", "**sessionid**** " + sessionid);
+        Log.d("myapp", "**email**** " + sp.getString(Global.KEY_USER, ""));
+        Log.d("myapp", "**password**** " + password);
+        new CheckLoggedStateService(new CallbackMultiple() {
+            @Override
+            public void success(Object response) {
+                //estou autenticado
+                onSuccessSignIn();
+            }
+
+            @Override
+            public void failed(Object error) {
+                //houve erro ou não está autenticado, Mostrar Login Activity
+                //Se tiver o email e password tento fazer sign in.
+                Log.d("myapp", "**CheckLoggedStateService**** not signed in, email:" + email);
+                if(email.length() > 0 && password.length() > 0){
+                    new LoginService(email, password, new CallbackMultiple<String>() {
+                        @Override
+                        public void success(String sessionId) {
+                            Log.d("myapp", "**LoginService**** success:" + sessionId);
+                            if(sessionId.length() > 0){
+                                SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.putString("sessionId", sessionId);
+                                editor.commit();
+                                Log.d("myapp", "***login**sessionId*" + sessionId);
+                                RestClient.setSessionId(sessionId);
+                                onSuccessSignIn();
+                            }
+                        }
+
+                        @Override
+                        public void failed(Object error) {
+                            goToLoginActivity();
+                        }
+                    }).execute();
+
+                }else {
+                    goToLoginActivity();
+                }
+            }
+        }).execute();
+    }
+
+
+    private void onSuccessSignIn(){
+        //esconde splash screen e envia o id para notificações
+
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                findViewById(R.id.splashScreen).setVisibility(View.GONE);
+//            }
+//        }, 2000);
+
+        signIn = true;
+
         mPager = (MainViewPager) findViewById(R.id.pager);
         mPager.setOffscreenPageLimit(2);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
 
-        //mPager.requestTransparentRegion(mPager);
         mPager.setClipChildren(false);
         mPager.setClipToPadding(false);
-
-
-//        pane = (SlidingPaneLayout) findViewById(R.id.sp);
-//        pane.setPanelSlideListener(new PaneListener());
-        //pane.closePane();
-//        if (!pane.isSlideable()) {
-//            getSupportFragmentManager().findFragmentById(R.id.leftpane).setHasOptionsMenu(false);
-//            getSupportFragmentManager().findFragmentById(R.id.rightpane).setHasOptionsMenu(true);
-//        }
-
 
         Intent intent = getIntent();
         String action = null;
@@ -110,6 +232,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
             mPager.setCurrentItem(1);
         }
 
+
+
+        if(isCameraReady())
+            closeSplashScreen();
 
         new AsyncTask() {
             @Override
@@ -152,51 +278,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
             }
 
         }.execute();
-
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        String action = null;
-        Log.d("myapp", "****onNewIntent " + intent.hasExtra("action"));
-        if(intent.getExtras() != null){
-            Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
-
-        }
-
-        if(intent.hasExtra("action"))
-            action = intent.getExtras().getString("action");
-        if(action != null){
-            Log.d("myapp", "****action: " + action);
-            switch (action){
-
-                case Global.NOTIFICATION_ACTION_INVITE:
-                    showFriends();
-                    break;
-                case Global.NOTIFICATION_ACTION_NEW_PHOTO:
-                    mPager.setCurrentItem(0);
-                    break;
-            }
-
-        }
-
-
+    private void goToLoginActivity(){
+        Intent intent = new Intent(this, LoginActivity.class);
+        startActivityForResult(intent, 0);
+        finish();
     }
-
-
-
-
-//    @Override
-//    public boolean onTouchEvent(MotionEvent ev) {
-//
-//        return frame.dispatchTouchEvent(ev);
-//        //return mPager.dispatchTouchEvent(ev);
-//    }
-
-
-
-//    public View.OnTouchListener listener;
 
     public void pass(View v){
         Fragment fragment = getSupportFragmentManager().findFragmentByTag("home");
@@ -237,26 +325,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     }
 
     @Override
-    public void onStart(){
-        super.onStart();
-
-        FragmentTransaction mCurTransaction = getSupportFragmentManager().beginTransaction();
-
-        String tag = "home";
-        Fragment fragment = getSupportFragmentManager().findFragmentByTag(tag);
-        if (fragment != null) {
-            mCurTransaction.attach(fragment);
-
-
-        } else {
-            fragment = new HomeFragment();
-            mCurTransaction.add(R.id.frame, fragment, tag);
-        }
-
-        mCurTransaction.commitAllowingStateLoss();
-    }
-
-    @Override
     public void onBackPressed() {
         if(mPager.getCurrentItem() != 1)
             mPager.setCurrentItem(1);
@@ -289,7 +357,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                     fragment = new BlankFragment();
                     break;
                 case 2:
-                    fragment = new BlankFragment();
+//                    fragment = new BlankFragment();
                     fragment = new OutBoxFragment();
                     break;
             }
@@ -312,10 +380,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     public interface HomeToBlankListener {
         public void onCameraAvailable();
+    }
 
-        public void onLoadPhotoAvailable();
-
-
+    public interface SplashScreenListener {
+        public void onCameraAvailable();
     }
 
 //    public interface BlankToHomeListener {
@@ -323,17 +391,39 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 //    }
 
     public void callbackCameraAvailable(){
-        if(listenerCamera != null)
-            listenerCamera.onCameraAvailable();
-    }
-
-    public void callbackPhotoAvailable(){
-        if(listenerCamera != null)
-            listenerCamera.onLoadPhotoAvailable();
+        try {
+            if(listenerCamera != null)
+                listenerCamera.onCameraAvailable();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public void setListenerCamera(HomeToBlankListener listenerCamera) {
         this.listenerCamera = listenerCamera;
+    }
+
+
+    public boolean isCameraReady() {
+        return cameraReady;
+    }
+
+    public void setCameraReady(boolean cameraReady) {
+        this.cameraReady = cameraReady;
+    }
+
+    public void notifyCameraReady(){
+        setCameraReady(true);
+        if(signIn)
+            closeSplashScreen();
+
+
+    }
+
+    private void closeSplashScreen(){
+        findViewById(R.id.splashScreen).setVisibility(View.GONE);
+        signIn = false;
+        cameraReady = false;
     }
 
 

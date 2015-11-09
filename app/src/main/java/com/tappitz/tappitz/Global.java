@@ -5,8 +5,12 @@ package com.tappitz.tappitz;
  */
 public class Global {
 
+    public static final String KEY = "CHOICE_RESOURCE";
+
     //https://api.myjson.com/bins/56wu6
-    public static final String ENDPOINT = "https://dl.dropboxusercontent.com/u/68830630/tAppitz";
+//    176.111.104.39
+    public static final String ENDPOINT = "http://176.111.104.39:8182";
+//    public static final String ENDPOINT = "https://dl.dropboxusercontent.com/u/68830630/tAppitz";
     public static final String ENDPOINT_SIGMA = "http://web.ist.utl.pt/ist170638/tappitz";
     //public static final String ENDPOINT_SIGMA = "http://192.168.43.104:8182";
     //public static final String ENDPOINT = "https://api.myjson.com/bins";
@@ -54,6 +58,10 @@ public class Global {
     public static final String FONT1 = "fonts/justice.ttf";
 
 
+    public static final String OPERATION_TYPE_INVITE = "INVITE";
+    public static final String OPERATION_TYPE_UNDO_INVITE = "UNDO_INVITE";
+    public static final String OPERATION_TYPE_BLOCK = "BLOCK";
+    public static final String OPERATION_TYPE_DELETE = "DELETE";
 
 
 

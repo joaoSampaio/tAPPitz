@@ -9,6 +9,7 @@ import com.tappitz.tappitz.Global;
 
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.util.concurrent.TimeUnit;
 
 import retrofit.RequestInterceptor;
 import retrofit.RestAdapter;
@@ -42,19 +43,21 @@ public class RestClient {
     private static final RequestInterceptor COOKIES_REQUEST_INTERCEPTOR = new RequestInterceptor() {
         @Override
         public void intercept(RequestFacade request) {
-            Log.d("myapp", "***************RequestInterceptor:" +sessionId);
+            Log.d("myapp", "***************RequestInterceptor:" + sessionId);
             if (null != sessionId && sessionId.length() > 0) {
                 request.addHeader("Session-Id", sessionId);
             }
-            request.addHeader("Content-type", "application/json");
+            request.addHeader("Content-type", "application/json;charset=UTF-8");
             request.addHeader("Accept", "application/json");
-            request.addHeader("coco", "tapp");
         }
     };
 
     public static final Api getService() {
         if(RestClient.getApi() == null){
             OkHttpClient client = new OkHttpClient(); //create OKHTTPClient
+            client.setConnectTimeout(2, TimeUnit.MINUTES);
+            client.setReadTimeout(0, TimeUnit.MINUTES);
+            client.setWriteTimeout(0, TimeUnit.MINUTES);
             CookieManager cookieManager = new CookieManager();
             cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
             client.setCookieHandler(cookieManager); //finally set the cookie handler on client

@@ -6,27 +6,29 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.rest.RestClient;
-import com.tappitz.tappitz.rest.model.ContactSearchResult;
+import com.tappitz.tappitz.rest.model.VoteInbox;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class SearchContactService implements ServerCommunicationService {
+public class SendVotePictureService implements ServerCommunicationService {
 
     private CallbackMultiple callback;
-    private String search;
-    public SearchContactService(String search, CallbackMultiple callback){
+    private int id;
+    private String myComment;
+    private int choice;
+    public SendVotePictureService(String myComment, int id, int choice, CallbackMultiple callback){
         this.callback = callback;
-        this.search = search;
+        this.choice = choice;
+        this.id = id;
+        this.myComment = myComment;
     }
 
     @Override
     public void execute() {
-        //RestClient.getService().searchContact(search, new Callback<JsonElement>() {
-        RestClient.getService().searchContact(new Callback<JsonElement>() {
+        RestClient.getService().sendVotePicture(new VoteInbox(choice, id, myComment), new Callback<JsonElement>() {
             @Override
             public void success(JsonElement json, Response response2) {
 
@@ -36,18 +38,8 @@ public class SearchContactService implements ServerCommunicationService {
                 boolean status = obj.get("status").getAsBoolean();
                 Log.d("myapp", "status->" + status);
                 if (status) {
-                    if(obj.get("data").toString().equals("{}")) {
-                        callback.success(null);
-                        return;
-                    }
-                    ContactSearchResult contactSearch = gson.fromJson(obj.get("data"), ContactSearchResult.class);
-                    if(contactSearch == null || contactSearch.getEmail() == null) {
-                        callback.success(null);
-                        return;
-                    }
 
-                    Contact contact = new Contact(contactSearch.getName(), contactSearch.getEmail(), contactSearch.getId(),false, contactSearch.isInvited());
-                    callback.success(contact);
+                    callback.success(true);
                 } else {
                     Log.d("myapp", "deu erro");
                     callback.failed(null);

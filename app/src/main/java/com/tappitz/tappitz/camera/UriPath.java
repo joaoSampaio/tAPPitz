@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.util;
+package com.tappitz.tappitz.camera;
 
 import android.annotation.SuppressLint;
 import android.content.ContentUris;

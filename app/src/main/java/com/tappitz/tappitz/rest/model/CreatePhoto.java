@@ -9,11 +9,11 @@ public class CreatePhoto {
 
     private String comment;
     private String picture;
-    private List<String> contacts;
+    private List<Integer> friendIds;
 
-    public CreatePhoto(String comment, List<String> contacts, String picture) {
+    public CreatePhoto(String comment, List<Integer> contacts, String picture) {
         this.comment = comment;
-        this.contacts = contacts;
+        this.friendIds = contacts;
         this.picture = picture;
     }
 
@@ -25,12 +25,12 @@ public class CreatePhoto {
         this.comment = comment;
     }
 
-    public List<String> getContacts() {
-        return contacts;
+    public List<Integer> getContacts() {
+        return friendIds;
     }
 
-    public void setContacts(List<String> contacts) {
-        this.contacts = contacts;
+    public void setContacts(List<Integer> contacts) {
+        this.friendIds = contacts;
     }
 
     public String getPicture() {

@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.widget.RemoteViews;
 
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.ui.MainActivity;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 
 import java.util.UUID;

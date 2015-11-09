@@ -13,6 +13,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.model.ListViewContactItem;
@@ -55,10 +56,10 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         this.contacts = contacts;
     }
 
-    public void removeIfFound(String email){
+    public void removeIfFound(int id){
         ListViewContactItem tmp = null;
         for(ListViewContactItem c: contacts){
-            if(c.getType() == ListViewContactItem.HASCONTACT && c.getContact().getEmail().equals(email)){
+            if(c.getType() == ListViewContactItem.HASCONTACT && c.getContact().getId() == id){
                 tmp = c;
                 break;
             }
@@ -69,7 +70,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         }else {
 
             for (ListViewContactItem c : originalContacts) {
-                if(c.getType() == ListViewContactItem.HASCONTACT && c.getContact().getEmail().equals(email)){
+                if(c.getType() == ListViewContactItem.HASCONTACT && c.getContact().getId() == id){
                     tmp = c;
                     break;
                 }
@@ -251,7 +252,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                     case R.id.button_invite:
                         contact = contacts.get(pos).getContact();
                         Log.d("myapp", "button_invitebutton_invite: " + contact.getEmail());
-                        new InviteContactService(new ContactSendId(contact.getEmail()), new CallbackMultiple<Boolean>() {
+                        new InviteContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_INVITE), new CallbackMultiple<Boolean>() {
                             @Override
                             public void success(Boolean response) {
                                 if(response){
@@ -270,7 +271,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                     case R.id.button_invite_undo:
                         contact = contacts.get(pos).getContact();
                         Log.d("myapp", "button_invite_undo: " + contact.getEmail() );
-                        new UndoInviteContactService(new ContactSendId(contact.getEmail()), new CallbackMultiple<Boolean>() {
+                        new UndoInviteContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_UNDO_INVITE), new CallbackMultiple<Boolean>() {
                             @Override
                             public void success(Boolean response) {
                                 if(response){
@@ -288,7 +289,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                         break;
                     case R.id.button_block:
                         contact = contacts.get(pos).getContact();
-                        new BlockContactService(new ContactSendId(contact.getEmail()), new CallbackMultiple<Boolean>() {
+                        new BlockContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_BLOCK), new CallbackMultiple<Boolean>() {
                             @Override
                             public void success(Boolean response) {
                                 if(response){
@@ -305,14 +306,14 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                         }).execute();
                         break;
                     case R.id.button_delete:
-                        final String emailId = contacts.get(pos).getContact().getEmail();
-                        new DeleteContactService(new ContactSendId(emailId), new CallbackMultiple<Boolean>() {
+                        final int id = contacts.get(pos).getContact().getId();
+                        new DeleteContactService(new ContactSendId(id, Global.OPERATION_TYPE_DELETE), new CallbackMultiple<Boolean>() {
                             @Override
                             public void success(Boolean response) {
                                 if(response){
                                     Toast.makeText(activity, "Contact removed!", Toast.LENGTH_SHORT).show();
 
-                                    removeIfFound(emailId);
+                                    removeIfFound(id);
 
 
                                 }else{

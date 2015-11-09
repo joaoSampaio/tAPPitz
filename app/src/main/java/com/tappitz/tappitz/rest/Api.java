@@ -5,11 +5,10 @@ import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.rest.model.AnswerContactRequest;
 import com.tappitz.tappitz.rest.model.ContactSendId;
 import com.tappitz.tappitz.rest.model.CreatePhoto;
-import com.tappitz.tappitz.rest.model.Photo;
-import com.tappitz.tappitz.rest.model.RequestId;
+import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.model.UserLogin;
 import com.tappitz.tappitz.rest.model.UserRegister;
-import com.tappitz.tappitz.rest.model.photo_tAPPitz;
+import com.tappitz.tappitz.rest.model.VoteInbox;
 
 import java.util.List;
 
@@ -33,70 +32,84 @@ public interface Api {
     void register(@Body UserRegister user, Callback<JsonElement> response);
 
 
+
+
+
+
     //Pede a lista de outbox
-    @GET("/users/outbox")
-    void requestOutbox(Callback<List<Photo>> response);
+//    @GET("/outbox")
+    @GET("/outbox.json")
+    void requestOutbox(Callback<JsonElement> response);
 
-    //Pede a imagem associada ao id
-    @POST("/users/outbox")
-    void requestOutbox(@Body RequestId request, Callback<JsonElement> response);
-
-
-    @POST("/picture/comments")
-    void requestPictureVotes(@Body RequestId request, Callback<JsonElement> response);
+//    //Pede a imagem associada ao id
+//    @POST("/users/outbox")
+//    void requestOutbox(@Body RequestId request, Callback<JsonElement> response);
+//
+//
+//    @POST("/picture/comments")
+//    void requestPictureVotes(@Body RequestId request, Callback<JsonElement> response);
 
 
 
 
     /*********InBox************/
     //Pede a lista de inbox
-//    @GET("/users/inbox")
+//    @GET("/inbox")
     @GET("/inbox.json")
     void requestInbox(Callback<JsonElement> response);
 
 
+    //Envia o voto de uma foto recebida
+    @GET("/inbox/vote")
+//    @GET("/inbox.json")
+    void sendVotePicture(VoteInbox vote, Callback<JsonElement> response);
 
 
-    /*Contactos*/
-//    @GET("/contacts")
-    @GET("/listMyContacts.json")
+
+
+
+    /*********Contactos************/
+
+    /*List Contacts*/
+    @GET("/contacts")
+//    @GET("/listMyContacts.json")
     void listMyContacts( Callback<JsonElement> callback);
 
     /*Contactos - Procura*/
-    //@POST("/contacts")
-    //void searchContact(@Body ContactSendId search, Callback<JsonElement> callback);
+//    @GET("/contacts/{user_id}")
+//    void searchContact(@Path("user_id") String user_id , Callback<JsonElement> callback);
     @GET("/searchContact.json")
     void searchContact(Callback<JsonElement> callback);
 
 
     /*Contactos - Convidar*/
-    @POST("/contacts/invite")
+    @POST("/contacts")
     void inviteContact(@Body ContactSendId id, Callback<JsonElement> callback);
 
     /*Contactos - Convidar*/
-    @POST("/contacts/invite/undo")
+    @POST("/contacts")
     void undoInviteContact(@Body ContactSendId id, Callback<JsonElement> callback);
 
 
     /*Contactos - bloquear*/
-    @POST("/contacts/block")
+    @POST("/contacts")
     void blockContact(@Body ContactSendId id, Callback<JsonElement> callback);
 
     /*Contactos - apagar*/
-    @POST("/contacts/delete")
+    @POST("/contacts")
     void deleteContact(@Body ContactSendId id, Callback<JsonElement> callback);
 
     @GET("/users/login")
     void isLogin(Callback<JsonElement> callback);
 
     /*******Contactos - Pedidos de contacto********/
-//    @GET("/contacts/requests")
+//    @GET("/contact_requests")
     @GET("/contactRequests.json")
     void listContactRequests( Callback<JsonElement> callback);
 
 
     /*Contacto - aceitar*/
-    @POST("/contacts/request")
+    @POST("/contact_requests")
     void answerContactRequest(@Body AnswerContactRequest answer, Callback<JsonElement> callback);
 
 
@@ -105,8 +118,8 @@ public interface Api {
 
 
 /*********Create photo************/
-//    @POST("/photo")
-    @POST("/save_json.php")
+    @POST("/pictures")
+//    @POST("/save_json.php")
     void sendphoto(@Body CreatePhoto photo, Callback<JsonElement> callback);
 
 
@@ -120,14 +133,14 @@ public interface Api {
     void teste( Callback<JsonElement> response);
 
     @GET("/43uz2")
-    void getTapp( Callback<List<photo_tAPPitz>> response);
+    void getTapp( Callback<List<PhotoOutbox>> response);
 
 
     @GET("/outbox")
-    void listMyOutbox( Callback<List<photo_tAPPitz>> callback);
+    void listMyOutbox( Callback<List<PhotoOutbox>> callback);
 
     @GET("/outbox/{id_photo}")
-    void getOutboxComments(@Path("id_photo") String id_photo, Callback<List<Comment>> response);
+    void getOutboxComments(@Path("id_photo") int id_photo, Callback<List<Comment>> response);
 
 //    @Multipart
 //    @POST("/login")

@@ -1,6 +1,5 @@
 package com.tappitz.tappitz.ui;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -14,7 +13,6 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -40,12 +38,13 @@ import android.widget.Toast;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.camera.BitmapWorkerTask;
+import com.tappitz.tappitz.camera.ControlCameraTask;
+import com.tappitz.tappitz.camera.PhotoSave;
+import com.tappitz.tappitz.camera.UriPath;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CreatePhotoService;
 import com.tappitz.tappitz.ui.secondary.SelectContactFragment;
-import com.tappitz.tappitz.util.BitmapWorkerTask;
-import com.tappitz.tappitz.util.ControlCameraTask;
-import com.tappitz.tappitz.util.UriPath;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -60,8 +59,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 
@@ -151,16 +148,16 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         });
 
 
-        View v = rootView.findViewById(R.id.container);
-        v.measure(View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-        v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
-        int w = v.getWidth();
-        int h = v.getHeight();
-        viewWidth = v.getMeasuredWidth();
-        viewHeight = v.getMeasuredHeight();
-
-
-        Log.d("myapp","***width:"+ viewWidth + " height:" + viewHeight);
+//        View v = rootView.findViewById(R.id.container);
+//        v.measure(View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
+//        v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
+//        int w = v.getWidth();
+//        int h = v.getHeight();
+//        viewWidth = v.getMeasuredWidth();
+//        viewHeight = v.getMeasuredHeight();
+//
+//
+//        Log.d("myapp","***width:"+ viewWidth + " height:" + viewHeight);
         for(int id: CLICABLES)
             rootView.findViewById(id).setOnClickListener(this);
 
@@ -169,9 +166,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         try
         {
             AppController.getInstance().surfaceHolder = surfaceView.getHolder();
+            AppController.getInstance().surfaceHolder.addCallback(this);
         }
         catch (Exception e)
         {
+            Log.d("MyCameraApp","***AppController.getInstance().surfaceHolder = surfaceView.getHolder(); erro");
             e.printStackTrace();
         }
 
@@ -222,11 +221,20 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     }
 
+
     @Override
     public void onClick(View v) {
         View view;
         switch (v.getId()){
             case R.id.camera_options:
+
+                if(v.getTag() != null && v.getTag() instanceof String){
+                    rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
+                    rootView.findViewById(R.id.layout_camera).setVisibility(View.GONE);
+                    return;
+                }
+
+
                 view = rootView.findViewById(R.id.layout_camera);
                 view.setVisibility(view.isShown()? View.GONE : View.VISIBLE);
 
@@ -353,8 +361,15 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         temp_pic.setVisibility(View.VISIBLE);
         surfaceView.setVisibility(View.VISIBLE);
 
-        if(getActivity() instanceof MainActivity)
-            ((MainActivity)getActivity()).displayTabs(false);
+
+
+
+        Display d = ((WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+        int width = d.getWidth();
+        int height = d.getHeight();
+        AppController.getInstance().width = width;
+        AppController.getInstance().height = height;
+        Log.d("MyCameraApp", "setUP home requestedFile:" +requestedFile);
         if(!requestedFile) {
             start_camera();
             showBtnOptions(false);
@@ -364,13 +379,9 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
 
 
-        requestedFile = false;
+        //requestedFile = false;
         btn_shutter.setVisibility(View.GONE);
-        Display d = ((WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
-        int width = d.getWidth();
-        int height = d.getHeight();
-        AppController.getInstance().width = width;
-        AppController.getInstance().height = height;
+
     }
 
 
@@ -411,6 +422,21 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             } catch (Exception e) {
                 e.printStackTrace();
             }
+
+
+
+
+//            Bitmap bm = BitmapFactory.decodeFile(photoPath);
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
+//            byte[] byteArrayImage = baos.toByteArray();
+//            pictureBase64 = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
+//            byteArrayImage = null;
+//            bm = null;
+
+
+
+
         }
 
 
@@ -418,7 +444,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         SelectContactFragment newFragment = new SelectContactFragment();
         newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
             @Override
-            public void sendPhoto(final List<String> contacts) {
+            public void sendPhoto(final List<Integer> contacts) {
                 new CreatePhotoService(comment, contacts, pictureBase64, new CallbackMultiple<Boolean>() {
                     @Override
                     public void success(Boolean response) {
@@ -431,8 +457,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     @Override
                     public void failed(Object error) {
                         if (getActivity() != null)
-                            Toast.makeText(getActivity(), "Photo not sent" ,Toast.LENGTH_SHORT).show();
-                            //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
+                            Toast.makeText(getActivity(), "Photo not sent", Toast.LENGTH_SHORT).show();
+                        //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
                     }
                 }).execute();
                 Toast.makeText(getActivity(), "Photo sent", Toast.LENGTH_SHORT).show();
@@ -445,35 +471,58 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d("myapp", "onActivityResult");
+        Log.d("myapp", "onActivityResult: " + requestedFile);
         if(requestCode == Global.BROWSE_REQUEST && resultCode == Activity.RESULT_OK&& null != data) {
+            Log.d("myapp", "onActivityResult dentro 1");
             stop_camera();
             ((ScreenSlidePagerActivity)getActivity()).enableSwipe(false);
             Uri selectedImageUri = data.getData();
-            String filePath = UriPath.getPath(getActivity(), selectedImageUri);
+            photoPath = UriPath.getPath(getActivity(), selectedImageUri);
             requestedFile = true;
-            loadBitmapFile(temp_pic, filePath, AppController.getInstance().width, AppController.getInstance().height);
+            loadBitmapFile(temp_pic, photoPath, AppController.getInstance().width, AppController.getInstance().height);
             onTakePick(true);
             //((ScreenSlidePagerActivity)getActivity()).callbackPhotoAvailable();
+        }else {
+            requestedFile = false;
         }
     }
 
     public void loadBitmapFile(ImageView imageView,String path, int width, int height) {
         BitmapWorkerTask task = new BitmapWorkerTask(imageView, path, width, height);
+        task.setListener(new BitmapWorkerTask.SaveNewRotatedPictureInterface() {
+            @Override
+            public void onSaveToFileRotated(Uri uri, String photoPathNew) {
+                Log.d("myapp", "onSaveToFileRotated ");
+                photoPath = photoPathNew;
+                getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+            }
+        });
         task.execute();
     }
 
     @Override
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.d("MyCameraApp", "surfaceCreated :" + requestedFile);
+        if(!requestedFile) {
+            Log.d("MyCameraApp", "surfaceChanged requestedFile:" + requestedFile);
+            start_camera();
+            showBtnOptions(false);
+            whiteBackground.setVisibility(View.GONE);
+        }
+        requestedFile = false;
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
     {
+        Log.d("MyCameraApp", "surfaceChanged");
+//        Log.d("MyCameraApp", "surfaceChanged");
+//        start_camera();
     }
 
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
+        stop_camera();
     }
 
     private Camera.PictureCallback mPicture = new Camera.PictureCallback()
@@ -484,22 +533,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             Log.d("myapp", "PictureCallback");
             photoData = data;
             stop_camera();
-//            FileOutputStream outStream = null;
-//            try {
-//                File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
-//                outStream = new FileOutputStream(file);
-//                outStream.write(data);
-//                outStream.close();
-//
-//                photoPath = file.getAbsolutePath();
-//                getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
-//
-//            } catch (FileNotFoundException e){
-//                Log.d("CAMERA", e.getMessage());
-//            } catch (IOException e){
-//                Log.d("CAMERA", e.getMessage());
-//            }
-
         }
     };
 
@@ -508,7 +541,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         if(photoData != null) {
             FileOutputStream outStream = null;
             try {
-                File file = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+                File file = PhotoSave.getOutputMediaFile();
                 outStream = new FileOutputStream(file);
                 outStream.write(photoData);
                 outStream.close();
@@ -564,7 +597,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     }
 
     private void onCameraAvailable(){
-        ((ScreenSlidePagerActivity)getActivity()).callbackCameraAvailable();
+        if(getActivity() != null) {
+            ((ScreenSlidePagerActivity) getActivity()).callbackCameraAvailable();
+            ((ScreenSlidePagerActivity) getActivity()).notifyCameraReady();
+        }
 
         Long pastTime = System.currentTimeMillis() - currentTime;
         Log.d("myapp", "onCameraAvailable: " + pastTime);
@@ -574,9 +610,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         btn_shutter.setVisibility(View.VISIBLE);
         //camera_options.setVisibility(View.VISIBLE);
         showBtnOptions(true);
-        if(getActivity() instanceof MainActivity)
-            ((MainActivity)getActivity()).displayTabs(true);
-
 
         try {
             if(AppController.getInstance().mCamera != null){
@@ -614,91 +647,14 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             public void onError() {
 
 
-                stop_camera();
-                start_camera();
+//                stop_camera();
+//                start_camera();
             }
         });
         c.execute(true);
     }
 
-    @SuppressLint("SimpleDateFormat") private File getOutputMediaFile(int type)
-    {
-        if (true == isExternalStoragePresent())
-        {
-            //MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera");
 
-            if (!mediaStorageDir.exists())
-            {
-                if (!mediaStorageDir.mkdirs())
-                {
-                    Log.d("MyCameraApp", "failed to create directory");
-                    return null;
-                }
-            }
-
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            File mediaFile;
-
-            if (type == MEDIA_TYPE_IMAGE)
-            {
-                mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
-            }
-            else if (type == MEDIA_TYPE_VIDEO)
-            {
-                mediaFile = new File(mediaStorageDir.getPath() + File.separator + "VID_" + timeStamp + ".mp4");
-            }
-            else
-            {
-                return null;
-            }
-
-            return mediaFile;
-        }
-        else
-        {
-            try
-            {
-                new AlertDialog.Builder(getActivity()).setMessage("No storage space found, can't save the video.").setPositiveButton("Ok", null).show();
-            }
-            catch(Exception e)
-            {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-    }
-
-    public boolean isExternalStoragePresent()
-    {
-        boolean mExternalStorageAvailable = false;
-        boolean mExternalStorageWriteable = false;
-        String state = Environment.getExternalStorageState();
-
-        if (Environment.MEDIA_MOUNTED.equals(state))
-        {
-            // We can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
-        }
-        else if (Environment.MEDIA_MOUNTED_READ_ONLY.equals(state))
-        {
-            // We can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
-        }
-        else
-        {
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
-        }
-        if (false == ((mExternalStorageAvailable) && (mExternalStorageWriteable)))
-        {
-            showToast("SD card not present");
-            //Toast.makeText(getActivity(), "SD card not present", Toast.LENGTH_LONG);
-        }
-
-        return (mExternalStorageAvailable) && (mExternalStorageWriteable);
-    }
 
     public void cameraReturn(){
         Log.d("myapp", "************cameraReturn");
@@ -752,86 +708,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     }
 
 
-//    private void onTakePick2(final boolean isFirst)
-//    {
-//        //este metodo esconde o menu da camera ou mostra o botao para tirar foto, simplesmente tem animações porque era codigo que ja tinha feito para outra app
-//        if(!isFirst){
-//            temp_pic.setVisibility(View.GONE);
-//            //start_camera();
-//            surfaceView.setVisibility(View.VISIBLE);
-//        }
-//
-//
-//        final TranslateAnimation anim_hide = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
-//                Animation.RELATIVE_TO_SELF, 0,
-//                Animation.RELATIVE_TO_PARENT, 0,
-//                Animation.RELATIVE_TO_PARENT, 1);
-//        anim_hide.setDuration(ANIMATION_DURATION);
-//        anim_hide.setFillAfter(true);
-//
-//        final View view1 = isFirst? btn_shutter : btn_layout;
-//        final View view2 = isFirst? btn_layout : btn_shutter ;
-//
-//        anim_hide.setAnimationListener(new Animation.AnimationListener() {
-//            @Override
-//            public void onAnimationStart(Animation animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationRepeat(Animation animation) {
-//
-//            }
-//
-//            @Override
-//            public void onAnimationEnd(Animation animation) {
-//
-//                view1.setVisibility(View.GONE);
-//                view1.setAnimation(null);
-//                if (isFirst) {
-//                    camera_options.setVisibility(View.GONE);
-//                    whiteBackground.setVisibility(View.VISIBLE);
-//                    if(getActivity() instanceof MainActivity)
-//                        ((MainActivity) getActivity()).displayTabs(false);
-//                }
-//                final TranslateAnimation anim_show = new TranslateAnimation(Animation.RELATIVE_TO_SELF, 0,
-//                        Animation.RELATIVE_TO_SELF, 0,
-//                        Animation.RELATIVE_TO_PARENT, 1,
-//                        Animation.RELATIVE_TO_PARENT, 0);
-//                anim_show.setDuration(ANIMATION_DURATION);
-//                anim_show.setFillAfter(true);
-//
-//                anim_show.setAnimationListener(new Animation.AnimationListener() {
-//                    @Override
-//                    public void onAnimationStart(Animation animation) {
-//                        view2.setVisibility(View.VISIBLE);
-//                        if (!isFirst) {
-//                            camera_options.setVisibility(View.VISIBLE);
-//                            whiteBackground.setVisibility(View.GONE);
-//                            if(getActivity() instanceof MainActivity)
-//                                ((MainActivity) getActivity()).displayTabs(true);
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onAnimationRepeat(Animation animation) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onAnimationEnd(Animation animation) {
-//                        view2.setAnimation(null);
-//                    }
-//                });
-//                view2.startAnimation(anim_show);
-//            }
-//        });
-//
-//        view1.startAnimation(anim_hide);
-//    }
-
-
-
     public static void recycleImagesFromView(ImageView view) {
         Log.d("myapp", "recycleImagesFromView");
         view.setVisibility(View.GONE);
@@ -855,13 +731,8 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     {
         public void onPreviewFrame(byte[] data, Camera camera)
         {
-//            if(true)
-//                return;
+
             try {
-
-
-
-
                 if(barcodeScanned)
                     return;
 

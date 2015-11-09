@@ -27,125 +27,142 @@
     </FrameLayout>
 
 
-    <ImageView
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/color_background"
-        android:visibility="gone"
-        />
+        android:id="@+id/container"
+        android:layout_centerInParent="true">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:id="@+id/layout_vote">
-
-        <TextView
+        <ImageView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/descricaoFoto"
-            android:id="@+id/photo_description"
-            android:inputType="textMultiLine"
-            android:gravity="center_horizontal"
-            style="@style/SelectBar"
-            android:layout_gravity="top|center_horizontal"/>
-
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Comment (Optional):"
-            android:id="@+id/editTextComment"
-            android:layout_marginTop="10dp" />
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/painelvotacao"
-            android:gravity="center_horizontal"
-            android:layout_marginBottom="10dp"
-            android:layout_gravity="center"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_marginTop="10dp">
-
-
-            <Button
-                android:textColor="@color/brown"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:background="@drawable/green_round_button"
-                android:layout_marginRight="20dp"
-                android:id="@+id/botaoVerde" />
-
-
-            <Button
-                android:textColor="@color/brown"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:background="@drawable/yellow_round_button"
-                android:layout_marginRight="20dp"
-                android:id="@+id/botaoAmarelo" />
-
-            <Button
-                android:textColor="@color/brown"
-                android:layout_width="75dp"
-                android:layout_height="75dp"
-                android:background="@drawable/red_round_button"
-                android:gravity="center_vertical|center_horizontal"
-                android:id="@+id/botaoVermelho" />
-
-        </LinearLayout>
+            android:layout_height="match_parent"
+            android:id="@+id/color_background"
+            android:visibility="invisible"
+            />
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="20dp">
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:id="@+id/layout_vote">
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/textViewOwner"
-                android:text="Pedro Artures" />
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/descricaoFoto"
+                android:id="@+id/photo_description"
+                android:inputType="textMultiLine"
+                android:gravity="center_horizontal"
+                style="@style/SelectBar"
+                android:layout_gravity="top|center_horizontal"
+                android:textSize="12pt" />
 
-            <TextView
-                android:layout_width="wrap_content"
+            <EditText
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="15/10/2015 - 12:35"
-                android:id="@+id/textViewDate" />
+                android:hint="Comment:"
+                android:id="@+id/editTextComment"
+                android:layout_marginTop="10dp"
+                android:visibility="invisible"
+                style="@style/SelectBar" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/painelvotacao"
+                android:gravity="center_horizontal"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="center"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginTop="10dp">
+
+
+                <Button
+                    android:textColor="@color/brown"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:background="@drawable/green_round_button"
+                    android:layout_marginRight="20dp"
+                    android:id="@+id/botaoVerde" />
+
+
+                <Button
+                    android:textColor="@color/brown"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:background="@drawable/yellow_round_button"
+                    android:layout_marginRight="20dp"
+                    android:id="@+id/botaoAmarelo" />
+
+                <Button
+                    android:textColor="@color/brown"
+                    android:layout_width="75dp"
+                    android:layout_height="75dp"
+                    android:background="@drawable/red_round_button"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:id="@+id/botaoVermelho" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewOwner"
+                    android:text="Pedro Artures"
+                    style="@style/SelectBar" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15/10/2015 - 12:35"
+                    android:id="@+id/textViewDate"
+                    style="@style/SelectBar" />
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
 
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:id="@+id/layout_already_voted"
-        android:visibility="invisible">
-
-        <TextView
+        <LinearLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/descricaoFoto"
-            android:id="@+id/photo_description_voted"
-            android:inputType="textMultiLine"
-            android:gravity="left"
-            style="@style/SelectBar"
-            android:layout_gravity="right|top"/>
+            android:layout_centerInParent="true"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:id="@+id/layout_already_voted"
+            android:visibility="invisible">
 
-    </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/descricaoFoto"
+                android:id="@+id/photo_description_voted"
+                android:inputType="textMultiLine"
+                android:gravity="left"
+                style="@style/SelectBar"
+                android:layout_gravity="right|top"/>
+
+        </LinearLayout>
+
+
+
+    </RelativeLayout>
+
+
 
 
 </RelativeLayout>

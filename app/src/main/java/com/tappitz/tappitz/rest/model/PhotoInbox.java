@@ -3,7 +3,7 @@ package com.tappitz.tappitz.rest.model;
 public class PhotoInbox {
 
     private String url;
-    private String id;
+    private int id;
     private String text;
     private String senderName;
     private String date;
@@ -12,7 +12,7 @@ public class PhotoInbox {
     private int choice;
 
 
-    public PhotoInbox(String url, String id, String text,String date, boolean hasVoted,  String myComment, String senderName, int choice) {
+    public PhotoInbox(String url, int id, String text,String date, boolean hasVoted,  String myComment, String senderName, int choice) {
         this.date = date;
         this.hasVoted = hasVoted;
         this.id = id;
@@ -43,7 +43,7 @@ public class PhotoInbox {
         return url;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 

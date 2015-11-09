@@ -75,8 +75,21 @@
         android:focusable="false"
         />
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/splashScreen"
+        android:background="@color/white"
+        android:visibility="visible">
 
-
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView2"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/logo_tappitz" />
+    </RelativeLayout>
 
 
 </RelativeLayout>

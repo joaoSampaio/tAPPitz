@@ -14,6 +14,7 @@ import android.widget.Toast;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactAdapter;
 import com.tappitz.tappitz.adapter.SelectContactAdapter;
+import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.model.ListViewContactItem;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListContactsService;
@@ -122,7 +123,11 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
             public void onClick(View v) {
                 Log.d("myapp", "nextTo: ");
 
-                List<String> selected = adapter.getSelectedContacts();
+//                List<String> selected = adapter.getSelectedContacts();
+                List<Integer> selected = new ArrayList<Integer>();
+                selected.add(1);
+                selected.add(10);
+                selected.add(11);
                 if(selected.size() > 0){
                     if(listener != null) {
                         listener.sendPhoto(selected);
@@ -173,6 +178,7 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
             public void failed(Object error) {
                 showToast("Erro");
                 //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
+                loadDummyContacts();
                 swipeLayout.setRefreshing(false);
             }
         }).execute();
@@ -181,6 +187,14 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
     private void refresh(){
         //pede a lista de todos os contactos
         loadContacts();
+    }
+
+    private void loadDummyContacts(){
+        allContactsList.clear();
+        allContactsList.add(new ListViewContactItem(new Contact("joao miguel", "joaomiguel@gmail.com",1)));
+        allContactsList.add(new ListViewContactItem(new Contact("joao sampaio", "joao@gmail.com", 3)));
+        adapter.notifyDataSetChanged();
+        checkIfHasContacts(allContactsList.size());
     }
 
     public void showToast(String msg){
@@ -197,7 +211,7 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
     }
 
     public interface OnSelectedContacts{
-        public void sendPhoto(List<String> contacts);
+        public void sendPhoto(List<Integer> contacts);
     }
 
 

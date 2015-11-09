@@ -27,6 +27,7 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.UserRegister;
 import com.tappitz.tappitz.rest.service.CallbackFromService;
+import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.rest.service.RegisterService;
 import com.tappitz.tappitz.util.ProgressGenerator;
@@ -40,8 +41,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
-
-import retrofit.RetrofitError;
 
 public class LoginActivity extends Activity  implements View.OnClickListener, DatePickerDialog.OnDateSetListener, ProgressGenerator.OnCompleteListener {
 
@@ -84,7 +83,7 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
 
         curScreen = R.id.screen_login;
 
-        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String user = prefs.getString(Global.KEY_USER, "");
         String pass = prefs.getString(Global.KEY_PASS, "");
         editEmail.setText(user);
@@ -121,6 +120,12 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
 //        btnSignIn.setMode(ActionProcessButton.Mode.ENDLESS);
 
 
+        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                registerFakeUser();
+            }
+        });
 
     }
 
@@ -199,67 +204,35 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
                     login.setProgress(50);
                     final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
 
-
-
-                    new LoginService(editEmail.getText().toString(), editPassword.getText().toString(), new CallbackFromService() {
+                    new LoginService(editEmail.getText().toString(), editPassword.getText().toString(), new CallbackMultiple<String>() {
                         @Override
-                        public void success(Object response) {
-                            if (response != null && response instanceof JsonElement) {
-                                try {
-                                    JsonElement r = (JsonElement)response;
-                                    Log.d("myapp", "***get(status)***" + r.getAsJsonObject().get("status"));
-                                    String status = r.getAsJsonObject().get("status").toString();
+                        public void success(String sessionId) {
 
-                                    if(status.equals("true")){
-                                        Log.d("myapp", "***get(status)**true*");
-                                        try {
-                                            String sessionId = r.getAsJsonObject().get("sessionId").toString();
-                                            SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
-                                            SharedPreferences.Editor editor = sp.edit();
-                                            editor.putString("sessionId", sessionId);
-                                            editor.commit();
-                                            Log.d("myapp", "***login**sessionId*" + sessionId );
-                                            RestClient.setSessionId(sessionId);
-
-
-                                        } catch (Exception e) {
-                                            e.printStackTrace();
-                                        }
-                                        login.setProgress(100);
-                                        onSuccessLogin();
-                                    }else{
-                                        Log.d("myapp", "***get(status)**false*" );
-                                        String error = r.getAsJsonObject().get("error").toString();
-                                        editEmail.setError(error);
-
-                                        onSuccessLogin();
-                                    }
-
-
-                                    Log.d("myapp", "******" + r.toString());
-                                    Log.d("myapp", "***get(\"status\")***" + r.getAsJsonObject().get("status"));
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
+                            if(sessionId.length() > 0){
+                                SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+//                                SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+                                SharedPreferences.Editor editor = sp.edit();
+                                editor.putString("sessionId", sessionId);
+                                editor.commit();
+                                Log.d("myapp", "***login**sessionId*" + sessionId);
+                                RestClient.setSessionId(sessionId);
+                                login.setProgress(100);
+                                onSuccessLogin();
                             }
-                            login.setEnabled(true);
-                            progressDialog.dismiss();
                         }
 
                         @Override
                         public void failed(Object error) {
-                            if (error != null && error instanceof RetrofitError) {
-                                //onSuccessLogin();
 
-                                login.setEnabled(true);
-                                editEmail.setEnabled(true);
-                                editPassword.setEnabled(true);
-                                progressDialog.dismiss();
-                                login.setProgress(-1);
-
-                                onSuccessLogin();
+                            login.setEnabled(true);
+                            editEmail.setEnabled(true);
+                            editPassword.setEnabled(true);
+                            progressDialog.dismiss();
+                            login.setProgress(-1);
+                            if(error instanceof String){
+                                editEmail.setError((String) error);
                             }
+                            onSuccessLogin();
                         }
                     }).execute();
                 }
@@ -357,7 +330,7 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
         }
 
         //guarda o mail e pass para nao ser preciso introduzi-los a toda a hora
-        SharedPreferences prefs = getPreferences(Context.MODE_PRIVATE);
+        SharedPreferences prefs = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         ;
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(Global.KEY_USER, editEmail.getText().toString());
@@ -501,4 +474,60 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
     public void onComplete() {
 
     }
+
+
+
+    private void registerFakeUser(){
+
+        String firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password;
+
+        firstName = "joao";
+        lastName = "sampaio";
+        gender =  "1";
+        //gender = Boolean.toString(male.isChecked());
+        birthDate = 30 + "_" + 4 + "_" + 1992;
+        phoneNumber = "998989898";
+        country = paisesSpinner.getSelectedItemPosition() + "";
+        gpsCoordinates = "1234";
+        email = "joaomiguel@gmail.com";
+        password = "password";
+        UserRegister user = new UserRegister(firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password);
+
+
+        final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
+
+        new RegisterService(user, new CallbackFromService() {
+            @Override
+            public void success(Object response) {
+                JsonElement json = (JsonElement) response;
+                Log.d("myapp", "***get(status)***" + json.getAsJsonObject().get("status"));
+                String status = json.getAsJsonObject().get("status").toString();
+                if(status.equals("true")){
+                    Log.d("myapp", "***get(status)**true*");
+                    editEmail.setText(registerEmail.getText().toString());
+                    editPassword.setText(registerPassword.getText().toString());
+                    screens.add(R.id.screen_reg2);
+                    showScreen(R.id.screen_login);
+                }else{
+                    Log.d("myapp", "***get(status)**false*");
+                    String error = json.getAsJsonObject().get("error").toString();
+                    editPassword.setError(error);
+                }
+                progressDialog.dismiss();
+
+            }
+
+            @Override
+            public void failed(Object error) {
+                Toast.makeText(getApplicationContext(), "There was an eror, Try again later.", Toast.LENGTH_LONG).show();
+                progressDialog.dismiss();
+            }
+        }).execute();
+
+
+    }
+
+
+
+
 }

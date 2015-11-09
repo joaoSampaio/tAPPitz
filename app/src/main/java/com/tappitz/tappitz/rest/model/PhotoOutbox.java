@@ -1,12 +1,12 @@
 package com.tappitz.tappitz.rest.model;
 
-public class photo_tAPPitz {
+public class PhotoOutbox {
 
     private String url;
-    private String id;
+    private int id;
     private String text;
 
-    public photo_tAPPitz(String url, String id, String text){
+    public PhotoOutbox(String url, int id, String text){
         this.url = url;
         this.id = id;
         this.text = text;
@@ -20,7 +20,7 @@ public class photo_tAPPitz {
         return url;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 

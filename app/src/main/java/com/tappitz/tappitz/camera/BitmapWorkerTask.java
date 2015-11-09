@@ -1,14 +1,18 @@
-package com.tappitz.tappitz.util;
+package com.tappitz.tappitz.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 
@@ -16,6 +20,10 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewReference;
     private String path;
     private int height, width;
+    private boolean isRotated ;
+    private SaveNewRotatedPictureInterface listener;
+    private Uri uri;
+    private String photoPath;
 
     public BitmapWorkerTask(ImageView imageView, String path, int width, int height) {
         // Use a WeakReference to ensure the ImageView can be garbage collected
@@ -34,6 +42,7 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 
         Bitmap original = LoadBitmap.decodeSampledBitmapFromFile(path, width, height);
         ExifInterface ei = null;
+        isRotated = false;
         try {
             ei = new ExifInterface(path);
             int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
@@ -41,9 +50,11 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
             switch(orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
                     original = RotateBitmap(original, 90);
+                    isRotated = true;
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_180:
                     original = RotateBitmap(original, 180);
+                    isRotated = true;
                     break;
                 // etc.
             }
@@ -51,6 +62,45 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
             e.printStackTrace();
         }
 
+
+        if(isRotated){
+//            FileOutputStream out = null;
+//            try {
+//                out = new FileOutputStream(filename);
+//                original.compress(Bitmap.CompressFormat.JPEG, 90, out); // bmp is your Bitmap instance
+//                // PNG is a lossless format, the compression factor (100) is ignored
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            } finally {
+//                try {
+//                    if (out != null) {
+//                        out.close();
+//                    }
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+
+
+            FileOutputStream outStream = null;
+            try {
+                File file = PhotoSave.getOutputMediaFile();
+                outStream = new FileOutputStream(file);
+                original.compress(Bitmap.CompressFormat.JPEG, 90, outStream); // bmp is your Bitmap instance
+                outStream.close();
+
+                photoPath = file.getAbsolutePath();
+                uri = Uri.fromFile(file);
+                //sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+
+            } catch (FileNotFoundException e) {
+                Log.d("CAMERA", e.getMessage());
+            } catch (IOException e) {
+                Log.d("CAMERA", e.getMessage());
+            }
+
+
+        }
 
 
         return original;
@@ -76,5 +126,21 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
                 imageView.setImageBitmap(bitmap);
             }
         }
+        if(listener != null && isRotated){
+            listener.onSaveToFileRotated(uri, photoPath);
+        }
     }
+
+
+    public void setListener(SaveNewRotatedPictureInterface listener) {
+        this.listener = listener;
+    }
+
+    public interface SaveNewRotatedPictureInterface{
+        public void onSaveToFileRotated(Uri uri, String photoPath);
+    }
+
+
+
+
 }
