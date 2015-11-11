@@ -37,8 +37,8 @@ public interface Api {
 
 
     //Pede a lista de outbox
-//    @GET("/outbox")
-    @GET("/outbox.json")
+    @GET("/outbox")
+//    @GET("/outbox.json")
     void requestOutbox(Callback<JsonElement> response);
 
 //    //Pede a imagem associada ao id
@@ -54,8 +54,8 @@ public interface Api {
 
     /*********InBox************/
     //Pede a lista de inbox
-//    @GET("/inbox")
-    @GET("/inbox.json")
+    @GET("/inbox")
+//    @GET("/inbox.json")
     void requestInbox(Callback<JsonElement> response);
 
 
@@ -76,10 +76,10 @@ public interface Api {
     void listMyContacts( Callback<JsonElement> callback);
 
     /*Contactos - Procura*/
-//    @GET("/contacts/{user_id}")
-//    void searchContact(@Path("user_id") String user_id , Callback<JsonElement> callback);
-    @GET("/searchContact.json")
-    void searchContact(Callback<JsonElement> callback);
+    @GET("/contacts/{user_id}")
+    void searchContact(@Path("user_id") String user_id , Callback<JsonElement> callback);
+//    @GET("/searchContact.json")
+//    void searchContact(Callback<JsonElement> callback);
 
 
     /*Contactos - Convidar*/
@@ -103,8 +103,8 @@ public interface Api {
     void isLogin(Callback<JsonElement> callback);
 
     /*******Contactos - Pedidos de contacto********/
-//    @GET("/contact_requests")
-    @GET("/contactRequests.json")
+    @GET("/contact_requests")
+//    @GET("/contactRequests.json")
     void listContactRequests( Callback<JsonElement> callback);
 
 

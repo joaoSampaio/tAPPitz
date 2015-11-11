@@ -26,8 +26,8 @@ import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.SendVotePictureService;
 import com.tappitz.tappitz.ui.InBoxFragment;
+import com.tappitz.tappitz.util.VerticalViewPager;
 
-import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 
 public class InBoxPageFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
@@ -231,7 +231,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         animator.start();
     }
 
-    private void sendVote(int vote){
+    private void sendVote(final int vote){
         Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
         String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
         new SendVotePictureService(comment, id, vote, new CallbackMultiple() {
@@ -242,7 +242,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                     rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
                     rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
                     color_background.setVisibility(View.VISIBLE);
-                    color_background.setBackgroundColor(getResources().getColor(getColor(Global.GREEN)));
+                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
 
                     VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
                     int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
@@ -258,6 +258,24 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             @Override
             public void failed(Object error) {
                 toggleButtons(true);
+
+
+
+                if(getActivity() != null && getParentFragment() != null){
+                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
+                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
+                    color_background.setVisibility(View.VISIBLE);
+                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
+
+                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
+                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
+
+                    if(nextPage > 0) {
+                        animatePagerTransition(true, pager);
+                        //pager.setCurrentItem(nextPage, true);
+
+                    }
+                }
             }
         }).execute();
     }

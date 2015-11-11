@@ -34,27 +34,31 @@ public class ListContactsService implements ServerCommunicationService {
             public void success(JsonElement  json, Response response2) {
 
                 Gson gson = new Gson();
-                JsonObject obj = json.getAsJsonObject();
-                Log.d("myapp", "obj->" + obj.toString());
-                boolean status = obj.get("status").getAsBoolean();
-                Log.d("myapp", "status->" + status);
-                if(status){
-                    Log.d("myapp", "entrou");
-                    List<GenericContact> genericContacts = gson.fromJson(obj.get("data"), new TypeToken<List<GenericContact>>(){}.getType());
-                    Log.d("myapp", "genericContacts: " + genericContacts.size());
-                    List<ListViewContactItem> contacts = new ArrayList<ListViewContactItem>();
-                    for (GenericContact c: genericContacts){
-                        contacts.add(new ListViewContactItem(new Contact(c.getName(), c.getEmail(),c.getId(), true)));
+                try {
+                    JsonObject obj = json.getAsJsonObject();
+                    Log.d("myapp", "obj->" + obj.toString());
+                    boolean status = obj.get("status").getAsBoolean();
+                    Log.d("myapp", "status->" + status);
+                    if(status){
+                        Log.d("myapp", "entrou");
+                        List<GenericContact> genericContacts = gson.fromJson(obj.get("data"), new TypeToken<List<GenericContact>>(){}.getType());
+                        Log.d("myapp", "genericContacts: " + genericContacts.size());
+                        List<ListViewContactItem> contacts = new ArrayList<ListViewContactItem>();
+                        for (GenericContact c: genericContacts){
+                            contacts.add(new ListViewContactItem(new Contact(c.getName(), c.getEmail(),c.getId(), true)));
+                        }
+
+
+
+                        callback.success(contacts);
+                    }else{
+                        Log.d("myapp", "deu erro");
+                        callback.failed(null);
                     }
-
-
-
-                    callback.success(contacts);
-                }else{
-                    Log.d("myapp", "deu erro");
+                } catch (Exception e) {
+                    e.printStackTrace();
                     callback.failed(null);
                 }
-
 
 
             }

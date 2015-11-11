@@ -17,7 +17,7 @@ import com.tappitz.tappitz.R;
 
 public class BlankFragment extends Fragment  {
 
-    final static int[] CLICABLES = {R.id.camera_options, R.id.go_to, R.id.btn_goto_in, R.id.btn_goto_out, R.id.btn_goto_friends, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter,  R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
+    final static int[] CLICABLES = {R.id.camera_options, R.id.go_to, R.id.btn_goto_in, R.id.btn_goto_out, R.id.btn_goto_friends, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter};
     View rootView, camera_options;
     private Button btn_shutter;
     RelativeLayout whiteBackground;

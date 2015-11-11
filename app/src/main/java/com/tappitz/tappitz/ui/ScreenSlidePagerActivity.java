@@ -1,7 +1,10 @@
 package com.tappitz.tappitz.ui;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -43,6 +46,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     private boolean cameraReady;
     private boolean signIn;
     View frame;
+    private InBoxFragment.OnNewPhotoReceived reloadInboxListener;
     private HomeToBlankListener listenerCamera;
 //    private SplashScreenListener listenerSplash;
 
@@ -102,6 +106,61 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     }
 
 
+    //This is the handler that will manager to process the broadcast intent
+    private BroadcastReceiver mMessageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            // Extract data included in the Intent
+            String message = intent.getStringExtra("message");
+            Log.d("myapp3", "onReceive mMessageReceiver");
+            //do other stuff here
+
+            String action = null;
+            Log.d("myapp", "****onReceive " + intent.hasExtra("action"));
+            if(intent.getExtras() != null){
+                Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
+
+            }
+
+            if(intent.hasExtra("action"))
+                action = intent.getExtras().getString("action");
+            if(action != null){
+                Log.d("myapp", "****action: " + action);
+                switch (action){
+
+                    case Global.NOTIFICATION_ACTION_INVITE:
+                        //showFriends();
+                        break;
+                    case Global.NOTIFICATION_ACTION_NEW_PHOTO:
+                        if(reloadInboxListener != null)
+                            reloadInboxListener.refreshViewPager();
+
+                       // mPager.setCurrentItem(0);
+                        break;
+                }
+
+            }
+
+
+
+
+        }
+    };
+
+    //Must unregister onPause()
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.unregisterReceiver(mMessageReceiver);
+    }
+
+    //register your activity onResume()
+    @Override
+    public void onResume() {
+        super.onResume();
+        this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
+    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -426,5 +485,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         cameraReady = false;
     }
 
-
+    public void setReloadInboxListener(InBoxFragment.OnNewPhotoReceived reloadInboxListener) {
+        this.reloadInboxListener = reloadInboxListener;
+    }
 }

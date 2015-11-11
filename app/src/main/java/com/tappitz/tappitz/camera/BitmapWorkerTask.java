@@ -2,7 +2,6 @@ package com.tappitz.tappitz.camera;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -19,7 +18,7 @@ import java.lang.ref.WeakReference;
 public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
     private final WeakReference<ImageView> imageViewReference;
     private String path;
-    private int height, width;
+    private int height, width, rotation;
     private boolean isRotated ;
     private SaveNewRotatedPictureInterface listener;
     private Uri uri;
@@ -49,11 +48,18 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 
             switch(orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:
-                    original = RotateBitmap(original, 90);
+                    original = PhotoSave.RotateBitmap(original, 90);
+                    rotation = 90;
                     isRotated = true;
                     break;
                 case ExifInterface.ORIENTATION_ROTATE_180:
-                    original = RotateBitmap(original, 180);
+                    original = PhotoSave.RotateBitmap(original, 180);
+                    rotation = 180;
+                    isRotated = true;
+                    break;
+                case ExifInterface.ORIENTATION_ROTATE_270:
+                    original = PhotoSave.RotateBitmap(original, 270);
+                    rotation = 270;
                     isRotated = true;
                     break;
                 // etc.
@@ -64,23 +70,6 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 
 
         if(isRotated){
-//            FileOutputStream out = null;
-//            try {
-//                out = new FileOutputStream(filename);
-//                original.compress(Bitmap.CompressFormat.JPEG, 90, out); // bmp is your Bitmap instance
-//                // PNG is a lossless format, the compression factor (100) is ignored
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            } finally {
-//                try {
-//                    if (out != null) {
-//                        out.close();
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-
 
             FileOutputStream outStream = null;
             try {
@@ -109,12 +98,7 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
 
 
 
-    public static Bitmap RotateBitmap(Bitmap source, float angle)
-    {
-        Matrix matrix = new Matrix();
-        matrix.postRotate(angle);
-        return Bitmap.createBitmap(source, 0, 0, source.getWidth(), source.getHeight(), matrix, true);
-    }
+
 
     // Once complete, see if ImageView is still around and set bitmap.
     @Override

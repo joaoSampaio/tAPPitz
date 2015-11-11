@@ -12,12 +12,10 @@ import com.tappitz.tappitz.adapter.OutBoxPagerAdapter;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListOutboxService;
+import com.tappitz.tappitz.util.VerticalViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import fr.castorflex.android.verticalviewpager.VerticalViewPager;
-
 
 public class OutBoxFragment extends Fragment {
 
@@ -68,14 +66,14 @@ public class OutBoxFragment extends Fragment {
     private void OnDoneLoading(){
 
 
-        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/1.jpg", 1, "Gostas deste edificio?"));
-        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/2.jpg", 2, "Parece mesmo alto?"));
-        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/3.jpg", 4, "Curtes"));
-        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/4.jpg", 5, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
-
-        photos.add(new PhotoOutbox("http://cdn.bgr.com/2014/07/android-blue.jpg", 6, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
-        photos.add(new PhotoOutbox("http://cdn.gsmarena.com/vv/newsimg/14/06/androidone/gsmarena_001.jpg", 8, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
-        photos.add(new PhotoOutbox("https://gigaom.com/wp-content/uploads/sites/1/2011/01/android-vs-ios.jpeg?quality=80&strip=all", 9, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
+//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/1.jpg", 1, "Gostas deste edificio?"));
+//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/2.jpg", 2, "Parece mesmo alto?"));
+//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/3.jpg", 4, "Curtes"));
+//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/4.jpg", 5, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
+//
+//        photos.add(new PhotoOutbox("http://cdn.bgr.com/2014/07/android-blue.jpg", 6, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
+//        photos.add(new PhotoOutbox("http://cdn.gsmarena.com/vv/newsimg/14/06/androidone/gsmarena_001.jpg", 8, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
+//        photos.add(new PhotoOutbox("https://gigaom.com/wp-content/uploads/sites/1/2011/01/android-vs-ios.jpeg?quality=80&strip=all", 9, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
 
         //notifico o adapter para atualizar a lista
         adapter.notifyDataSetChanged();

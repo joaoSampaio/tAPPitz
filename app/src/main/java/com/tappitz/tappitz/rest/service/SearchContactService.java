@@ -25,8 +25,8 @@ public class SearchContactService implements ServerCommunicationService {
 
     @Override
     public void execute() {
-        //RestClient.getService().searchContact(search, new Callback<JsonElement>() {
-        RestClient.getService().searchContact(new Callback<JsonElement>() {
+        RestClient.getService().searchContact(search, new Callback<JsonElement>() {
+//        RestClient.getService().searchContact(new Callback<JsonElement>() {
             @Override
             public void success(JsonElement json, Response response2) {
 

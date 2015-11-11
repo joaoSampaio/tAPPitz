@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
@@ -33,18 +34,15 @@ public class ListOutboxService implements ServerCommunicationService {
                 Gson gson = new Gson();
                 JsonObject obj = json.getAsJsonObject();
                 Log.d("myapp", "obj->" + obj.toString());
-                boolean status = obj.get("status").getAsBoolean();
-                Log.d("myapp", "status->" + status);
-                if(status){
-                    Log.d("myapp", "entrou");
-                    List<PhotoOutbox> outbox = gson.fromJson(obj.get("data"), new TypeToken<List<PhotoOutbox>>(){}.getType());
-                    Log.d("myapp", "genericContacts: " + outbox.size());
 
-                    callback.success(outbox);
-                }else{
-                    Log.d("myapp", "deu erro");
-                    callback.failed(null);
-                }
+                List<PhotoOutbox> outbox = gson.fromJson(obj.get("pictures"), new TypeToken<List<PhotoOutbox>>() {
+                }.getType());
+                Log.d("myapp", "genericContacts: " + outbox.size());
+                if (outbox == null)
+                    outbox = new ArrayList<PhotoOutbox>();
+                callback.success(outbox);
+
+
             }
 
             @Override

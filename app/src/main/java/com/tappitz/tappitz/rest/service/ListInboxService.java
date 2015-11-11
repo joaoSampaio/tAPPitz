@@ -10,6 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
@@ -30,26 +31,33 @@ public class ListInboxService implements ServerCommunicationService {
             @Override
             public void success(JsonElement  json, Response response2) {
 
-                Gson gson = new Gson();
-                JsonObject obj = json.getAsJsonObject();
-                Log.d("myapp", "obj->" + obj.toString());
-                boolean status = obj.get("status").getAsBoolean();
-                Log.d("myapp", "status->" + status);
-                if(status){
-                    Log.d("myapp", "entrou");
-                    List<PhotoInbox> inbox = gson.fromJson(obj.get("data"), new TypeToken<List<PhotoInbox>>(){}.getType());
-                    Log.d("myapp", "genericContacts: " + inbox.size());
+                Log.d("myapp", "obj json != null" + (json != null));
+                if(json != null) {
+                    Log.d("myapp", "obj toString->" + json.toString());
+                    Gson gson = new Gson();
+                    JsonObject obj = json.getAsJsonObject();
+                    Log.d("myapp", "obj->" + obj.toString());
+                    boolean status = obj.get("status").getAsBoolean();
+                    Log.d("myapp", "status->" + status);
+                    if (status) {
+                        Log.d("myapp", "entrou");
+                        List<PhotoInbox> inbox = gson.fromJson(obj.get("data"), new TypeToken<List<PhotoInbox>>() {
+                        }.getType());
+                        Log.d("myapp", "genericContacts: " + inbox.size());
 //                    List<ListViewContactItem> contacts = new ArrayList<ListViewContactItem>();
 //                    for (PhotoInbox c: genericContacts){
 //                        contacts.add(new ListViewContactItem(new Contact(c.getName(), c.getEmail(), true)));
 //                    }
 
 
+                        callback.success(inbox);
+                    } else {
+                        Log.d("myapp", "deu erro");
+                        callback.failed(null);
+                    }
 
-                    callback.success(inbox);
-                }else{
-                    Log.d("myapp", "deu erro");
-                    callback.failed(null);
+                }else {
+                    callback.success(new ArrayList<PhotoInbox>());
                 }
 
 

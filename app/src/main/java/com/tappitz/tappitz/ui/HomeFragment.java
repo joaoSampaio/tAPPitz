@@ -2,6 +2,7 @@ package com.tappitz.tappitz.ui;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -41,6 +42,7 @@ import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.camera.BitmapWorkerTask;
 import com.tappitz.tappitz.camera.ControlCameraTask;
 import com.tappitz.tappitz.camera.PhotoSave;
+import com.tappitz.tappitz.camera.SavePhotoBackgroundTask;
 import com.tappitz.tappitz.camera.UriPath;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CreatePhotoService;
@@ -55,8 +57,6 @@ import net.sourceforge.zbar.SymbolSet;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -199,6 +199,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     @Override
     public void onResume() {
         super.onResume();
+        //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
         Log.d("myapp", "onResume");
         setUP();
 
@@ -290,10 +291,30 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 //                if(v.getTag() != null && v.getTag() instanceof String){
 //                    textMsg.setText((String)v.getTag());
 //                }
-                savePhotoToFile();
 
-                cameraReturn();
-                showDialog();
+                if(photoPath == null || photoPath.equals("")) {
+                    final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Please wait", "We're saving the photo to file.", true);
+                    new SavePhotoBackgroundTask(photoData, new SavePhotoBackgroundTask.SaveNewRotatedPictureInterface() {
+                        @Override
+                        public void onSaveToFileRotated(Uri uri, String photoNewPath) {
+
+                            progressDialog.dismiss();
+                            photoPath = photoNewPath;
+                            getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+                            photoData = null;
+                            cameraReturn();
+                            showDialog();
+                        }
+                    }).execute();
+                }else {
+                    cameraReturn();
+                    showDialog();
+                }
+
+//                savePhotoToFile();
+//
+//                cameraReturn();
+//                showDialog();
                 break;
 
             case R.id.btn_load:
@@ -417,6 +438,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 output64.close();
 
                 pictureBase64 = output.toString();
+                pictureBase64 = pictureBase64.replace("\n","");
                 Log.d("myapp", "pictureBase64:" + pictureBase64);
 
             } catch (Exception e) {
@@ -484,6 +506,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             //((ScreenSlidePagerActivity)getActivity()).callbackPhotoAvailable();
         }else {
             requestedFile = false;
+            ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
         }
     }
 
@@ -538,24 +561,75 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     private void savePhotoToFile(){
 
-        if(photoData != null) {
-            FileOutputStream outStream = null;
-            try {
-                File file = PhotoSave.getOutputMediaFile();
-                outStream = new FileOutputStream(file);
-                outStream.write(photoData);
-                outStream.close();
+        File file = PhotoSave.saveImageToFile(photoData);
+        if(file != null){
+            //guardamos a imagem correctamente
 
-                photoPath = file.getAbsolutePath();
-                getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
-
-            } catch (FileNotFoundException e) {
-                Log.d("CAMERA", e.getMessage());
-            } catch (IOException e) {
-                Log.d("CAMERA", e.getMessage());
-            }
-            photoData = null;
+            photoPath = file.getAbsolutePath();
+            getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
         }
+        photoPath = null;
+
+//        if(photoData != null) {
+//            //FileOutputStream outStream = null;
+//            try {
+//                int orientation = Exif.getOrientation(photoData);
+//                boolean isRotated = false;
+//                Bitmap originalBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
+//                switch(orientation) {
+//                    case ExifInterface.ORIENTATION_ROTATE_90:
+//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 90);
+//
+//                        isRotated = true;
+//                        break;
+//                    case ExifInterface.ORIENTATION_ROTATE_180:
+//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 180);
+//
+//                        isRotated = true;
+//                        break;
+//                    case ExifInterface.ORIENTATION_ROTATE_270:
+//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 270);
+//
+//                        isRotated = true;
+//                        break;
+//                }
+//
+//                if(isRotated){
+//
+//                    FileOutputStream outStream = null;
+//                    try {
+//                        File file = PhotoSave.getOutputMediaFile();
+//                        outStream = new FileOutputStream(file);
+//                        originalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream); // bmp is your Bitmap instance
+//                        outStream.close();
+//
+//                        photoPath = file.getAbsolutePath();
+//                        getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+//
+//                    } catch (FileNotFoundException e) {
+//                        Log.d("CAMERA", e.getMessage());
+//                    } catch (IOException e) {
+//                        Log.d("CAMERA", e.getMessage());
+//                    }
+//
+//
+//                }
+//
+//
+//
+////                File file = PhotoSave.getOutputMediaFile();
+////                outStream = new FileOutputStream(file);
+////                outStream.write(photoData);
+////                outStream.close();
+////
+////                photoPath = file.getAbsolutePath();
+////                getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+//
+//            } catch (Exception e) {
+//                Log.d("CAMERA", e.getMessage());
+//            }
+//            photoData = null;
+//        }
     }
 
     public void deletePrevious(){
@@ -563,6 +637,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
         textMsg.setText("");
         pictureBase64 = "";
+        photoPath = "";
         photoData = null;
         start_camera();
         ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);

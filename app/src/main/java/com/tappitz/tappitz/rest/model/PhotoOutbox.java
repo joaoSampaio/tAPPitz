@@ -1,13 +1,14 @@
 package com.tappitz.tappitz.rest.model;
 
+import com.tappitz.tappitz.Global;
+
 public class PhotoOutbox {
 
-    private String url;
+//    private String url;
     private int id;
     private String text;
 
-    public PhotoOutbox(String url, int id, String text){
-        this.url = url;
+    public PhotoOutbox( int id, String text){
         this.id = id;
         this.text = text;
     }
@@ -17,7 +18,7 @@ public class PhotoOutbox {
 
 
     public String getUrl() {
-        return url;
+        return Global.ENDPOINT + "/pictures/+id";
     }
 
     public int getId() {

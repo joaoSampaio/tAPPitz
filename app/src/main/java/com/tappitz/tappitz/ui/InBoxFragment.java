@@ -15,11 +15,11 @@ import com.tappitz.tappitz.adapter.InBoxPagerAdapter;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListInboxService;
+import com.tappitz.tappitz.util.VerticalViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import fr.castorflex.android.verticalviewpager.VerticalViewPager;
 
 
 public class InBoxFragment extends Fragment {
@@ -39,34 +39,6 @@ public class InBoxFragment extends Fragment {
         rootView = inflater.inflate(R.layout.fragment_in_box, container, false);
 
         Log.d("myapp2", "**--new InBoxFragment:");
-//        rootView.findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//                SharedPreferences sp = getActivity().getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
-//                String sessionid = sp.getString("session_id", "");
-//                RestClient.getService().isLogin( new Callback<JsonElement>() {
-//                    @Override
-//                    public void success(JsonElement jsonElement, Response response) {
-//
-//                        Log.d("myapp", "***get(status)***" + jsonElement.getAsJsonObject().get("status"));
-//                        String status = jsonElement.getAsJsonObject().get("status").toString();
-//                        if(getActivity() != null)
-//                            Toast.makeText(getActivity(), "resposta: " + status, Toast.LENGTH_SHORT).show();
-//                    }
-//
-//                    @Override
-//                    public void failure(RetrofitError error) {
-//                        if(getActivity() != null)
-//                            Toast.makeText(getActivity(), "erro: ", Toast.LENGTH_SHORT).show();
-//                    }
-//                });
-//
-//
-//            }
-//        });
-
-
 
         rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,15 +60,35 @@ public class InBoxFragment extends Fragment {
         return rootView;
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        ((ScreenSlidePagerActivity)getActivity()).setReloadInboxListener(new OnNewPhotoReceived() {
+            @Override
+            public void refreshViewPager() {
+                refreshInbox();
+            }
+        });
+    }
+
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        ((ScreenSlidePagerActivity)getActivity()).setReloadInboxListener(null);
+    }
+
 
     private void refreshInbox(){
         Toast.makeText(getActivity(), "Refreshed!", Toast.LENGTH_SHORT).show();;
         new ListInboxService(new CallbackMultiple<List<PhotoInbox>>() {
             @Override
             public void success(List<PhotoInbox> response) {
+                viewPager.setCurrentItem(0);
                 photos.clear();
                 photos.addAll(response);
                 adapter.notifyDataSetChanged();
+
             }
 
             @Override
@@ -107,6 +99,7 @@ public class InBoxFragment extends Fragment {
     }
 
     private void OnDoneLoading(){
+        viewPager.setCurrentItem(0);
         photos.clear();
 //String url, String id, String text,String date, boolean hasVoted,  String myComment, String senderName
         photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/1.jpg", 11111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
@@ -117,11 +110,14 @@ public class InBoxFragment extends Fragment {
         photos.add(new PhotoInbox("http://web.ist.utl.pt/~ist170638/tappitz/images/563e5f71d2425.jpg", 111112, "isto és virado para vcs?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
         photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/IMG_20151109_032605.jpg", 111112, "isto és virado para vcs, Já não?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
 
+        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/melancia_velho.jpg", 111112, "isto és virado para vcs?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/melancia_novo.jpg", 111112, "isto és virado para vcs, Já não?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
 
 
 
                //notifico o adapter para atualizar a lista
         adapter.notifyDataSetChanged();
+
     }
 
 
@@ -135,4 +131,12 @@ public class InBoxFragment extends Fragment {
     public VerticalViewPager getViewPager() {
         return viewPager;
     }
+
+
+    public interface OnNewPhotoReceived{
+        public void refreshViewPager();
+    }
+
+
+
 }

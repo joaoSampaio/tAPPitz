@@ -1,6 +1,8 @@
 package com.tappitz.tappitz.ui;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -19,6 +21,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactAdapter;
 import com.tappitz.tappitz.model.Contact;
@@ -28,6 +32,7 @@ import com.tappitz.tappitz.rest.service.ListContactRequestService;
 import com.tappitz.tappitz.rest.service.ListContactsService;
 import com.tappitz.tappitz.rest.service.SearchContactService;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -179,20 +184,20 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
                 if(response.size() > 0)
                     response.add(0, new ListViewContactItem("Contact Requests"));
                 contactsRequest = response;
-                allContactsList.clear();
-                allContactsList.addAll(contactsRequest);
-                allContactsList.addAll(contactsFriends);
-                adapter.notifyDataSetChanged();
-                checkIfHasContacts(allContactsList.size());
 
-                swipeLayout.setRefreshing(false);
+                saveContactRequestsOffline(contactsRequest);
+
+                notifyAdpater();
             }
 
             @Override
             public void failed(Object error) {
-                showToast("Erro");
+                showToast("Loading Offline contacts");
+
+                contactsRequest = loadRequestsOffline();
+                notifyAdpater();
+
                 //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
-                swipeLayout.setRefreshing(false);
             }
         }).execute();
     }
@@ -205,20 +210,16 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
                 if(response.size() > 0)
                     response.add(0, new ListViewContactItem("My Contacts"));
                 contactsFriends = response;
-                allContactsList.clear();
-                allContactsList.addAll(contactsRequest);
-                allContactsList.addAll(contactsFriends);
-                adapter.notifyDataSetChanged();
-                checkIfHasContacts(allContactsList.size());
 
-                swipeLayout.setRefreshing(false);
+                saveContactsOffline(contactsFriends);
+
+                notifyAdpater();
             }
 
             @Override
             public void failed(Object error) {
-                showToast("Erro");
-                //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
-                swipeLayout.setRefreshing(false);
+                contactsFriends = loadContactsOffline();
+                notifyAdpater();
             }
         }).execute();
     }
@@ -278,7 +279,57 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
         }
     }
 
+    private void saveContactsOffline(List<ListViewContactItem> contacts){
+        String json = new Gson().toJson(contacts);
+        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("contacts", json);
+        editor.commit();
 
+    }
+
+    private void saveContactRequestsOffline(List<ListViewContactItem> contactsRequest){
+        String json = new Gson().toJson(contactsRequest);
+        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("contactsRequest", json);
+        editor.commit();
+
+    }
+
+    private List<ListViewContactItem> loadContactsOffline(){
+        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        String contacts = sp.getString("contacts", "");
+        if(contacts.equals("")){
+            return new ArrayList<ListViewContactItem>();
+        }else {
+            Type type = new TypeToken<List<ListViewContactItem >>(){}.getType();
+            List<ListViewContactItem> contactsList = new Gson().fromJson(contacts, type);
+            return contactsList;
+        }
+    }
+
+    private List<ListViewContactItem> loadRequestsOffline(){
+        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        String contactsRequest = sp.getString("contactsRequest", "");
+        if(contactsRequest.equals("")){
+            return new ArrayList<ListViewContactItem>();
+        }else {
+            Type type = new TypeToken<List<ListViewContactItem >>(){}.getType();
+            List<ListViewContactItem> contactsList = new Gson().fromJson(contactsRequest, type);
+            return contactsList;
+        }
+    }
+
+
+    private void notifyAdpater(){
+        allContactsList.clear();
+        allContactsList.addAll(contactsRequest);
+        allContactsList.addAll(contactsFriends);
+        adapter.notifyDataSetChanged();
+        checkIfHasContacts(allContactsList.size());
+        swipeLayout.setRefreshing(false);
+    }
 
     @Override
     public void onRefresh() {

@@ -31,7 +31,7 @@
             android:layout_marginRight="10dp" />
     </RelativeLayout>
 
-    <fr.castorflex.android.verticalviewpager.VerticalViewPager
+    <com.tappitz.tappitz.util.VerticalViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

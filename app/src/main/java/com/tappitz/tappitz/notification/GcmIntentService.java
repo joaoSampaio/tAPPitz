@@ -85,6 +85,9 @@ public class GcmIntentService extends IntentService {
         notification.defaults |= Notification.DEFAULT_SOUND; // Sound
 
         mNotificationManager.notify(1, notification);
+
+
+
         GcmBroadcastReceiver.completeWakefulIntent(intent);
 
 
@@ -96,6 +99,9 @@ public class GcmIntentService extends IntentService {
 
 
     }
+
+
+
 
 
 
