@@ -55,7 +55,7 @@ public class InBoxFragment extends Fragment {
         viewPager.setAdapter(adapter);
 
 
-        refreshInbox();
+        //refreshInbox();
 
         return rootView;
     }

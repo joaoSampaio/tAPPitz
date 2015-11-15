@@ -45,6 +45,11 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
         try {
             ei = new ExifInterface(path);
             int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+            int heightBit = original.getHeight();
+            int widthBit = original.getWidth();
+
+            if(widthBit > heightBit)
+                orientation = 90;
 
             switch(orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:

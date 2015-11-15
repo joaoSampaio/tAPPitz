@@ -4,11 +4,11 @@ package com.tappitz.tappitz.rest.model;
  * Created by sampaio on 16-10-2015.
  */
 public class ContactSendId {
-    int id;
+    int contactId;
     String operationType;
 
     public ContactSendId(int id, String operationType) {
-        this.id = id;
+        this.contactId = id;
         this.operationType = operationType;
     }
 
@@ -21,10 +21,10 @@ public class ContactSendId {
     }
 
     public int getId() {
-        return id;
+        return contactId;
     }
 
     public void setId(int id) {
-        this.id = id;
+        this.contactId = id;
     }
 }

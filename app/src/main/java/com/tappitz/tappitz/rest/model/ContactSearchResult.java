@@ -5,13 +5,13 @@ package com.tappitz.tappitz.rest.model;
  */
 public class ContactSearchResult {
     private String name;
-    private String email;
+    private String eMail;
     private int id;
     private boolean isInvited;
 
     public ContactSearchResult(String name, String email, int id, boolean isInvited) {
         this.name = name;
-        this.email = email;
+        this.eMail = email;
         this.isInvited = isInvited;
         this.id = id;
     }
@@ -25,11 +25,11 @@ public class ContactSearchResult {
     }
 
     public String getEmail() {
-        return email;
+        return eMail;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.eMail = email;
     }
 
     public boolean isInvited() {

@@ -70,6 +70,11 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
     }
 
 
+    @Override
+    public void onPause(){
+        super.onPause();
+        dismiss();
+    }
 
 
 

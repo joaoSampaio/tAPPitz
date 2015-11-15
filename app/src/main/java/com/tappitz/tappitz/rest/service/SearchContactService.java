@@ -36,10 +36,10 @@ public class SearchContactService implements ServerCommunicationService {
                 boolean status = obj.get("status").getAsBoolean();
                 Log.d("myapp", "status->" + status);
                 if (status) {
-                    if(obj.get("data").toString().equals("{}")) {
-                        callback.success(null);
-                        return;
-                    }
+//                    if(obj.get("data").getAsString().equals("{}")) {
+//                        callback.success(null);
+//                        return;
+//                    }
                     ContactSearchResult contactSearch = gson.fromJson(obj.get("data"), ContactSearchResult.class);
                     if(contactSearch == null || contactSearch.getEmail() == null) {
                         callback.success(null);
