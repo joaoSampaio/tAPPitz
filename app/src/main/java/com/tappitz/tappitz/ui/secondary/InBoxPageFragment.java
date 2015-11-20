@@ -5,6 +5,7 @@ import android.animation.ValueAnimator;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -37,7 +38,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
     private ImageView color_background;
     private EditText editTextComment;
     private int id;
-
+    private InBoxFragment.ListenerStateChange state;
+    String text;
 
     private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
@@ -57,7 +59,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         NetworkImageView imageView = (NetworkImageView)rootView.findViewById(R.id.picture);
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
-        String text = getArguments().getString(Global.TEXT_RESOURCE);
+        text = getArguments().getString(Global.TEXT_RESOURCE);
         id = getArguments().getInt(Global.ID_RESOURCE);
         String owner = getArguments().getString(Global.OWNER_RESOURCE);
         String date = getArguments().getString(Global.DATE_RESOURCE);
@@ -65,8 +67,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         boolean hasVoted = getArguments().getBoolean(Global.HAS_VOTED_RESOURCE);
         int choice = getArguments().getInt(Global.CHOICE_RESOURCE);
-
-
         if (imageLoader == null)
             imageLoader = AppController.getInstance().getImageLoader();
         imageView.setImageUrl(url, imageLoader);
@@ -86,20 +86,14 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         editTextComment = (EditText)rootView.findViewById(R.id.editTextComment);
         layout_vote = rootView.findViewById(R.id.layout_vote);
         layout_container = rootView.findViewById(R.id.container);
-
         TextView textview = (TextView) rootView.findViewById(R.id.photo_description);
         textview.setText(text);
-
         TextView textViewVoted = (TextView) rootView.findViewById(R.id.photo_description_voted);
         textViewVoted.setText(text);
-
         textViewOwner = (TextView) rootView.findViewById(R.id.textViewOwner);
         textViewDate = (TextView) rootView.findViewById(R.id.textViewDate);
-
         textViewOwner.setText(owner);
         textViewDate.setText(date);
-        Log.d("myapp", "inbox textViewDate: " + date);
-
         if(hasVoted){
             rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
             rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
@@ -123,26 +117,58 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                     case MotionEvent.ACTION_POINTER_DOWN:
                         Log.d("myapp", "inbox ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
-                        layout_container.setVisibility(View.INVISIBLE);
+                        showButtonsAndBackground(false);
                         imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
                         return true;
 
                     case MotionEvent.ACTION_UP:
                         Log.d("myapp", "inbox ACTION_UP");
-                        layout_container.setVisibility(View.VISIBLE);
+                        showButtonsAndBackground(true);
                     case MotionEvent.ACTION_POINTER_UP:
                         //=====Write down you code Finger Released code here
-                    case MotionEvent.ACTION_MOVE:
-                        Log.d("myapp", "inbox ACTION_MOVE");
-                        layout_container.setVisibility(View.VISIBLE);
+//                    case MotionEvent.ACTION_MOVE:
+//                        Log.d("myapp", "inbox ACTION_MOVE");
+//                        layout_container.setVisibility(View.INVISIBLE);
 
                 }
-
                 return false;
             }
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("myapp2", "**--page text  :" + text);
+        state = new InBoxFragment.ListenerStateChange() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    //voltamos a mostrar as opções
+                    Log.d("myapp2", "**--inboxpage  :" + state);
+                    showButtonsAndBackground(true);
+                }
+            }
+        };
+
+        ((InBoxFragment)getParentFragment()).addStateChange(state);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        ((InBoxFragment)getParentFragment()).removeStateChange(state);
+    }
+
+    public void showButtonsAndBackground(boolean show){
+        if(layout_container != null) {
+            Log.d("myapp", "showButtonsAndBackground");
+            layout_container.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+        }
+        else
+            Log.d("myapp", "layout_container null");
     }
 
     private int getColor(int order){
@@ -258,9 +284,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             @Override
             public void failed(Object error) {
                 toggleButtons(true);
-
-
-
                 if(getActivity() != null && getParentFragment() != null){
                     rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
                     rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);

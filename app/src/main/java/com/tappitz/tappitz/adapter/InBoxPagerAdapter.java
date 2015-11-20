@@ -51,4 +51,10 @@ public class InBoxPagerAdapter extends FragmentPagerAdapter {
     public int getItemPosition(Object object) {
         return POSITION_NONE;
     }
+
+
+//    @Override
+//    public Object instantiateItem(ViewGroup container, int position) {
+//        return super.instantiateItem(container, position);
+//    }
 }

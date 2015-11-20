@@ -252,7 +252,7 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
 
                 adapter.setContacts(tmp);
                 adapter.notifyDataSetChanged();
-                checkIfHasContacts(allContactsList.size());
+                checkIfHasContacts(1);
             }
 
             @Override

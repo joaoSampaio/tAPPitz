@@ -71,7 +71,7 @@ public class RestClient {
             RestClient.api = new RestAdapter.Builder()
                     .setEndpoint(Global.ENDPOINT)
                     .setRequestInterceptor(COOKIES_REQUEST_INTERCEPTOR)
-                    .setLogLevel(RestAdapter.LogLevel.HEADERS)
+                    .setLogLevel(RestAdapter.LogLevel.FULL)
                     .setConverter(new GsonConverter(gson))
                     .setClient(serviceClient)
                     .build()

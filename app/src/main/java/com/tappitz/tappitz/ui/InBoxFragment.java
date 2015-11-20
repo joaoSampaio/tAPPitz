@@ -2,6 +2,7 @@ package com.tappitz.tappitz.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -28,6 +29,7 @@ public class InBoxFragment extends Fragment {
     private InBoxPagerAdapter adapter;
     private List<PhotoInbox> photos;
     private VerticalViewPager viewPager;
+    private List<ListenerStateChange> stateChange;
     public InBoxFragment() {
         // Required empty public constructor
     }
@@ -49,11 +51,30 @@ public class InBoxFragment extends Fragment {
 
         photos = new ArrayList<>();
         adapter = new InBoxPagerAdapter(getChildFragmentManager(), photos);
-        Log.d("myapp2", "**--new OutBoxFragment:");
+        Log.d("myapp2", "**--new inBoxFragment:");
         viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
+            @Override
+            public void onPageSelected(int position) {
+                Log.d("myapp2", "**--seletcted inBoxFragment:" + position);
 
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
+                if(stateChange != null){
+                    for (ListenerStateChange s: stateChange) {
+                        s.onPageScrollStateChanged(state);
+                    }
+                }
+                else
+                    Log.d("myapp2", "**--stateChange is null:");
+            }
+
+        });
 
         //refreshInbox();
 
@@ -84,10 +105,14 @@ public class InBoxFragment extends Fragment {
         new ListInboxService(new CallbackMultiple<List<PhotoInbox>>() {
             @Override
             public void success(List<PhotoInbox> response) {
-                viewPager.setCurrentItem(0);
-                photos.clear();
-                photos.addAll(response);
-                adapter.notifyDataSetChanged();
+                if(response != null && response.size() > 0) {
+                    viewPager.setCurrentItem(0);
+                    photos.clear();
+                    photos.addAll(response);
+                    adapter.notifyDataSetChanged();
+                }else {
+                    OnDoneLoading();
+                }
 
             }
 
@@ -133,10 +158,29 @@ public class InBoxFragment extends Fragment {
     }
 
 
+    public List<ListenerStateChange> getStateChange() {
+        return stateChange;
+    }
+
+    public void addStateChange(ListenerStateChange stateChange) {
+        if(this.stateChange == null)
+            this.stateChange = new ArrayList<ListenerStateChange>();
+        this.stateChange.add(stateChange);
+    }
+    public void removeStateChange(ListenerStateChange stateChange) {
+        if(this.stateChange != null) {
+            this.stateChange.remove(stateChange);
+        }
+    }
+
+
     public interface OnNewPhotoReceived{
         public void refreshViewPager();
     }
 
+    public interface ListenerStateChange{
+        public void onPageScrollStateChanged(int state);
+    }
 
 
 }

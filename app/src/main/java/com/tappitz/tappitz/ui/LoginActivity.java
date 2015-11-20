@@ -230,9 +230,10 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
                             progressDialog.dismiss();
                             login.setProgress(-1);
                             if(error instanceof String){
+                                Log.d("myapp", "***login**error*" + ((String) error));
                                 editEmail.setError((String) error);
                             }
-                            onSuccessLogin();
+                            //onSuccessLogin();
                         }
                     }).execute();
                 }
@@ -489,7 +490,7 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
         phoneNumber = "998989898";
         country = paisesSpinner.getSelectedItemPosition() + "";
         gpsCoordinates = "1234";
-        email = "joaomiguel@gmail.com";
+        email = "js@gmail.com";
         password = "password";
         UserRegister user = new UserRegister(firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password);
 
