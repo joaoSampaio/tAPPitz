@@ -109,8 +109,8 @@ public interface Api {
 
 
     /*Contacto - aceitar*/
-    @POST("/contact_requests")
-    void answerContactRequest(@Body AnswerContactRequest answer, Callback<JsonElement> callback);
+    @POST("/contacts")
+    void answerContactRequest(@Body ContactSendId answer, Callback<JsonElement> callback);
 
 
 
@@ -139,7 +139,7 @@ public interface Api {
     @GET("/outbox")
     void listMyOutbox( Callback<List<PhotoOutbox>> callback);
 
-    @GET("/outbox/{id_photo}")
+    @GET("/pictures/votes/{id_photo}")
     void getOutboxComments(@Path("id_photo") int id_photo, Callback<List<Comment>> response);
 
 //    @Multipart

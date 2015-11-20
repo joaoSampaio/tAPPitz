@@ -6,11 +6,11 @@ package com.tappitz.tappitz.rest.model;
 public class GenericContact {
 
     private String name;
-    private String email;
+    private String eMail;
     private int id;
 
     public GenericContact(String email, int id, String name) {
-        this.email = email;
+        this.eMail = email;
         this.id = id;
         this.name = name;
     }
@@ -24,11 +24,11 @@ public class GenericContact {
     }
 
     public String getEmail() {
-        return email;
+        return eMail;
     }
 
     public void setEmail(String email) {
-        this.email = email;
+        this.eMail = email;
     }
 
     public int getId() {

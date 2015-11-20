@@ -303,15 +303,22 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
     }
 
     private List<ListViewContactItem> loadContactsOffline(){
-        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-        String contacts = sp.getString("contacts", "");
-        if(contacts.equals("")){
-            return new ArrayList<ListViewContactItem>();
-        }else {
-            Type type = new TypeToken<List<ListViewContactItem >>(){}.getType();
-            List<ListViewContactItem> contactsList = new Gson().fromJson(contacts, type);
-            return contactsList;
+        String contacts = "";
+        try {
+            SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+            contacts = sp.getString("contacts", "");
+        }catch (Exception e){
+            Log.d("myapp", "error:" + e.getMessage());
         }
+            if (contacts.equals("")) {
+                return new ArrayList<ListViewContactItem>();
+            } else {
+                Type type = new TypeToken<List<ListViewContactItem>>() {
+                }.getType();
+                List<ListViewContactItem> contactsList = new Gson().fromJson(contacts, type);
+                return contactsList;
+            }
+
     }
 
     private List<ListViewContactItem> loadRequestsOffline(){

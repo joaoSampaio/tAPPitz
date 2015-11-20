@@ -101,7 +101,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
 
 
-
+//        onSuccessSignIn();
         checkIsSignedIn();
     }
 

@@ -41,18 +41,18 @@ public class OutBoxFragment extends Fragment {
         VerticalViewPager viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
-//        new ListOutboxService(new CallbackMultiple<List<PhotoOutbox>>() {
-//            @Override
-//            public void success(List<PhotoOutbox> response) {
-//                photos.addAll(response);
-//                adapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void failed(Object error) {
-//                OnDoneLoading();
-//            }
-//        }).execute();
+        new ListOutboxService(new CallbackMultiple<List<PhotoOutbox>>() {
+            @Override
+            public void success(List<PhotoOutbox> response) {
+                photos.addAll(response);
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void failed(Object error) {
+                OnDoneLoading();
+            }
+        }).execute();
 
         return rootView;
     }

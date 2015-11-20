@@ -18,7 +18,8 @@ public class PhotoOutbox {
 
 
     public String getUrl() {
-        return Global.ENDPOINT + "/pictures/+id";
+        return Global.ENDPOINT + "/pictures/"+id;
+///  return "https://upload.wikimedia.org/wikipedia/pt/e/ed/IST_Logo.png";
     }
 
     public int getId() {

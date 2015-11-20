@@ -37,7 +37,7 @@ public class ListOutboxService implements ServerCommunicationService {
 
                 List<PhotoOutbox> outbox = gson.fromJson(obj.get("pictures"), new TypeToken<List<PhotoOutbox>>() {
                 }.getType());
-                Log.d("myapp", "genericContacts: " + outbox.size());
+                //Log.d("myapp", "genericContacts: " + outbox.size());
                 if (outbox == null)
                     outbox = new ArrayList<PhotoOutbox>();
                 callback.success(outbox);

@@ -29,7 +29,7 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/container"
         android:layout_centerInParent="true">
 
@@ -40,7 +40,7 @@
             android:visibility="invisible"
             />
 
-        <LinearLayout
+        <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -48,27 +48,6 @@
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:id="@+id/layout_vote">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/descricaoFoto"
-                android:id="@+id/photo_description"
-                android:inputType="textMultiLine"
-                android:gravity="center_horizontal"
-                style="@style/SelectBar"
-                android:layout_gravity="top|center_horizontal"
-                android:textSize="12pt" />
-
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Comment:"
-                android:id="@+id/editTextComment"
-                android:layout_marginTop="10dp"
-                android:visibility="invisible"
-                style="@style/SelectBar" />
 
             <LinearLayout
                 android:orientation="horizontal"
@@ -78,10 +57,11 @@
                 android:gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
                 android:layout_gravity="center"
-                android:layout_alignParentBottom="true"
-                android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true"
-                android:layout_marginTop="10dp">
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentLeft="false"
+                android:layout_alignParentStart="false"
+                android:layout_marginTop="10dp"
+                android:layout_centerVertical="true">
 
 
                 <Button
@@ -111,11 +91,44 @@
 
             </LinearLayout>
 
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Comment:"
+                android:id="@+id/editTextComment"
+                android:layout_marginTop="10dp"
+                android:visibility="invisible"
+                style="@style/SelectBar"
+                android:lines="3"
+                android:maxLines="3"
+                android:layout_above="@+id/painelvotacao"/>
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:id="@+id/scrollView"
+                android:layout_alignParentTop="false"
+                android:layout_above="@+id/editTextComment"
+                android:layout_alignWithParentIfMissing="false">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearance"
+                    android:text="@string/descricaoFoto"
+                    android:id="@+id/photo_description"
+                    android:inputType="textMultiLine"
+                    style="@style/SelectBar"
+                    android:layout_gravity="top|center_horizontal"
+                    android:textAlignment="center" />
+            </ScrollView>
+
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="20dp">
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_below="@+id/painelvotacao">
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -132,7 +145,7 @@
                     style="@style/SelectBar" />
             </LinearLayout>
 
-        </LinearLayout>
+        </RelativeLayout>
 
 
         <LinearLayout

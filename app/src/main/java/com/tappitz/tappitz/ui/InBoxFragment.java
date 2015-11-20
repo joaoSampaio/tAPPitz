@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.InBoxPagerAdapter;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
@@ -126,6 +127,10 @@ public class InBoxFragment extends Fragment {
     private void OnDoneLoading(){
         viewPager.setCurrentItem(0);
         photos.clear();
+
+
+        photos.add(new PhotoInbox(Global.ENDPOINT + "/pictures/27", 11111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+
 //String url, String id, String text,String date, boolean hasVoted,  String myComment, String senderName
         photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/1.jpg", 11111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
         photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/2.jpg", 11111112, "Curtes?", "15/10/2015 - 12:25", true, "Muito bonito!", "João Sampaio", 2));

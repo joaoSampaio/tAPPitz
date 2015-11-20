@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.Picasso;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
@@ -61,7 +63,9 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         int id = getArguments().getInt(Global.ID_RESOURCE);
 
 
-
+        Log.d("myapp", "url******" + url);
+        Log.d("myapp", "url******" + url);
+        Log.d("myapp", "url******" + url);
         if (imageLoader == null)
             imageLoader = AppController.getInstance().getImageLoader();
         imageView.setImageUrl(url, imageLoader);
@@ -81,10 +85,10 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         selectdList = -1;
         selectedPos = -1;
 
-        //Picasso.with(context).load(url).fit().into(imageView, call);
+//        Picasso.with(context).load(url).fit().into(imageView, call);
 
 
-        //Picasso.with(context).load(url).fit().memoryPolicy(MemoryPolicy.NO_CACHE).into(imageView);
+//        Picasso.with(getActivity()).load(url).fit().memoryPolicy(MemoryPolicy.NO_CACHE).into(imageView);
 //        int[] measures = ((MainActivity)getActivity()).getContainerSize();
 //        int MAX_WIDTH = measures[0];
 //        int MAX_HEIGHT = measures[1];

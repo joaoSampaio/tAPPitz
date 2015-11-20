@@ -41,7 +41,7 @@ public class ListContactsService implements ServerCommunicationService {
                     Log.d("myapp", "status->" + status);
                     if(status){
                         Log.d("myapp", "entrou");
-                        List<GenericContact> genericContacts = gson.fromJson(obj.get("data"), new TypeToken<List<GenericContact>>(){}.getType());
+                        List<GenericContact> genericContacts = gson.fromJson(obj.get("contacts"), new TypeToken<List<GenericContact>>(){}.getType());
                         Log.d("myapp", "genericContacts: " + genericContacts.size());
                         List<ListViewContactItem> contacts = new ArrayList<ListViewContactItem>();
                         for (GenericContact c: genericContacts){

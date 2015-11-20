@@ -137,9 +137,9 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     case MotionEvent.ACTION_POINTER_UP:
                         whiteBackground.setVisibility(View.VISIBLE);
                         //=====Write down you code Finger Released code here
-                        if(textMsgWrapper.isShown()){
-                            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
-                        }
+//                        if(textMsgWrapper.isShown()){
+//                            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
+//                        }
                         return true;
                 }
 

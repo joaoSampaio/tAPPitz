@@ -8,6 +8,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.AnswerContactRequest;
+import com.tappitz.tappitz.rest.model.ContactSendId;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -16,17 +17,17 @@ import retrofit.client.Response;
 public class AnswerContactRequestService implements ServerCommunicationService {
 
     private CallbackMultiple callback;
-    private String email;
+    private int contactId;
     private boolean answer;
-    public AnswerContactRequestService(String email, boolean answer, CallbackMultiple callback){
+    public AnswerContactRequestService(int contactId, boolean answer, CallbackMultiple callback){
         this.callback = callback;
-        this.email = email;
+        this.contactId = contactId;
         this.answer = answer;
     }
 
     @Override
     public void execute() {
-        RestClient.getService().answerContactRequest(new AnswerContactRequest(email, answer), new Callback<JsonElement>() {
+        RestClient.getService().answerContactRequest(new ContactSendId(contactId, answer? "ACCEPT": "REJECT"), new Callback<JsonElement>() {
             @Override
             public void success(JsonElement json, Response response2) {
 

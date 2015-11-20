@@ -328,10 +328,10 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                         }).execute();
                         break;
                     case R.id.add_contact:
-                        answerContactRequest(true, contacts.get(pos).getContact().getEmail());
+                        answerContactRequest(true, contacts.get(pos).getContact().getId());
                         break;
                     case R.id.dont_add_contact:
-                        answerContactRequest(false, contacts.get(pos).getContact().getEmail());
+                        answerContactRequest(false, contacts.get(pos).getContact().getId());
                         break;
 
                 }
@@ -340,7 +340,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         };
     }
 
-    private void answerContactRequest(boolean answer, final String id){
+    private void answerContactRequest(boolean answer, final int id){
         new AnswerContactRequestService(id, answer, new CallbackMultiple<Boolean>() {
             @Override
             public void success(Boolean response) {
