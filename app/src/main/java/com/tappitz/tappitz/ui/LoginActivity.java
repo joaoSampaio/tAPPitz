@@ -204,7 +204,7 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
                     login.setProgress(50);
                     final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
 
-                    new LoginService(editEmail.getText().toString(), editPassword.getText().toString(), new CallbackMultiple<String>() {
+                    new LoginService(editEmail.getText().toString(), editPassword.getText().toString(), new CallbackMultiple<String, String>() {
                         @Override
                         public void success(String sessionId) {
 
@@ -222,17 +222,16 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
                         }
 
                         @Override
-                        public void failed(Object error) {
+                        public void failed(String error) {
 
                             login.setEnabled(true);
                             editEmail.setEnabled(true);
                             editPassword.setEnabled(true);
                             progressDialog.dismiss();
                             login.setProgress(-1);
-                            if(error instanceof String){
-                                Log.d("myapp", "***login**error*" + ((String) error));
-                                editEmail.setError((String) error);
-                            }
+                                Log.d("myapp", "***login**error*" + error);
+                                editEmail.setError( error);
+
                             //onSuccessLogin();
                         }
                     }).execute();

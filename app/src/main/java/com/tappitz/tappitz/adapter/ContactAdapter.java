@@ -252,62 +252,50 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                     case R.id.button_invite:
                         contact = contacts.get(pos).getContact();
                         Log.d("myapp", "button_invitebutton_invite: " + contact.getEmail());
-                        new InviteContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_INVITE), new CallbackMultiple<Boolean>() {
+                        new InviteContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_INVITE), new CallbackMultiple<Boolean, String>() {
                             @Override
                             public void success(Boolean response) {
-                                if(response){
-                                    Toast.makeText(activity, "Invitation received", Toast.LENGTH_SHORT).show();
-                                }else{
-                                    Toast.makeText(activity, "There was a problem with the invitation.", Toast.LENGTH_SHORT).show();
-                                }
+                                Toast.makeText(activity, "Invitation Sent", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
-                            public void failed(Object error) {
-                                Toast.makeText(activity, "There was a problem with the invitation.", Toast.LENGTH_SHORT).show();
+                            public void failed(String error) {
+                                Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
                             }
                         }).execute();
                         break;
                     case R.id.button_invite_undo:
                         contact = contacts.get(pos).getContact();
                         Log.d("myapp", "button_invite_undo: " + contact.getEmail() );
-                        new UndoInviteContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_UNDO_INVITE), new CallbackMultiple<Boolean>() {
+                        new UndoInviteContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_UNDO_INVITE), new CallbackMultiple<Boolean, String>() {
                             @Override
                             public void success(Boolean response) {
-                                if(response){
-                                    Toast.makeText(activity, "Invitation removed", Toast.LENGTH_SHORT).show();
-                                }else{
-                                    Toast.makeText(activity, "We could not undo the invitation.", Toast.LENGTH_SHORT).show();
-                                }
+                                Toast.makeText(activity, "Invitation removed", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
-                            public void failed(Object error) {
-                                Toast.makeText(activity, "We could not undo the invitation.", Toast.LENGTH_SHORT).show();
+                            public void failed(String error) {
+                                Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
                             }
                         }).execute();
                         break;
                     case R.id.button_block:
                         contact = contacts.get(pos).getContact();
-                        new BlockContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_BLOCK), new CallbackMultiple<Boolean>() {
+                        new BlockContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_BLOCK), new CallbackMultiple<Boolean, String>() {
                             @Override
                             public void success(Boolean response) {
-                                if(response){
-                                    Toast.makeText(activity, "Contact blocked!", Toast.LENGTH_SHORT).show();
-                                }else{
-                                    Toast.makeText(activity, "We could not block contact.", Toast.LENGTH_SHORT).show();
-                                }
+                                Toast.makeText(activity, "Contact blocked!", Toast.LENGTH_SHORT).show();
                             }
 
                             @Override
-                            public void failed(Object error) {
-                                Toast.makeText(activity, "We could not block contact.", Toast.LENGTH_SHORT).show();
+                            public void failed(String error) {
+                                Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
                             }
                         }).execute();
                         break;
                     case R.id.button_delete:
                         final int id = contacts.get(pos).getContact().getId();
-                        new DeleteContactService(new ContactSendId(id, Global.OPERATION_TYPE_DELETE), new CallbackMultiple<Boolean>() {
+                        new DeleteContactService(new ContactSendId(id, Global.OPERATION_TYPE_DELETE), new CallbackMultiple<Boolean, String>() {
                             @Override
                             public void success(Boolean response) {
                                 if(response){
@@ -322,16 +310,16 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                             }
 
                             @Override
-                            public void failed(Object error) {
-                                Toast.makeText(activity, "We could not remove contact.", Toast.LENGTH_SHORT).show();
+                            public void failed(String error) {
+                                Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
                             }
                         }).execute();
                         break;
                     case R.id.add_contact:
-                        answerContactRequest(true, contacts.get(pos).getContact().getId());
+                        answerContactRequest(true, contacts.get(pos).getContact().getId(), contacts.get(pos).getContact().getEmail(), contacts.get(pos).getContact().getName());
                         break;
                     case R.id.dont_add_contact:
-                        answerContactRequest(false, contacts.get(pos).getContact().getId());
+                        answerContactRequest(false, contacts.get(pos).getContact().getId(), contacts.get(pos).getContact().getEmail(), contacts.get(pos).getContact().getName());
                         break;
 
                 }
@@ -340,20 +328,25 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         };
     }
 
-    private void answerContactRequest(boolean answer, final int id){
-        new AnswerContactRequestService(id, answer, new CallbackMultiple<Boolean>() {
+    private void answerContactRequest(final boolean answer, final int id, final String email, final String name){
+        new AnswerContactRequestService(id, answer, new CallbackMultiple<Boolean, String>() {
             @Override
             public void success(Boolean response) {
-                if(response) {
-                    Toast.makeText(activity, "Contact " + id + " added.", Toast.LENGTH_SHORT).show();
-                }else {
-                    Toast.makeText(activity, "Contact " + id + " not added.", Toast.LENGTH_SHORT).show();
+                if(answer){
+                    //queremos o contacto
+                    Toast.makeText(activity, "Contact " + email + " added.", Toast.LENGTH_SHORT).show();
+                    removeIfFound(id);
+                    update.addContact(email, id, name);
+
+                }else{
+                    //apagamos
+                    removeIfFound(id);
                 }
             }
 
             @Override
-            public void failed(Object error) {
-                Toast.makeText(activity, "Contact " + id + " not added.", Toast.LENGTH_SHORT).show();
+            public void failed(String error) {
+                Toast.makeText(activity, error, Toast.LENGTH_SHORT).show();
             }
         }).execute();
     }
@@ -363,6 +356,9 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         public void onNoContactsFound(int size);
 
         public void reloadFromServer();
+
+        public void addContact(String eMail, int id, String name);
+
     }
 
     private class ContactFilter extends Filter {
@@ -385,8 +381,12 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                         continue;
                     }
                     if (item.getContact().getName().toLowerCase().contains(constraint)) {
-                        filterList.add(originalContacts.get(i));
+                        filterList.add(item);
                     }
+                    if(item.getContact().getEmail().toLowerCase().contains(constraint) && !originalContacts.contains(item)){
+                        filterList.add(item);
+                    }
+
                 }
 
                 //se nao houver pedidos de amizade remover cabeçalho

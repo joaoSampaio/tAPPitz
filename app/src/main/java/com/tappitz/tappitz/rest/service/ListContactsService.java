@@ -53,11 +53,11 @@ public class ListContactsService implements ServerCommunicationService {
                         callback.success(contacts);
                     }else{
                         Log.d("myapp", "deu erro");
-                        callback.failed(null);
+                        callback.failed(obj.get("error").getAsString());
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    callback.failed(null);
+                    callback.failed("erro");
                 }
 
 
@@ -66,7 +66,7 @@ public class ListContactsService implements ServerCommunicationService {
             @Override
             public void failure(RetrofitError error) {
                 Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
+                callback.failed("network problem");
             }
         });
 

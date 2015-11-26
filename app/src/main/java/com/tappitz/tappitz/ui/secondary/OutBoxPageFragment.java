@@ -1,13 +1,18 @@
 package com.tappitz.tappitz.ui.secondary;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
@@ -19,6 +24,9 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.ui.InBoxFragment;
+import com.tappitz.tappitz.ui.OutBoxFragment;
+import com.tappitz.tappitz.util.ListenerPagerStateChange;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,14 +37,16 @@ import retrofit.client.Response;
 public class OutBoxPageFragment extends Fragment implements View.OnClickListener {
 
     private View rootView, comment_layout;
-    private TextView commentText, comment_user, comment_date;
+    private TextView commentText, comment_user, descriptionText;
     private List<Comment> listGreen, listRed, listYellow;
     private int selectdList, selectedPos;
     private Button botaoVermelho, botaoAmarelo, botaoVerde;
     private ImageView color_background;
+    private LinearLayout buttonsContainer;
+    private ListenerPagerStateChange state;
 
 
-    private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde, R.id.picture};
+    private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
 
@@ -49,11 +59,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-//        ViewGroup rootView = (ViewGroup) inflater.inflate(
-//                R.layout.fragment_screen_slide_page, container, false);
-
-
-        //position = getArguments().getInt(POSITION_KEY);
 
         rootView = inflater.inflate(R.layout.fragment_outbox_child, container, false);
         NetworkImageView imageView = (NetworkImageView)rootView.findViewById(R.id.picture);
@@ -62,10 +67,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         String text = getArguments().getString(Global.TEXT_RESOURCE);
         int id = getArguments().getInt(Global.ID_RESOURCE);
 
-
-        Log.d("myapp", "url******" + url);
-        Log.d("myapp", "url******" + url);
-        Log.d("myapp", "url******" + url);
         if (imageLoader == null)
             imageLoader = AppController.getInstance().getImageLoader();
         imageView.setImageUrl(url, imageLoader);
@@ -85,33 +86,11 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         selectdList = -1;
         selectedPos = -1;
 
-//        Picasso.with(context).load(url).fit().into(imageView, call);
-
-
-//        Picasso.with(getActivity()).load(url).fit().memoryPolicy(MemoryPolicy.NO_CACHE).into(imageView);
-//        int[] measures = ((MainActivity)getActivity()).getContainerSize();
-//        int MAX_WIDTH = measures[0];
-//        int MAX_HEIGHT = measures[1];
-//        Log.d("myapp", "MAX_WIDTH2: " + MAX_WIDTH + " MAX_HEIGHT2: " + MAX_HEIGHT);
-//
-//        int size = (int) Math.ceil(Math.sqrt(MAX_WIDTH * MAX_HEIGHT));
-        // Loads given image
-//        Picasso.with(imageView.getContext())
-//                .load(url)
-//                .transform(new BitmapTransform(MAX_WIDTH, MAX_HEIGHT))
-//                .skipMemoryCache()
-//                .resize(size, size)
-//                .centerInside()
-//                .into(imageView);
-
-
-
-        TextView textview = (TextView) rootView.findViewById(R.id.photo_description);
-        textview.setText(text);
-        //imageView.setOnClickListener(this);
+        buttonsContainer = (LinearLayout)rootView.findViewById(R.id.painelvotacao);
+        descriptionText = (TextView) rootView.findViewById(R.id.photo_description);
+        descriptionText.setText(text);
 
         commentText = (TextView) rootView.findViewById(R.id.photo_comment);
-        comment_date = (TextView) rootView.findViewById(R.id.comment_date);
         comment_user = (TextView) rootView.findViewById(R.id.comment_user);
 
         RestClient.getService().getOutboxComments(id, new retrofit.Callback<List<Comment>>() {
@@ -126,8 +105,83 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             }
         });
 
+        rootView.findViewById(R.id.picture).setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+
+                    case MotionEvent.ACTION_DOWN:
+                        Log.d("myapp", "inbox ACTION_DOWN");
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        Log.d("myapp", "inbox ACTION_POINTER_DOWN");
+                        //=====Write down your Finger Pressed code here
+                        if(!color_background.isShown()) {
+                            descriptionText.setVisibility(View.GONE);
+                            buttonsContainer.setVisibility(View.GONE);
+                        }
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        Log.d("myapp", "inbox ACTION_UP");
+
+
+                        if(color_background.isShown()){
+//                            color_background.setVisibility(View.GONE);
+//                            comment_layout.setVisibility(View.GONE);
+                            resetComments();
+                        }
+//                        descriptionText.setVisibility(View.VISIBLE);
+//                        buttonsContainer.setVisibility(View.VISIBLE);
+                        showButtonsAndBackground(true);
+
+
+                    case MotionEvent.ACTION_POINTER_UP:
+                        //=====Write down you code Finger Released code here
+
+                }
+                return false;
+            }
+        });
+
         return rootView;
     }
+
+
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        state = new ListenerPagerStateChange() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    //voltamos a mostrar as opções
+                    Log.d("myapp2", "**--inboxpage  :" + state);
+                    showButtonsAndBackground(true);
+                    resetComments();
+                }
+            }
+        };
+
+        ((OutBoxFragment)getParentFragment()).addStateChange(state);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        ((OutBoxFragment)getParentFragment()).removeStateChange(state);
+    }
+
+
+    public void showButtonsAndBackground(boolean show){
+
+        descriptionText.setVisibility(show? View.VISIBLE : View.GONE);
+        buttonsContainer.setVisibility(show? View.VISIBLE : View.GONE);
+        color_background.setVisibility(show? View.GONE : View.VISIBLE);
+        comment_layout.setVisibility(show? View.GONE : View.VISIBLE);
+    }
+
+
 
 
     private void dummyListComments(){
@@ -164,16 +218,19 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         botaoVermelho.setText(listRed.size()+"");
         botaoVerde.setText(listGreen.size()+"");
         botaoAmarelo.setText(listYellow.size()+"");
+        selectdList = -1;
+        selectedPos = -1;
     }
 
 
     private void getNext(int list){
         Log.d("myapp", "getNext:" + list);
         if(list != selectdList){
+            resetComments();
             Log.d("myapp", "list != selectdList:");
             selectdList = list;
             selectedPos = -1;
-            resetComments();
+
         }
         selectedPos++;
 
@@ -184,8 +241,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         List<Comment> commentList = getList(list);
         Comment comment = commentList.get(selectedPos);
         commentText.setText(comment.getComment());
-        comment_user.setText(comment.getName());
-        comment_date.setText(comment.getDateSent());
+        comment_user.setText(comment.getName() + " - " + comment.getDateSent());
         getButton(list).setText((selectedPos + 1) + "/" + commentList.size());
         color_background.setBackgroundColor(getResources().getColor(getColor(list)));
         Log.d("myapp", "getNext end");
@@ -259,12 +315,12 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             case R.id.botaoVermelho:
                 getNext(Global.RED);
                 break;
-            case R.id.picture:
-                Log.d("myapp", "containercontainer");
-                color_background.setVisibility(View.GONE);
-                comment_layout.setVisibility(View.GONE);
-                resetComments();
-                break;
+//            case R.id.picture:
+//                Log.d("myapp", "containercontainer");
+//                color_background.setVisibility(View.GONE);
+//                comment_layout.setVisibility(View.GONE);
+//                resetComments();
+//                break;
 
         }
         //Toast.makeText(v.getContext(), "Clicked Position: " + position, Toast.LENGTH_LONG).show();

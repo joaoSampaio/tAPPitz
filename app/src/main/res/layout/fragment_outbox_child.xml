@@ -28,26 +28,25 @@
         <com.android.volley.toolbox.NetworkImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="fitCenter"
+            android:scaleType="fitXY"
             android:id="@+id/picture"
             android:clickable="true"
             android:layout_alignParentBottom="true" />
 
     </FrameLayout>
 
-
-
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="@string/descricaoFoto"
         android:id="@+id/photo_description"
         android:inputType="textMultiLine"
         android:gravity="left"
-        android:background="@color/sblue"
-        android:textColor="@color/brown"
-        android:layout_gravity="right|top"/>
+        style="@style/SelectBar"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="60dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
 
 
     <ImageView
@@ -67,40 +66,64 @@
         android:visibility="gone"
         >
 
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="user"
             android:id="@+id/comment_user"
             android:gravity="left"
-            android:background="@color/sblue"
-            android:textColor="@color/brown"
-            />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="data"
-            android:id="@+id/comment_date"
-            android:gravity="left"
-            android:background="@color/sblue"
-            android:textColor="@color/brown"
-            />
-
-
+            style="@style/SelectBar"
+            android:layout_gravity="right|top"
+            android:layout_margin="10dp" />
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/descricaoFoto"
             android:id="@+id/photo_comment"
-            android:inputType="textMultiLine"
             android:gravity="left"
-            android:background="@color/sblue"
-            android:textColor="@color/brown"
-            />
+            android:inputType="textMultiLine"
+            style="@style/SelectBar"
+            android:layout_gravity="right|top"
+            android:layout_margin="10dp" />
+
+
+
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:text="user"-->
+            <!--android:id="@+id/comment_user"-->
+            <!--android:gravity="left"-->
+            <!--android:background="@color/sblue"-->
+            <!--android:textColor="@color/brown"-->
+            <!--/>-->
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:text="data"-->
+            <!--android:id="@+id/comment_date"-->
+            <!--android:gravity="left"-->
+            <!--android:background="@color/sblue"-->
+            <!--android:textColor="@color/brown"-->
+            <!--/>-->
+
+
+
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:text="@string/descricaoFoto"-->
+            <!--android:id="@+id/photo_comment"-->
+            <!--android:inputType="textMultiLine"-->
+            <!--android:gravity="left"-->
+            <!--android:background="@color/sblue"-->
+            <!--android:textColor="@color/brown"-->
+            <!--/>-->
 
     </LinearLayout>
 

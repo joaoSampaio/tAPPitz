@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -16,10 +17,12 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CheckLoggedStateService;
@@ -46,6 +49,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     private boolean cameraReady;
     private boolean signIn;
     View frame;
+    private String sessionId;
     private InBoxFragment.OnNewPhotoReceived reloadInboxListener;
     private HomeToBlankListener listenerCamera;
 //    private SplashScreenListener listenerSplash;
@@ -70,6 +74,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
         setContentView(R.layout.activity_screen_slide);
 
 
@@ -160,6 +168,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     public void onResume() {
         super.onResume();
         this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
+        if (Build.VERSION.SDK_INT >= 16) {
+            View decorView = getWindow().getDecorView();
+// Hide the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
     }
 
     @Override
@@ -203,6 +217,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         Log.d("myapp", "**sessionid**** " + sessionid);
         Log.d("myapp", "**email**** " + sp.getString(Global.KEY_USER, ""));
         Log.d("myapp", "**password**** " + password);
+        this.sessionId = sessionid;
         new CheckLoggedStateService(new CallbackMultiple() {
             @Override
             public void success(Object response) {
@@ -216,23 +231,24 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                 //Se tiver o email e password tento fazer sign in.
                 Log.d("myapp", "**CheckLoggedStateService**** not signed in, email:" + email);
                 if(email.length() > 0 && password.length() > 0){
-                    new LoginService(email, password, new CallbackMultiple<String>() {
+                    new LoginService(email, password, new CallbackMultiple<String, String>() {
                         @Override
-                        public void success(String sessionId) {
-                            Log.d("myapp", "**LoginService**** success:" + sessionId);
-                            if(sessionId.length() > 0){
+                        public void success(String session) {
+                            Log.d("myapp", "**LoginService**** success:" + session);
+                            if(session.length() > 0){
                                 SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
                                 SharedPreferences.Editor editor = sp.edit();
-                                editor.putString("sessionId", sessionId);
+                                editor.putString("sessionId", session);
                                 editor.commit();
-                                Log.d("myapp", "***login**sessionId*" + sessionId);
-                                RestClient.setSessionId(sessionId);
+                                Log.d("myapp", "***login**sessionId*" + session);
+                                RestClient.setSessionId(session);
+                                sessionId = session;
                                 onSuccessSignIn();
                             }
                         }
 
                         @Override
-                        public void failed(Object error) {
+                        public void failed(String error) {
                             goToLoginActivity();
                         }
                     }).execute();
@@ -256,7 +272,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 //        }, 2000);
 
         signIn = true;
-
+        AppController.getInstance().setSessionId(sessionId);
         mPager = (MainViewPager) findViewById(R.id.pager);
         mPager.setOffscreenPageLimit(2);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());

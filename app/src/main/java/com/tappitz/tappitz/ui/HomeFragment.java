@@ -467,23 +467,25 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
             @Override
             public void sendPhoto(final List<Integer> contacts) {
-                new CreatePhotoService(comment, contacts, pictureBase64, new CallbackMultiple<Boolean>() {
+                new CreatePhotoService(comment, contacts, pictureBase64, new CallbackMultiple<Boolean, String>() {
                     @Override
                     public void success(Boolean response) {
-                        if (getActivity() != null)
+                        if (getActivity() != null) {
                             ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
+                            Toast.makeText(getActivity(), "Photo sent", Toast.LENGTH_SHORT).show();
+                        }
                         deletePrevious();
                         //rootView.findViewById(R.id.btnPhotoDelete).callOnClick();
                     }
 
                     @Override
-                    public void failed(Object error) {
+                    public void failed(String error) {
                         if (getActivity() != null)
-                            Toast.makeText(getActivity(), "Photo not sent", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
                         //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
                     }
                 }).execute();
-                Toast.makeText(getActivity(), "Photo sent", Toast.LENGTH_SHORT).show();
+
             }
         });
         newFragment.show(ft, "dialog");

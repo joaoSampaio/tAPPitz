@@ -2,16 +2,21 @@ package com.tappitz.tappitz.ui;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.OutBoxPagerAdapter;
+import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.ListInboxService;
 import com.tappitz.tappitz.rest.service.ListOutboxService;
+import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
 import java.util.ArrayList;
@@ -23,6 +28,8 @@ public class OutBoxFragment extends Fragment {
     View rootView;
     private OutBoxPagerAdapter adapter;
     private List<PhotoOutbox> photos;
+    private List<ListenerPagerStateChange> stateChange;
+    private VerticalViewPager viewPager;
     public OutBoxFragment() {
         // Required empty public constructor
     }
@@ -38,21 +45,40 @@ public class OutBoxFragment extends Fragment {
         photos = new ArrayList<>();
         adapter = new OutBoxPagerAdapter(getChildFragmentManager(), photos);
         Log.d("myapp2", "**--new OutBoxFragment:");
-        VerticalViewPager viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
+        viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
-        new ListOutboxService(new CallbackMultiple<List<PhotoOutbox>>() {
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
-            public void success(List<PhotoOutbox> response) {
-                photos.addAll(response);
-                adapter.notifyDataSetChanged();
+            public void onPageSelected(int position) {
+                Log.d("myapp2", "**--seletcted inBoxFragment:" + position);
+
             }
 
             @Override
-            public void failed(Object error) {
-                OnDoneLoading();
+            public void onPageScrollStateChanged(int state) {
+                Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
+                if (stateChange != null) {
+                    for (ListenerPagerStateChange s : stateChange) {
+                        s.onPageScrollStateChanged(state);
+                    }
+                } else
+                    Log.d("myapp2", "**--stateChange is null:");
             }
-        }).execute();
+
+        });
+        refreshOutbox();
+
+
+        rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                refreshOutbox();
+            }
+        });
+
+
+
 
         return rootView;
     }
@@ -62,6 +88,29 @@ public class OutBoxFragment extends Fragment {
         super.onDestroy();
     }
 
+    private void refreshOutbox(){
+        new ListOutboxService(new CallbackMultiple<List<PhotoOutbox>, String>() {
+            @Override
+            public void success(List<PhotoOutbox> response) {
+                if(response != null && response.size() > 0) {
+                    viewPager.setCurrentItem(0);
+                    photos.clear();
+                    photos.addAll(response);
+                    //viewPager.setAdapter(adapter);
+                    adapter.notifyDataSetChanged();
+                }else {
+                    OnDoneLoading();
+                }
+
+
+            }
+
+            @Override
+            public void failed(String error) {
+                OnDoneLoading();
+            }
+        }).execute();
+    }
 
     private void OnDoneLoading(){
 
@@ -79,7 +128,20 @@ public class OutBoxFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    public List<ListenerPagerStateChange> getStateChange() {
+        return stateChange;
+    }
 
+    public void addStateChange(ListenerPagerStateChange stateChange) {
+        if(this.stateChange == null)
+            this.stateChange = new ArrayList<ListenerPagerStateChange>();
+        this.stateChange.add(stateChange);
+    }
+    public void removeStateChange(ListenerPagerStateChange stateChange) {
+        if(this.stateChange != null) {
+            this.stateChange.remove(stateChange);
+        }
+    }
 
 
 }

@@ -109,6 +109,11 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
             public void reloadFromServer() {
                 refresh();
             }
+
+            @Override
+            public void addContact(String eMail, int id, String name) {
+
+            }
         });
 
         listView.setAdapter(adapter);
@@ -160,7 +165,7 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
 
 
     private void loadContacts(){
-        new ListContactsService(new CallbackMultiple<List<ListViewContactItem>>() {
+        new ListContactsService(new CallbackMultiple<List<ListViewContactItem>, String>() {
             @Override
             public void success(List<ListViewContactItem> response) {
 
@@ -175,7 +180,7 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
             }
 
             @Override
-            public void failed(Object error) {
+            public void failed(String error) {
                 showToast("Erro");
                 //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
                 loadDummyContacts();

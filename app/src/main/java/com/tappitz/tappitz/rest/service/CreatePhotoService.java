@@ -27,30 +27,26 @@ public class CreatePhotoService implements ServerCommunicationService {
         this.comment = comment;
         this.contacts = contacts;
         this.picture = picture;
-//        this.picture = "ABCDE";
     }
 
     @Override
     public void execute() {
         RestClient.getService().sendphoto(new CreatePhoto(comment, contacts, picture), new Callback<JsonElement>() {
-
-//            RestClient_Sigma.getService().sendphoto(new CreatePhoto(comment, contacts, picture), new Callback<JsonElement>() {
             @Override
             public void success(JsonElement json, Response response2) {
 
-                Gson gson = new Gson();
                 JsonObject obj = json.getAsJsonObject();
-                Log.d("myapp", "obj->" + obj.toString());
                 boolean status = obj.get("status").getAsBoolean();
-
-                Log.d("myapp", "status->" + status);
-                callback.success(status);
+                if(status)
+                    callback.success(status);
+                else
+                    callback.failed(obj.get("error").getAsString());
             }
 
             @Override
             public void failure(RetrofitError error) {
                 Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
+                callback.failed(error.getResponse().getReason());
             }
         });
 

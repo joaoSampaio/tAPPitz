@@ -97,6 +97,15 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
             public void reloadFromServer() {
                 refresh();
             }
+
+            @Override
+            public void addContact(String eMail, int id, String name) {
+
+                if(contactsFriends.size() == 0)
+                    contactsFriends.add(0, new ListViewContactItem("My Contacts"));
+                contactsFriends.add(new ListViewContactItem(new Contact(name, eMail,id, true)));
+                refresh();
+            }
         });
         listView.setAdapter(adapter);
 
@@ -183,7 +192,7 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
 
 
     private void checkContactRequests(){
-        new ListContactRequestService(new CallbackMultiple<List<ListViewContactItem>>() {
+        new ListContactRequestService(new CallbackMultiple<List<ListViewContactItem>, String>() {
             @Override
             public void success(List<ListViewContactItem> response) {
                 if(response.size() > 0)
@@ -196,10 +205,8 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
             }
 
             @Override
-            public void failed(Object error) {
-                showToast("Loading Offline contacts");
-
-                contactsRequest = loadRequestsOffline();
+            public void failed(String error) {
+//                contactsRequest = loadRequestsOffline();
                 notifyAdpater();
 
                 //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
@@ -208,7 +215,7 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
     }
 
     private void loadContacts(){
-        new ListContactsService(new CallbackMultiple<List<ListViewContactItem>>() {
+        new ListContactsService(new CallbackMultiple<List<ListViewContactItem>, String>() {
             @Override
             public void success(List<ListViewContactItem> response) {
 
@@ -222,7 +229,8 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
             }
 
             @Override
-            public void failed(Object error) {
+            public void failed(String error) {
+                showToast(error);
                 contactsFriends = loadContactsOffline();
                 notifyAdpater();
             }
@@ -232,15 +240,10 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
     private void searchContact(){
         String searchParam = mSearchEdt.getText().toString();
 
-        new SearchContactService(searchParam, new CallbackMultiple<Contact>() {
+        new SearchContactService(searchParam, new CallbackMultiple<Contact, String>() {
             @Override
             public void success(Contact response) {
 
-//                if(contactsFriends.size() < allContactsList.size())
-//                    contactsFriends.addAll(allContactsList);
-
-                //adapter.removeFilter();
-                //allContactsList.clear();
                 List<ListViewContactItem> tmp = new ArrayList<ListViewContactItem>();
                 if(response != null) {
                     tmp.add(0, new ListViewContactItem("Matches Found:"));
@@ -256,8 +259,8 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
             }
 
             @Override
-            public void failed(Object error) {
-                showToast("Erro2");
+            public void failed(String error) {
+                showToast(error);
                 //Toast.makeText(getActivity(), "Erro2", Toast.LENGTH_SHORT).show();
             }
         }).execute();
@@ -321,17 +324,17 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
 
     }
 
-    private List<ListViewContactItem> loadRequestsOffline(){
-        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-        String contactsRequest = sp.getString("contactsRequest", "");
-        if(contactsRequest.equals("")){
-            return new ArrayList<ListViewContactItem>();
-        }else {
-            Type type = new TypeToken<List<ListViewContactItem >>(){}.getType();
-            List<ListViewContactItem> contactsList = new Gson().fromJson(contactsRequest, type);
-            return contactsList;
-        }
-    }
+//    private List<ListViewContactItem> loadRequestsOffline(){
+//        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+//        String contactsRequest = sp.getString("contactsRequest", "");
+//        if(contactsRequest.equals("")){
+//            return new ArrayList<ListViewContactItem>();
+//        }else {
+//            Type type = new TypeToken<List<ListViewContactItem >>(){}.getType();
+//            List<ListViewContactItem> contactsList = new Gson().fromJson(contactsRequest, type);
+//            return contactsList;
+//        }
+//    }
 
 
     private void notifyAdpater(){

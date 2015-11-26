@@ -17,6 +17,7 @@ import com.tappitz.tappitz.adapter.InBoxPagerAdapter;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListInboxService;
+import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
 import java.util.ArrayList;
@@ -30,7 +31,7 @@ public class InBoxFragment extends Fragment {
     private InBoxPagerAdapter adapter;
     private List<PhotoInbox> photos;
     private VerticalViewPager viewPager;
-    private List<ListenerStateChange> stateChange;
+    private List<ListenerPagerStateChange> stateChange;
     public InBoxFragment() {
         // Required empty public constructor
     }
@@ -67,7 +68,7 @@ public class InBoxFragment extends Fragment {
             public void onPageScrollStateChanged(int state) {
                 Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
                 if(stateChange != null){
-                    for (ListenerStateChange s: stateChange) {
+                    for (ListenerPagerStateChange s: stateChange) {
                         s.onPageScrollStateChanged(state);
                     }
                 }
@@ -103,7 +104,7 @@ public class InBoxFragment extends Fragment {
 
     private void refreshInbox(){
         Toast.makeText(getActivity(), "Refreshed!", Toast.LENGTH_SHORT).show();;
-        new ListInboxService(new CallbackMultiple<List<PhotoInbox>>() {
+        new ListInboxService(new CallbackMultiple<List<PhotoInbox>, String>() {
             @Override
             public void success(List<PhotoInbox> response) {
                 if(response != null && response.size() > 0) {
@@ -118,7 +119,7 @@ public class InBoxFragment extends Fragment {
             }
 
             @Override
-            public void failed(Object error) {
+            public void failed(String error) {
                 OnDoneLoading();
             }
         }).execute();
@@ -163,16 +164,16 @@ public class InBoxFragment extends Fragment {
     }
 
 
-    public List<ListenerStateChange> getStateChange() {
+    public List<ListenerPagerStateChange> getStateChange() {
         return stateChange;
     }
 
-    public void addStateChange(ListenerStateChange stateChange) {
+    public void addStateChange(ListenerPagerStateChange stateChange) {
         if(this.stateChange == null)
-            this.stateChange = new ArrayList<ListenerStateChange>();
+            this.stateChange = new ArrayList<ListenerPagerStateChange>();
         this.stateChange.add(stateChange);
     }
-    public void removeStateChange(ListenerStateChange stateChange) {
+    public void removeStateChange(ListenerPagerStateChange stateChange) {
         if(this.stateChange != null) {
             this.stateChange.remove(stateChange);
         }
@@ -183,9 +184,9 @@ public class InBoxFragment extends Fragment {
         public void refreshViewPager();
     }
 
-    public interface ListenerStateChange{
-        public void onPageScrollStateChanged(int state);
-    }
+//    public interface ListenerStateChange{
+//        public void onPageScrollStateChanged(int state);
+//    }
 
 
 }

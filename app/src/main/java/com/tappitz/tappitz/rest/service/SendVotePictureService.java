@@ -32,26 +32,21 @@ public class SendVotePictureService implements ServerCommunicationService {
             @Override
             public void success(JsonElement json, Response response2) {
 
-                Gson gson = new Gson();
                 JsonObject obj = json.getAsJsonObject();
                 Log.d("myapp", "obj->" + obj.toString());
                 boolean status = obj.get("status").getAsBoolean();
-                Log.d("myapp", "status->" + status);
                 if (status) {
-
                     callback.success(true);
                 } else {
                     Log.d("myapp", "deu erro");
-                    callback.failed(null);
+                    callback.failed(obj.get("error").getAsString());
                 }
-
-
             }
 
             @Override
             public void failure(RetrofitError error) {
                 Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
+                callback.failed("network problem");
             }
         });
 

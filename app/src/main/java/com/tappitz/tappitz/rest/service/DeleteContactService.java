@@ -28,17 +28,18 @@ public class DeleteContactService implements ServerCommunicationService {
             public void success(JsonElement json, Response response2) {
 
                 JsonObject obj = json.getAsJsonObject();
-                Log.d("myapp", "obj->" + obj.toString());
                 boolean status = obj.get("status").getAsBoolean();
-
-                Log.d("myapp", "status->" + status);
                 callback.success(status);
+                if(status)
+                    callback.success(status);
+                else
+                    callback.failed(obj.get("error").getAsString());
             }
 
             @Override
             public void failure(RetrofitError error) {
                 Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
+                callback.failed("network problem");
             }
         });
 

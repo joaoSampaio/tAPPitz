@@ -6,11 +6,11 @@ public class PhotoOutbox {
 
 //    private String url;
     private int id;
-    private String text;
+    private String comment;
 
     public PhotoOutbox( int id, String text){
         this.id = id;
-        this.text = text;
+        this.comment = text;
     }
 
 
@@ -27,7 +27,7 @@ public class PhotoOutbox {
     }
 
     public String getText() {
-        return text;
+        return comment;
     }
 
 //    [

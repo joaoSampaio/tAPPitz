@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
@@ -12,7 +13,7 @@ import com.tappitz.tappitz.ui.secondary.OutBoxPageFragment;
 import java.util.List;
 
 
-public class OutBoxPagerAdapter extends FragmentPagerAdapter {
+public class OutBoxPagerAdapter extends FragmentStatePagerAdapter {
 
     private List<PhotoOutbox> photos;
     public OutBoxPagerAdapter(FragmentManager fm, List<PhotoOutbox> photos) {
@@ -40,5 +41,10 @@ public class OutBoxPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return "Child Fragment " + position;
+    }
+
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 }

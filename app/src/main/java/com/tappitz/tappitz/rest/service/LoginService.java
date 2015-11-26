@@ -38,22 +38,21 @@ public class LoginService implements ServerCommunicationService {
                         sessionId = jsonElement.getAsJsonObject().get("sessionId").getAsString();
                     } catch (Exception e) {
                         e.printStackTrace();
-                        callback.failed(null);
+                        callback.failed("network problem");
                         return;
                     }
 
                     callback.success(sessionId);
                 }else{
                     Log.d("myapp", "deu erro");
-                    String error = jsonElement.getAsJsonObject().get("error").toString();
-                    callback.failed(error);
+                    callback.failed(obj.get("error").getAsString());
                 }
             }
 
             @Override
             public void failure(RetrofitError error) {
                 Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
+                callback.failed("network problem");
             }
         });
 

@@ -55,7 +55,7 @@ public class ListContactRequestService implements ServerCommunicationService {
                     callback.success(contacts);
                 } else {
                     Log.d("myapp", "deu erro");
-                    callback.failed(null);
+                    callback.failed(obj.get("error").getAsString());
                 }
 
 
@@ -64,7 +64,7 @@ public class ListContactRequestService implements ServerCommunicationService {
             @Override
             public void failure(RetrofitError error) {
                 Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
+                callback.failed("network problem");
             }
         });
 

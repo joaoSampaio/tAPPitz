@@ -27,6 +27,7 @@ import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.SendVotePictureService;
 import com.tappitz.tappitz.ui.InBoxFragment;
+import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
 
@@ -38,7 +39,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
     private ImageView color_background;
     private EditText editTextComment;
     private int id;
-    private InBoxFragment.ListenerStateChange state;
+    private ListenerPagerStateChange state;
     String text;
 
     private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
@@ -142,7 +143,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
     public void onResume(){
         super.onResume();
         Log.d("myapp2", "**--page text  :" + text);
-        state = new InBoxFragment.ListenerStateChange() {
+        state = new ListenerPagerStateChange() {
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {

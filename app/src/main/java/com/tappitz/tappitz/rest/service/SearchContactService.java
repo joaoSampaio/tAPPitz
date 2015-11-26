@@ -26,7 +26,6 @@ public class SearchContactService implements ServerCommunicationService {
     @Override
     public void execute() {
         RestClient.getService().searchContact(search, new Callback<JsonElement>() {
-//        RestClient.getService().searchContact(new Callback<JsonElement>() {
             @Override
             public void success(JsonElement json, Response response2) {
 
@@ -36,10 +35,6 @@ public class SearchContactService implements ServerCommunicationService {
                 boolean status = obj.get("status").getAsBoolean();
                 Log.d("myapp", "status->" + status);
                 if (status) {
-//                    if(obj.get("data").getAsString().equals("{}")) {
-//                        callback.success(null);
-//                        return;
-//                    }
                     ContactSearchResult contactSearch = gson.fromJson(obj.get("data"), ContactSearchResult.class);
                     if(contactSearch == null || contactSearch.getEmail() == null) {
                         callback.success(null);
@@ -50,7 +45,7 @@ public class SearchContactService implements ServerCommunicationService {
                     callback.success(contact);
                 } else {
                     Log.d("myapp", "deu erro");
-                    callback.failed(null);
+                    callback.failed("network problem");
                 }
 
 
