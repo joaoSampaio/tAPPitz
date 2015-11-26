@@ -24,7 +24,7 @@ public class SelectContactAdapter extends BaseAdapter {
     private Activity activity;
     private ContactAdapter.OnUpdate update; ;
     private List<ListViewContactItem> contacts;
-    private Map<String, String> selectedContacts;
+    private Map<Integer, Integer> selectedContacts;
 //    private List<ListViewContactItem> originalContacts;
     private LayoutInflater mInflater;
     private int UNSELECTED, SELECTED;
@@ -45,7 +45,7 @@ public class SelectContactAdapter extends BaseAdapter {
         this.contacts = contacts;
     }
 
-    public List<String> getSelectedContacts(){
+    public List<Integer> getSelectedContacts(){
         return new ArrayList<>(selectedContacts.values());
     }
 
@@ -160,13 +160,13 @@ public class SelectContactAdapter extends BaseAdapter {
                 switch (v.getId()){
                     case R.id.contact_front:
                         contact = contacts.get(pos).getContact();
-                        if(selectedContacts.containsKey(contact.getEmail())){
-                            selectedContacts.remove(contact.getEmail());
+                        if(selectedContacts.containsKey(contact.getId())){
+                            selectedContacts.remove(contact.getId());
                             v.setBackgroundColor(UNSELECTED);
                         }
 
                         else {
-                            selectedContacts.put(contact.getEmail(),contact.getEmail());
+                            selectedContacts.put(contact.getId(),contact.getId());
                             v.setBackgroundColor(SELECTED);
                         }
 

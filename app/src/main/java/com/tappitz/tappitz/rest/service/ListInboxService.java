@@ -31,7 +31,9 @@ public class ListInboxService implements ServerCommunicationService {
             @Override
             public void success(JsonElement  json, Response response2) {
 
+
                 Log.d("myapp", "obj json != null" + (json != null));
+                Log.d("myapp", "json->" + json);
                 if(json != null) {
                     Gson gson = new Gson();
                     JsonObject obj = json.getAsJsonObject();

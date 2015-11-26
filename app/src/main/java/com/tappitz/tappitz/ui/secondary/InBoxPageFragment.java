@@ -259,12 +259,12 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
     }
 
     private void sendVote(final int vote){
-        Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
-        String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
-        new SendVotePictureService(comment, id, vote, new CallbackMultiple() {
-            @Override
-            public void success(Object response) {
 
+        String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
+        new SendVotePictureService(comment, id, vote, new CallbackMultiple<Boolean, String>() {
+            @Override
+            public void success(Boolean response) {
+                Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
                 if(getActivity() != null && getParentFragment() != null){
                     rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
                     rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
@@ -283,8 +283,10 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             }
 
             @Override
-            public void failed(Object error) {
+            public void failed(String error) {
                 toggleButtons(true);
+                if(getActivity() != null)
+                    Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
                 if(getActivity() != null && getParentFragment() != null){
                     rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
                     rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);

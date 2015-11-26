@@ -128,11 +128,7 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
             public void onClick(View v) {
                 Log.d("myapp", "nextTo: ");
 
-//                List<String> selected = adapter.getSelectedContacts();
-                List<Integer> selected = new ArrayList<Integer>();
-                selected.add(1);
-                selected.add(10);
-                selected.add(11);
+                List<Integer> selected = adapter.getSelectedContacts();
                 if(selected.size() > 0){
                     if(listener != null) {
                         listener.sendPhoto(selected);
@@ -181,9 +177,9 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
 
             @Override
             public void failed(String error) {
-                showToast("Erro");
+                showToast(error);
                 //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
-                loadDummyContacts();
+                //loadDummyContacts();
                 swipeLayout.setRefreshing(false);
             }
         }).execute();
