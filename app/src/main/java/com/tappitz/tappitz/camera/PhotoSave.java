@@ -103,17 +103,37 @@ public class PhotoSave {
             //FileOutputStream outStream = null;
             try {
                 int orientation = Exif.getOrientation(photoData);
+                Log.d("foto", "Save to File orientation: " + orientation);
                 Bitmap originalBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
+
+                // others devices
+//                if(originalBitmap.getHeight() < originalBitmap.getWidth()){
+//                    orientation = 90;
+//                } else {
+//                    orientation = 0;
+//                }
+                Log.d("foto", "originalBitmap.getHeight(): " + originalBitmap.getHeight());
+                Log.d("foto", "originalBitmap.getWidth(): " + originalBitmap.getWidth());
+//                switch(orientation) {
+//                    case ExifInterface.ORIENTATION_ROTATE_90:
+//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 90);
+//                        break;
+//                    case ExifInterface.ORIENTATION_ROTATE_180:
+//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 180);
+//                        break;
+//                    case ExifInterface.ORIENTATION_ROTATE_270:
+//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 270);
+//                        break;
+//                }
+
                 switch(orientation) {
-                    case ExifInterface.ORIENTATION_ROTATE_90:
+                    case 90:
                         originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 90);
                         break;
-                    case ExifInterface.ORIENTATION_ROTATE_180:
-                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 180);
-                        break;
-                    case ExifInterface.ORIENTATION_ROTATE_270:
+                    case 270:
                         originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 270);
                         break;
+
                 }
 
 

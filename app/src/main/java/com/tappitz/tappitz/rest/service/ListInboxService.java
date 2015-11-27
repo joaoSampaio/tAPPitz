@@ -40,7 +40,7 @@ public class ListInboxService implements ServerCommunicationService {
                     Log.d("myapp", "obj->" + obj.toString());
                     boolean status = obj.get("status").getAsBoolean();
                     if (status) {
-                        List<PhotoInbox> inbox = gson.fromJson(obj.get("data"), new TypeToken<List<PhotoInbox>>() {
+                        List<PhotoInbox> inbox = gson.fromJson(obj.get("inbox"), new TypeToken<List<PhotoInbox>>() {
                         }.getType());
                                callback.success(inbox);
                     } else {

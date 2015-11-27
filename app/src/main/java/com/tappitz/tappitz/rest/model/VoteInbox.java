@@ -4,25 +4,25 @@ package com.tappitz.tappitz.rest.model;
 
 public class VoteInbox {
 
-    private int id;
-    private String myComment;
-    private int choice;
+    private int pictureId;
+    private String comment;
+    private int vote;
 
     public VoteInbox(int choice, int id, String myComment) {
-        this.choice = choice;
-        this.id = id;
-        this.myComment = myComment;
+        this.vote = choice;
+        this.pictureId = id;
+        this.comment = myComment;
     }
 
     public int getChoice() {
-        return choice;
+        return vote;
     }
 
     public int getId() {
-        return id;
+        return pictureId;
     }
 
     public String getMyComment() {
-        return myComment;
+        return comment;
     }
 }

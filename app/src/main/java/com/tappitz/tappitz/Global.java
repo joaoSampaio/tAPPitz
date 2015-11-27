@@ -46,9 +46,9 @@ public class Global {
     public static final String HAS_VOTED_RESOURCE = "HAS_VOTED_RESOURCE";
     public static final String CHOICE_RESOURCE = "CHOICE_RESOURCE";
 
-    public final static int RED = 0;
+    public final static int RED = 2;
     public final static int YELLOW = 1;
-    public final static int GREEN = 2;
+    public final static int GREEN = 0;
 
 
     //public static final String FONT1 = "fonts/SnackerComic.ttf";

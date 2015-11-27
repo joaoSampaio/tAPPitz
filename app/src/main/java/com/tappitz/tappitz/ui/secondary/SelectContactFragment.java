@@ -1,5 +1,7 @@
 package com.tappitz.tappitz.ui.secondary;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -11,6 +13,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactAdapter;
 import com.tappitz.tappitz.adapter.SelectContactAdapter;
@@ -19,6 +23,7 @@ import com.tappitz.tappitz.model.ListViewContactItem;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListContactsService;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -172,6 +177,8 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
                 adapter.notifyDataSetChanged();
                 checkIfHasContacts(allContactsList.size());
 
+                saveContactsOffline(allContactsList);
+
                 swipeLayout.setRefreshing(false);
             }
 
@@ -186,8 +193,15 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
     }
 
     private void refresh(){
-        //pede a lista de todos os contactos
-        loadContacts();
+
+        allContactsList.clear();
+        allContactsList.addAll(loadContactsOffline());
+        adapter.notifyDataSetChanged();
+        checkIfHasContacts(allContactsList.size());
+        if(allContactsList.size() == 0) {
+            //pede a lista de todos os contactos
+            loadContacts();
+        }
     }
 
     private void loadDummyContacts(){
@@ -215,6 +229,32 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
         public void sendPhoto(List<Integer> contacts);
     }
 
+    private List<ListViewContactItem> loadContactsOffline(){
+        String contacts = "";
+        try {
+            SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+            contacts = sp.getString("contacts", "");
+        }catch (Exception e){
+            Log.d("myapp", "error:" + e.getMessage());
+        }
+        if (contacts.equals("")) {
+            return new ArrayList<ListViewContactItem>();
+        } else {
+            Type type = new TypeToken<List<ListViewContactItem>>() {
+            }.getType();
+            List<ListViewContactItem> contactsList = new Gson().fromJson(contacts, type);
+            return contactsList;
+        }
+    }
+
+    private void saveContactsOffline(List<ListViewContactItem> contacts){
+        String json = new Gson().toJson(contacts);
+        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sp.edit();
+        editor.putString("contacts", json);
+        editor.commit();
+
+    }
 
     @Override
     public void onRefresh() {

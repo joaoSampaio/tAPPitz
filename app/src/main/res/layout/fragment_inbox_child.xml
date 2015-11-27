@@ -49,6 +49,45 @@
             android:layout_marginRight="15dp"
             android:id="@+id/layout_vote">
 
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:id="@+id/scrollView"
+                >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?android:attr/textAppearance"
+                    android:id="@+id/photo_description"
+                    android:inputType="textMultiLine"
+                    style="@style/SelectBar"
+                    android:layout_gravity="top|center_horizontal"
+                    android:textAlignment="center" />
+            </ScrollView>
+
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/scrollView"
+                android:id="@+id/layoutText">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Comment:"
+                    android:id="@+id/editTextComment"
+                    android:layout_marginTop="10dp"
+                    android:visibility="gone"
+                    style="@style/SelectBar"
+                    android:lines="3"
+                    android:maxLines="3"
+                    />
+
+                </LinearLayout>
+
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="fill_parent"
@@ -57,9 +96,7 @@
                 android:gravity="center_horizontal"
                 android:layout_marginBottom="10dp"
                 android:layout_gravity="center"
-                android:layout_alignParentBottom="false"
-                android:layout_alignParentLeft="false"
-                android:layout_alignParentStart="false"
+                android:layout_below="@+id/layoutText"
                 android:layout_marginTop="10dp"
                 android:layout_centerVertical="true">
 
@@ -91,37 +128,6 @@
 
             </LinearLayout>
 
-            <EditText
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Comment:"
-                android:id="@+id/editTextComment"
-                android:layout_marginTop="10dp"
-                android:visibility="invisible"
-                style="@style/SelectBar"
-                android:lines="3"
-                android:maxLines="3"
-                android:layout_above="@+id/painelvotacao"/>
-
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:id="@+id/scrollView"
-                android:layout_alignParentTop="false"
-                android:layout_above="@+id/editTextComment"
-                android:layout_alignWithParentIfMissing="false">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearance"
-                    android:text="@string/descricaoFoto"
-                    android:id="@+id/photo_description"
-                    android:inputType="textMultiLine"
-                    style="@style/SelectBar"
-                    android:layout_gravity="top|center_horizontal"
-                    android:textAlignment="center" />
-            </ScrollView>
 
             <LinearLayout
                 android:orientation="vertical"

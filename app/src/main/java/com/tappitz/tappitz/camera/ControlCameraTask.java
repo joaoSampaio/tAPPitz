@@ -3,6 +3,7 @@ package com.tappitz.tappitz.camera;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.util.Log;
 
 import com.tappitz.tappitz.app.AppController;
@@ -163,43 +164,48 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
         int maxHeight = app.width > app.height? app.height : app.width;
 
 
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+            //nao funciona
+            List<Camera.Size> sizes = sizes = parameters.getSupportedPreviewSizes();
+            Camera.Size sizeScreen = sizes.get(0);
+            for (int i = 0; i < sizes.size(); i++) {
 
-        List<Camera.Size> sizes = sizes = parameters.getSupportedPreviewSizes();
-        Camera.Size sizeScreen = sizes.get(0);
-        for (int i = 0; i < sizes.size(); i++) {
-
-            if (sizes.get(i).width > sizeScreen.width)
-                sizeScreen = sizes.get(i);
-            if(sizes.get(i).height == maxHeight) {
-                sizeScreen = sizes.get(i);
-                break;
+                if (sizes.get(i).width > sizeScreen.width)
+                    sizeScreen = sizes.get(i);
+                if(sizes.get(i).height == maxHeight) {
+                    sizeScreen = sizes.get(i);
+                    break;
+                }
             }
-        }
-        Log.d("MyCameraApp", "sizeScreen size.width: " + sizeScreen.width + " size.height: " + sizeScreen.height);
-        parameters.setPreviewSize(sizeScreen.width, sizeScreen.height);
+            Log.d("MyCameraApp", "sizeScreen size.width: " + sizeScreen.width + " size.height: " + sizeScreen.height);
+            parameters.setPreviewSize(sizeScreen.width, sizeScreen.height);
 
 
-        sizes = parameters.getSupportedPictureSizes();
-        Camera.Size sizeCamera = sizes.get(0);
-        for (int i = 0; i < sizes.size(); i++) {
-            Log.d("myapp", "size.width: " +sizes.get(i).width + " size.height: " + +sizes.get(i).height);
-            if (sizes.get(i).width > sizeCamera.width)
-                sizeCamera = sizes.get(i);
-            if(sizes.get(i).height == maxHeight) {
-                sizeCamera = sizes.get(i);
-                break;
+            sizes = parameters.getSupportedPictureSizes();
+            Camera.Size sizeCamera = sizes.get(0);
+            for (int i = 0; i < sizes.size(); i++) {
+                Log.d("myapp", "size.width: " +sizes.get(i).width + " size.height: " + +sizes.get(i).height);
+                if (sizes.get(i).width > sizeCamera.width)
+                    sizeCamera = sizes.get(i);
+                if(sizes.get(i).height == maxHeight) {
+                    sizeCamera = sizes.get(i);
+                    break;
+                }
             }
+
+
+            Log.d("MyCameraApp", "best size.width: " + sizeCamera.width + " size.height: " + sizeCamera.height);
+            parameters.setPictureSize(sizeCamera.width, sizeCamera.height);
         }
 
 
-        Log.d("MyCameraApp", "best size.width: " + sizeCamera.width + " size.height: " + sizeCamera.height);
-        parameters.setPictureSize(sizeCamera.width, sizeCamera.height);
 
 
         parameters.setPictureFormat(PixelFormat.JPEG);
         parameters.set("jpeg-quality", 90);
 
         parameters.set("orientation", "portrait");
+        degrees = 0;
         degrees = 90;
         if(cameraId == Camera.CameraInfo.CAMERA_FACING_FRONT)
             degrees = 270;

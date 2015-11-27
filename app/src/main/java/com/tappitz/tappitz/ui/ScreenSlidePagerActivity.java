@@ -401,10 +401,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     @Override
     public void onBackPressed() {
-        if(mPager.getCurrentItem() != 1)
-            mPager.setCurrentItem(1);
-        else{
-            finish();
+        try {
+            if (mPager.getCurrentItem() != 1)
+                mPager.setCurrentItem(1);
+            else {
+                finish();
+            }
+        }catch (Exception e){
+            Log.d("myapp", "onback error");
         }
     }
 

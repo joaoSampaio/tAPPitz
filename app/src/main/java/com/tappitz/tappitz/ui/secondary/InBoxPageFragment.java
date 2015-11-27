@@ -127,9 +127,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                         showButtonsAndBackground(true);
                     case MotionEvent.ACTION_POINTER_UP:
                         //=====Write down you code Finger Released code here
-//                    case MotionEvent.ACTION_MOVE:
-//                        Log.d("myapp", "inbox ACTION_MOVE");
-//                        layout_container.setVisibility(View.INVISIBLE);
+
 
                 }
                 return false;
@@ -211,7 +209,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public boolean onLongClick(View v) {
-        editTextComment.setVisibility(editTextComment.isShown()? View.INVISIBLE : View.VISIBLE);
+        editTextComment.setVisibility(editTextComment.isShown()? View.GONE : View.VISIBLE);
         return true;
     }
 
@@ -260,12 +258,16 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
     private void sendVote(final int vote){
 
+        botaoVermelho.setEnabled(false);
+        botaoAmarelo.setEnabled(false);
+        botaoVerde.setEnabled(false);
         String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
         new SendVotePictureService(comment, id, vote, new CallbackMultiple<Boolean, String>() {
             @Override
             public void success(Boolean response) {
-                Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
+
                 if(getActivity() != null && getParentFragment() != null){
+                    Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
                     rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
                     rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
                     color_background.setVisibility(View.VISIBLE);
@@ -302,6 +304,9 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
                     }
                 }
+                botaoVermelho.setEnabled(true);
+                botaoAmarelo.setEnabled(true);
+                botaoVerde.setEnabled(true);
             }
         }).execute();
     }

@@ -60,9 +60,8 @@ public interface Api {
 
 
     //Envia o voto de uma foto recebida
-    @GET("/inbox/vote")
-//    @GET("/inbox.json")
-    void sendVotePicture(VoteInbox vote, Callback<JsonElement> response);
+    @POST("/pictures_votes")
+    void sendVotePicture(@Body VoteInbox vote, Callback<JsonElement> response);
 
 
 

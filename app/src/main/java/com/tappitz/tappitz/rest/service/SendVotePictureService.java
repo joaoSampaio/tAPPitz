@@ -45,7 +45,7 @@ public class SendVotePictureService implements ServerCommunicationService {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.d("myapp", "**error****" + error.toString());
+                Log.d("myapp", "**error*hhhh***" + error.toString());
                 callback.failed("network problem");
             }
         });

@@ -5,9 +5,9 @@
     <item name="red" type="color">#80FF4444</item>
     <item name="yellow" type="color">#80FFFF00</item>
 
-    <item name="greenA" type="color">#5099CC00</item>
-    <item name="redA" type="color">#50FF4444</item>
-    <item name="yellowA" type="color">#50FF9F00</item>
+    <item name="greenA" type="color">#9618cc00</item>
+    <item name="redA" type="color">#96ff0600</item>
+    <item name="yellowA" type="color">#c8feff00</item>
 
     <!-- <item name="orange" type="color">#FBA046</item> a minha escolha suave -->
     <!-- <item name="orange" type="color">#FFa500</item> -->

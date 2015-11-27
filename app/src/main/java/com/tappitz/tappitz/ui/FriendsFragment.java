@@ -297,11 +297,15 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
     }
 
     private void saveContactRequestsOffline(List<ListViewContactItem> contactsRequest){
-        String json = new Gson().toJson(contactsRequest);
-        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString("contactsRequest", json);
-        editor.commit();
+        try {
+            String json = new Gson().toJson(contactsRequest);
+            SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString("contactsRequest", json);
+            editor.commit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
 

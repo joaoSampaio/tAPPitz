@@ -48,8 +48,10 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
             int heightBit = original.getHeight();
             int widthBit = original.getWidth();
 
-            if(widthBit > heightBit)
-                orientation = 90;
+            Log.d("foto", "orientation: " + orientation);
+
+//            if(widthBit > heightBit)
+//                orientation = 90;
 
             switch(orientation) {
                 case ExifInterface.ORIENTATION_ROTATE_90:

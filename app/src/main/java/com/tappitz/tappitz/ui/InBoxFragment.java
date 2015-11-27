@@ -130,19 +130,19 @@ public class InBoxFragment extends Fragment {
         photos.clear();
 
 
-        photos.add(new PhotoInbox(Global.ENDPOINT + "/pictures/27", 11111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
-
-//String url, String id, String text,String date, boolean hasVoted,  String myComment, String senderName
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/1.jpg", 11111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/2.jpg", 11111112, "Curtes?", "15/10/2015 - 12:25", true, "Muito bonito!", "João Sampaio", 2));
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/3.jpg", 11111112, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/4.jpg", 11111112, "bla bla bla e texto e mais texto!!!!", "15/10/2015 - 12:35", false, "", "João Sampaio", 1));
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/t4.jpg", 111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
-        photos.add(new PhotoInbox("http://web.ist.utl.pt/~ist170638/tappitz/images/563e5f71d2425.jpg", 111112, "isto és virado para vcs?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/IMG_20151109_032605.jpg", 111112, "isto és virado para vcs, Já não?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
-
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/melancia_velho.jpg", 111112, "isto és virado para vcs?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
-        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/melancia_novo.jpg", 111112, "isto és virado para vcs, Já não?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//        photos.add(new PhotoInbox(Global.ENDPOINT + "/pictures/27", 11111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//
+////String url, String id, String text,String date, boolean hasVoted,  String myComment, String senderName
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/1.jpg", 11111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/2.jpg", 11111112, "Curtes?", "15/10/2015 - 12:25", true, "Muito bonito!", "João Sampaio", 2));
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/3.jpg", 11111112, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/4.jpg", 11111112, "bla bla bla e texto e mais texto!!!!", "15/10/2015 - 12:35", false, "", "João Sampaio", 1));
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/t4.jpg", 111112, "Gostas deste edificio?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//        photos.add(new PhotoInbox("http://web.ist.utl.pt/~ist170638/tappitz/images/563e5f71d2425.jpg", 111112, "isto és virado para vcs?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/IMG_20151109_032605.jpg", 111112, "isto és virado para vcs, Já não?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/melancia_velho.jpg", 111112, "isto és virado para vcs?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
+//        photos.add(new PhotoInbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/melancia_novo.jpg", 111112, "isto és virado para vcs, Já não?", "15/10/2015 - 12:35", false, "", "João Sampaio", 0));
 
 
 
