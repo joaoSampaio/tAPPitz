@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.support.v7.widget.AppCompatRadioButton;
 import android.util.Log;
@@ -30,6 +32,7 @@ import com.tappitz.tappitz.rest.service.CallbackFromService;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.rest.service.RegisterService;
+import com.tappitz.tappitz.ui.secondary.DatePickerFragment;
 import com.tappitz.tappitz.util.ProgressGenerator;
 import com.tappitz.tappitz.validators.EmailValidator;
 import com.tappitz.tappitz.validators.NameValidator;
@@ -42,7 +45,7 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
-public class LoginActivity extends Activity  implements View.OnClickListener, DatePickerDialog.OnDateSetListener, ProgressGenerator.OnCompleteListener {
+public class LoginActivity extends FragmentActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, ProgressGenerator.OnCompleteListener {
 
 
     private final static int[] CLICKABLES = {R.id.btn_login, R.id.link_signup, R.id.backToPrevious, R.id.nextTo};
@@ -155,14 +158,7 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-//            case R.id.offline:
-//                onSuccessLogin();
-//                break;
-//            case R.id.offlineTabs:
-//                Intent intent = new Intent(this, ScreenSlidePagerActivity.class);
-//                startActivityForResult(intent, 0);
-//                finish();
-//                break;
+
             case R.id.link_signup:
                 Log.d("myapp", "****registerBtn**" + curScreen);
                 screens.add(R.id.screen_login);
@@ -305,15 +301,30 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
     }
 
     private void launchCalendar(){
-        Calendar now = Calendar.getInstance();
-        DatePickerDialog dpd = DatePickerDialog.newInstance(
-                this,
-                (year > 0)? year : now.get(Calendar.YEAR),
-                (month > 0)? month : now.get(Calendar.MONTH),
-                (day > 0)? day : now.get(Calendar.DAY_OF_MONTH)
-        );
-//        dpd.setAccentColor(getResources().getColor(R.color.mdtp_accent_color));
-        dpd.show(getFragmentManager(), "Datepickerdialog");
+
+        DatePickerFragment newFragment = new DatePickerFragment();
+        newFragment.show(getSupportFragmentManager(), "datePicker");
+        newFragment.setDate(year, month, day);
+        newFragment.setDatePicked(new DatePickerFragment.DatePicked() {
+            @Override
+            public void onDatePicked(int year1, int monthOfYear, int dayOfMonth) {
+                date_picker.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year1);
+                day = dayOfMonth;
+                month = monthOfYear;
+                year = year1;
+            }
+        });
+
+
+//        Calendar now = Calendar.getInstance();
+//        DatePickerDialog dpd = DatePickerDialog.newInstance(
+//                this,
+//                (year > 0)? year : now.get(Calendar.YEAR),
+//                (month > 0)? month : now.get(Calendar.MONTH),
+//                (day > 0)? day : now.get(Calendar.DAY_OF_MONTH)
+//        );
+////        dpd.setAccentColor(getResources().getColor(R.color.mdtp_accent_color));
+//        dpd.show(getFragmentManager(), "Datepickerdialog");
     }
 
     private void onSuccessLogin(){
@@ -331,7 +342,7 @@ public class LoginActivity extends Activity  implements View.OnClickListener, Da
 
         //guarda o mail e pass para nao ser preciso introduzi-los a toda a hora
         SharedPreferences prefs = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-        ;
+
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(Global.KEY_USER, editEmail.getText().toString());
         editor.putString(Global.KEY_PASS, editPassword.getText().toString());

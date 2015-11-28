@@ -78,7 +78,8 @@ public class InBoxFragment extends Fragment {
 
         });
 
-        //refreshInbox();
+        refreshInbox();
+
 
         return rootView;
     }

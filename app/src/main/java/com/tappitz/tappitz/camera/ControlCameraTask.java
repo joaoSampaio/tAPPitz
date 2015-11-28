@@ -1,5 +1,6 @@
 package com.tappitz.tappitz.camera;
 
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.AsyncTask;
@@ -162,6 +163,15 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
         //temos de trocar os valores caso a width seja mais baixa que o height
         int maxWidth = app.width > app.height? app.width : app.height;
         int maxHeight = app.width > app.height? app.height : app.width;
+
+
+
+        Log.d("MyCameraApp", "AppController.getInstance().turnLightOn: " + AppController.getInstance().turnLightOn);
+        if (AppController.getInstance().turnLightOn) {
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+        } else {
+            parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+        }
 
 
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){

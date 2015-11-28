@@ -17,6 +17,13 @@ import android.widget.TextView;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.squareup.picasso.MemoryPolicy;
 import com.squareup.picasso.Picasso;
 import com.tappitz.tappitz.Global;
@@ -24,6 +31,8 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.ListVotesService;
 import com.tappitz.tappitz.ui.InBoxFragment;
 import com.tappitz.tappitz.ui.OutBoxFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
@@ -61,15 +70,32 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                              Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_outbox_child, container, false);
-        NetworkImageView imageView = (NetworkImageView)rootView.findViewById(R.id.picture);
+//        NetworkImageView imageView = (NetworkImageView)rootView.findViewById(R.id.picture);
+      ImageView imageView = (ImageView)rootView.findViewById(R.id.picture);
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         String text = getArguments().getString(Global.TEXT_RESOURCE);
         int id = getArguments().getInt(Global.ID_RESOURCE);
 
-        if (imageLoader == null)
-            imageLoader = AppController.getInstance().getImageLoader();
-        imageView.setImageUrl(url, imageLoader);
+//        if (imageLoader == null)
+//            imageLoader = AppController.getInstance().getImageLoader();
+//        imageView.setImageUrl(url, imageLoader);
+
+        GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
+                .setHeader("Session-Id", AppController.getInstance().getSessionId())
+                .build());
+        Glide.with(this)
+                .load(uri)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .centerCrop()
+                .into(imageView);
+
+//        Picasso.with(getActivity())
+//                .load(url)
+//                .centerCrop()
+//                .noFade()
+//                .into(imageView);
+
 
         for(int idBtn: CLICKABLE) {
             rootView.findViewById(idBtn).setOnClickListener(this);
@@ -93,17 +119,33 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         commentText = (TextView) rootView.findViewById(R.id.photo_comment);
         comment_user = (TextView) rootView.findViewById(R.id.comment_user);
 
-        RestClient.getService().getOutboxComments(id, new retrofit.Callback<List<Comment>>() {
+
+        new ListVotesService(id, new CallbackMultiple<List<Comment>, String>() {
             @Override
-            public void success(List<Comment> comments, Response response) {
-                dummyListComments();
+            public void success(List<Comment> comments) {
+                for(Comment c: comments){
+                    switch (c.getRate()){
+                        case Global.RED:
+                            listRed.add(c);
+                            break;
+                        case Global.YELLOW:
+                            listYellow.add(c);
+                            break;
+                        case Global.GREEN:
+                            listGreen.add(c);
+                            break;
+                    }
+                }
+
+                resetComments();
+
             }
 
             @Override
-            public void failure(RetrofitError error) {
-                dummyListComments();
+            public void failed(String error) {
+
             }
-        });
+        }).execute();
 
         rootView.findViewById(R.id.picture).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -115,7 +157,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                     case MotionEvent.ACTION_POINTER_DOWN:
                         Log.d("myapp", "inbox ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
-                        if(!color_background.isShown()) {
+                        if (!color_background.isShown()) {
                             descriptionText.setVisibility(View.GONE);
                             buttonsContainer.setVisibility(View.GONE);
                         }
@@ -125,19 +167,10 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                         Log.d("myapp", "inbox ACTION_UP");
 
 
-                        if(color_background.isShown()){
-//                            color_background.setVisibility(View.GONE);
-//                            comment_layout.setVisibility(View.GONE);
+                        if (color_background.isShown()) {
                             resetComments();
                         }
-//                        descriptionText.setVisibility(View.VISIBLE);
-//                        buttonsContainer.setVisibility(View.VISIBLE);
                         showButtonsAndBackground(true);
-
-
-                    case MotionEvent.ACTION_POINTER_UP:
-                        //=====Write down you code Finger Released code here
-
                 }
                 return false;
             }
@@ -234,10 +267,17 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         }
         selectedPos++;
 
+
+
         //dar a volta à lista
         if(getList(list).size() <= selectedPos)
             selectedPos = 0;
         Log.d("myapp", "getNext start");
+
+        if(getList(list).size() == 0)
+            return;
+
+
         List<Comment> commentList = getList(list);
         Comment comment = commentList.get(selectedPos);
         commentText.setText(comment.getComment());

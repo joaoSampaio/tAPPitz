@@ -24,9 +24,11 @@ import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.model.GoogleId;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CheckLoggedStateService;
 import com.tappitz.tappitz.rest.service.LoginService;
+import com.tappitz.tappitz.rest.service.SendGoogleIdService;
 import com.tappitz.tappitz.util.MainViewPager;
 
 import org.apache.http.HttpResponse;
@@ -74,10 +76,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (Build.VERSION.SDK_INT < 16) {
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
+//        if (Build.VERSION.SDK_INT < 16) {
+//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+//                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+//        }
         setContentView(R.layout.activity_screen_slide);
 
 
@@ -168,12 +170,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     public void onResume() {
         super.onResume();
         this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
-        if (Build.VERSION.SDK_INT >= 16) {
-            View decorView = getWindow().getDecorView();
-// Hide the status bar.
-            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-            decorView.setSystemUiVisibility(uiOptions);
-        }
+//        if (Build.VERSION.SDK_INT >= 16) {
+//            View decorView = getWindow().getDecorView();
+//// Hide the status bar.
+//            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+//            decorView.setSystemUiVisibility(uiOptions);
+//        }
     }
 
     @Override
@@ -312,47 +314,59 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         if(isCameraReady())
             closeSplashScreen();
 
-        new AsyncTask() {
+
+        new SendGoogleIdService(getApplicationContext(), new CallbackMultiple() {
             @Override
-            protected Object doInBackground(Object[] params) {
+            public void success(Object response) {
 
-                try {
-                    GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-
-                    String deviceToken = null;
-                    try {
-                        deviceToken = gcm.register(Global.PROJECT_ID);
-
-
-                        HttpClient httpclient = new DefaultHttpClient();
-                        HttpPost httppost = new HttpPost("http://web.ist.utl.pt/ist170638/tappitz/append_id.php");
-
-                        try {
-                            // Add your data
-                            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-                            nameValuePairs.add(new BasicNameValuePair("id", deviceToken));
-                            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-
-                            // Execute HTTP Post Request
-                            HttpResponse response = httpclient.execute(httppost);
-
-                        } catch (ClientProtocolException e) {
-                            // TODO Auto-generated catch block
-                        } catch (IOException e) {
-                            // TODO Auto-generated catch block
-                        }
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Log.i("GCM", "Device token : " + deviceToken);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
             }
 
-        }.execute();
+            @Override
+            public void failed(Object error) {
+
+            }
+        }).execute();
+//        new AsyncTask() {
+//            @Override
+//            protected Object doInBackground(Object[] params) {
+//
+//                try {
+//                    GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
+//
+//                    String deviceToken = null;
+//                    try {
+//                        deviceToken = gcm.register(Global.PROJECT_ID);
+//
+//
+//                        HttpClient httpclient = new DefaultHttpClient();
+//                        HttpPost httppost = new HttpPost("http://web.ist.utl.pt/ist170638/tappitz/append_id.php");
+//
+//                        try {
+//                            // Add your data
+//                            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+//                            nameValuePairs.add(new BasicNameValuePair("id", deviceToken));
+//                            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+//
+//                            // Execute HTTP Post Request
+//                            HttpResponse response = httpclient.execute(httppost);
+//
+//                        } catch (ClientProtocolException e) {
+//                            // TODO Auto-generated catch block
+//                        } catch (IOException e) {
+//                            // TODO Auto-generated catch block
+//                        }
+//
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Log.i("GCM", "Device token : " + deviceToken);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//
+//        }.execute();
     }
 
     private void goToLoginActivity(){

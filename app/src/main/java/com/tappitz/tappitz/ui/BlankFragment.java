@@ -1,6 +1,7 @@
 package com.tappitz.tappitz.ui;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,10 @@ import android.widget.EditText;
 import android.widget.RelativeLayout;
 
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.app.AppController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class BlankFragment extends Fragment  {
@@ -62,28 +67,6 @@ public class BlankFragment extends Fragment  {
                         startActivityForResult(intent, 0);
                         getActivity().finish();
                         return;
-
-
-//                    case R.id.btn_shutter:
-//
-//                        //rootView.bringToFront();
-//
-//                        //onTakePick(true);
-//                        break;
-//
-//                    case R.id.btnPhotoDelete:
-//
-//                        textMsgWrapper.setVisibility(View.INVISIBLE);
-//                        onTakePick(false);
-//                        textMsg.setText("");
-//                        break;
-////                    case R.id.btnText:
-////                        showEditText();
-////
-////                        break;
-//                    case R.id.btnPhotoAccept:
-//                        v.setTag(textMsg.getText().toString());
-//                        break;
                 }
                 ((ScreenSlidePagerActivity)getActivity()).pass(v);
             }
@@ -94,6 +77,7 @@ public class BlankFragment extends Fragment  {
         textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
         whiteBackground = (RelativeLayout)rootView.findViewById(R.id.whiteBackground);
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
+
 
         whiteBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -109,6 +93,48 @@ public class BlankFragment extends Fragment  {
 
                         camera_options.setTag("hide");
                         ((ScreenSlidePagerActivity) getActivity()).pass(camera_options);
+//                        if(AppController.getInstance().mCamera != null){
+//                            Log.d("myapp", "autoFocus autoFocus");
+//                            AppController.getInstance().mCamera.autoFocus(myAutoFocusCallback);
+//                        }
+                        Camera camera = AppController.getInstance().mCamera;
+                        if (camera != null) {
+                            camera.cancelAutoFocus();
+                            //Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
+                            Rect focusRect = calculateFocusArea(event.getX(), event.getY(), event.getTouchMajor(), event.getTouchMinor());
+                            Camera.Parameters parameters = camera.getParameters();
+                            if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_AUTO) {
+                                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                            }
+                            if (parameters.getMaxNumFocusAreas() > 0) {
+                                List<Camera.Area> mylist = new ArrayList<Camera.Area>();
+                                mylist.add(new Camera.Area(focusRect, 1000));
+                                parameters.setFocusAreas(mylist);
+                            }
+
+                            try {
+                                camera.cancelAutoFocus();
+                                camera.setParameters(parameters);
+                                camera.startPreview();
+                                camera.autoFocus(new Camera.AutoFocusCallback() {
+                                    @Override
+                                    public void onAutoFocus(boolean success, Camera camera) {
+                                        if (camera.getParameters().getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
+                                            Camera.Parameters parameters = camera.getParameters();
+                                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                                            if (parameters.getMaxNumFocusAreas() > 0) {
+                                                parameters.setFocusAreas(null);
+                                            }
+                                            camera.setParameters(parameters);
+                                            camera.startPreview();
+                                        }
+                                    }
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
 
 
                         return true;
@@ -145,6 +171,39 @@ public class BlankFragment extends Fragment  {
 //        });
         return rootView;
     }
+
+    Camera.AutoFocusCallback myAutoFocusCallback = new Camera.AutoFocusCallback(){
+
+        @Override
+        public void onAutoFocus(boolean arg0, Camera arg1) {
+            // TODO Auto-generated method stub
+            Log.d("myapp", "autoFocus autoFocus myAutoFocusCallback:" + arg0);
+        }};
+
+
+int FOCUS_AREA_SIZE = 100;
+    private Rect calculateFocusArea(float x, float y, float touchMajor, float touchMinor) {
+
+        Rect tfocusRect = new Rect(
+                (int)(x - touchMajor/2),
+                (int)(y - touchMinor/2),
+                (int)(x + touchMajor/2),
+                (int)(y + touchMinor/2));
+
+        final Rect targetFocusRect = new Rect(
+                tfocusRect.left * 2000/whiteBackground.getWidth() - 1000,
+                tfocusRect.top * 2000/whiteBackground.getHeight() - 1000,
+                tfocusRect.right * 2000/whiteBackground.getWidth() - 1000,
+                tfocusRect.bottom * 2000/whiteBackground.getHeight() - 1000);
+
+
+//        int left = clamp(Float.valueOf((x / whiteBackground.getWidth()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+//        int top = clamp(Float.valueOf((y / whiteBackground.getHeight()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+//
+//        return new Rect(left, top, left + FOCUS_AREA_SIZE, top + FOCUS_AREA_SIZE);
+        return targetFocusRect;
+    }
+
 
 
     @Override

@@ -21,6 +21,10 @@ import android.widget.Toast;
 
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
@@ -57,7 +61,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                              Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_inbox_child, container, false);
-        NetworkImageView imageView = (NetworkImageView)rootView.findViewById(R.id.picture);
+        ImageView imageView = (ImageView)rootView.findViewById(R.id.picture);
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         text = getArguments().getString(Global.TEXT_RESOURCE);
@@ -68,9 +72,18 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         boolean hasVoted = getArguments().getBoolean(Global.HAS_VOTED_RESOURCE);
         int choice = getArguments().getInt(Global.CHOICE_RESOURCE);
-        if (imageLoader == null)
-            imageLoader = AppController.getInstance().getImageLoader();
-        imageView.setImageUrl(url, imageLoader);
+//        if (imageLoader == null)
+//            imageLoader = AppController.getInstance().getImageLoader();
+//        imageView.setImageUrl(url, imageLoader);
+
+        GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
+                .setHeader("Session-Id", AppController.getInstance().getSessionId())
+                .build());
+        Glide.with(this)
+                .load(uri)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .centerCrop()
+                .into(imageView);
 
         for(int idBtn: CLICKABLE) {
             rootView.findViewById(idBtn).setOnClickListener(this);

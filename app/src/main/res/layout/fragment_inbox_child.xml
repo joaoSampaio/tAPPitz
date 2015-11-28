@@ -16,13 +16,20 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center" />
 
-        <com.android.volley.toolbox.NetworkImageView
+        <ImageView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scaleType="fitCenter"
             android:id="@+id/picture"
             android:clickable="true"
             android:layout_alignParentBottom="true" />
+        <!--<com.android.volley.toolbox.NetworkImageView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--android:scaleType="fitCenter"-->
+            <!--android:id="@+id/picture"-->
+            <!--android:clickable="true"-->
+            <!--android:layout_alignParentBottom="true" />-->
 
     </FrameLayout>
 

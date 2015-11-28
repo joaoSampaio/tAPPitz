@@ -6,6 +6,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
@@ -73,7 +74,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private boolean previewing = false;
     private String photoPath;
     private ImageView temp_pic;
-    private boolean isLighOn = false;
+    private boolean turnLightOn = false;
     private int viewWidth, viewHeight;
     private View textMsgWrapper;
     private boolean requestedFile = false;
@@ -310,11 +311,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     cameraReturn();
                     showDialog();
                 }
-
-//                savePhotoToFile();
-//
-//                cameraReturn();
-//                showDialog();
                 break;
 
             case R.id.btn_load:
@@ -330,23 +326,34 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 Camera.Parameters params = AppController.getInstance().mCamera.getParameters();
                 Button b = (Button)rootView.findViewById(R.id.btn_flash);
 
-                if (isLighOn) {
+                turnLightOn = !turnLightOn;
+                AppController.getInstance().turnLightOn = turnLightOn;
+
+                if (turnLightOn) {
+                    params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+                    AppController.getInstance().mCamera.setParameters(params);
+                    AppController.getInstance().mCamera.startPreview();
+                    previewing = true;
+                    b.setTextColor(Color.YELLOW);
+                } else {
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                     AppController.getInstance().mCamera.setParameters(params);
                     AppController.getInstance().mCamera.startPreview();
                     previewing = true;
-                    isLighOn = false;
                     b.setTextColor(Color.WHITE);
-                } else {
-                    params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
-                    AppController.getInstance().mCamera.setParameters(params);
-                    AppController.getInstance().mCamera.startPreview();
-                    isLighOn = true;
-                    previewing = true;
-                    b.setTextColor(Color.YELLOW);
                 }
+
                 break;
             case R.id.btn_toggle_camera:
+
+                PackageManager pm = getActivity().getPackageManager();
+
+                if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
+
+                    Toast.makeText(getActivity(), "You only have one camera!", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+
                 if(AppController.getInstance().currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
                     AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
                 }
@@ -370,20 +377,12 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
     }
 
-
-
-
-
-
     private void setUP(){
         Log.d("MyCameraApp", "setUP home");
         textMsgWrapper.setVisibility(View.INVISIBLE);
 //        btn_layout.setVisibility(View.INVISIBLE);
         temp_pic.setVisibility(View.VISIBLE);
         surfaceView.setVisibility(View.VISIBLE);
-
-
-
 
         Display d = ((WindowManager)getActivity().getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
         int width = d.getWidth();
@@ -399,10 +398,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             onTakePick(true);
         }
 
-
-        //requestedFile = false;
         btn_shutter.setVisibility(View.GONE);
-
     }
 
 
@@ -444,21 +440,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
-
-
-//            Bitmap bm = BitmapFactory.decodeFile(photoPath);
-//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-//            bm.compress(Bitmap.CompressFormat.JPEG, 100, baos); //bm is the bitmap object
-//            byte[] byteArrayImage = baos.toByteArray();
-//            pictureBase64 = Base64.encodeToString(byteArrayImage, Base64.DEFAULT);
-//            byteArrayImage = null;
-//            bm = null;
-
-
-
-
         }
 
 
@@ -505,7 +486,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             requestedFile = true;
             loadBitmapFile(temp_pic, photoPath, AppController.getInstance().width, AppController.getInstance().height);
             onTakePick(true);
-            //((ScreenSlidePagerActivity)getActivity()).callbackPhotoAvailable();
         }else {
             requestedFile = false;
             ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
@@ -541,8 +521,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     public void surfaceChanged(SurfaceHolder holder, int format, int width, int height)
     {
         Log.d("MyCameraApp", "surfaceChanged");
-//        Log.d("MyCameraApp", "surfaceChanged");
-//        start_camera();
     }
 
     @Override
@@ -561,78 +539,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
     };
 
-    private void savePhotoToFile(){
-
-        File file = PhotoSave.saveImageToFile(photoData);
-        if(file != null){
-            //guardamos a imagem correctamente
-
-            photoPath = file.getAbsolutePath();
-            getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
-        }
-        photoPath = null;
-
-//        if(photoData != null) {
-//            //FileOutputStream outStream = null;
-//            try {
-//                int orientation = Exif.getOrientation(photoData);
-//                boolean isRotated = false;
-//                Bitmap originalBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
-//                switch(orientation) {
-//                    case ExifInterface.ORIENTATION_ROTATE_90:
-//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 90);
-//
-//                        isRotated = true;
-//                        break;
-//                    case ExifInterface.ORIENTATION_ROTATE_180:
-//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 180);
-//
-//                        isRotated = true;
-//                        break;
-//                    case ExifInterface.ORIENTATION_ROTATE_270:
-//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 270);
-//
-//                        isRotated = true;
-//                        break;
-//                }
-//
-//                if(isRotated){
-//
-//                    FileOutputStream outStream = null;
-//                    try {
-//                        File file = PhotoSave.getOutputMediaFile();
-//                        outStream = new FileOutputStream(file);
-//                        originalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream); // bmp is your Bitmap instance
-//                        outStream.close();
-//
-//                        photoPath = file.getAbsolutePath();
-//                        getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
-//
-//                    } catch (FileNotFoundException e) {
-//                        Log.d("CAMERA", e.getMessage());
-//                    } catch (IOException e) {
-//                        Log.d("CAMERA", e.getMessage());
-//                    }
-//
-//
-//                }
-//
-//
-//
-////                File file = PhotoSave.getOutputMediaFile();
-////                outStream = new FileOutputStream(file);
-////                outStream.write(photoData);
-////                outStream.close();
-////
-////                photoPath = file.getAbsolutePath();
-////                getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
-//
-//            } catch (Exception e) {
-//                Log.d("CAMERA", e.getMessage());
-//            }
-//            photoData = null;
-//        }
-    }
 
     public void deletePrevious(){
         //recomeça a camera caso fosse foto da galeria
@@ -649,8 +555,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         onTakePick(false);
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-
-
 
     }
 
