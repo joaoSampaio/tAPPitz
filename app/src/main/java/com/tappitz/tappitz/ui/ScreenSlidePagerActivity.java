@@ -19,6 +19,9 @@ import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.integration.okhttp.OkHttpUrlLoader;
+import com.bumptech.glide.load.model.GlideUrl;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
@@ -41,6 +44,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +58,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     private String sessionId;
     private InBoxFragment.OnNewPhotoReceived reloadInboxListener;
     private HomeToBlankListener listenerCamera;
+    private OutBoxFragment.UpdateAfterPicture updateAfterPicture;
 //    private SplashScreenListener listenerSplash;
 
 
@@ -89,8 +94,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     }
 
     @Override
-    public void onStart(){
-        super.onStart();
+    public void onResume(){
+        super.onResume();
+        Log.d("myapp", "****onResume onResume onResume: " );
+        this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
         signIn = false;
         cameraReady = false;
         findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
@@ -166,17 +173,17 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     }
 
     //register your activity onResume()
-    @Override
-    public void onResume() {
-        super.onResume();
-        this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
-//        if (Build.VERSION.SDK_INT >= 16) {
-//            View decorView = getWindow().getDecorView();
-//// Hide the status bar.
-//            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-//            decorView.setSystemUiVisibility(uiOptions);
-//        }
-    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
+////        if (Build.VERSION.SDK_INT >= 16) {
+////            View decorView = getWindow().getDecorView();
+////// Hide the status bar.
+////            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
+////            decorView.setSystemUiVisibility(uiOptions);
+////        }
+//    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -220,6 +227,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         Log.d("myapp", "**email**** " + sp.getString(Global.KEY_USER, ""));
         Log.d("myapp", "**password**** " + password);
         this.sessionId = sessionid;
+
+
+
+//        onSuccessSignIn();
+//        if(true)
+//            return;
+
         new CheckLoggedStateService(new CallbackMultiple() {
             @Override
             public void success(Object response) {
@@ -266,15 +280,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     private void onSuccessSignIn(){
         //esconde splash screen e envia o id para notificações
 
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                findViewById(R.id.splashScreen).setVisibility(View.GONE);
-//            }
-//        }, 2000);
 
         signIn = true;
         AppController.getInstance().setSessionId(sessionId);
+                Glide.get(this)
+                .register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(RestClient.getOk()));
+
         mPager = (MainViewPager) findViewById(R.id.pager);
         mPager.setOffscreenPageLimit(2);
         mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
@@ -326,47 +337,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
             }
         }).execute();
-//        new AsyncTask() {
-//            @Override
-//            protected Object doInBackground(Object[] params) {
-//
-//                try {
-//                    GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(getApplicationContext());
-//
-//                    String deviceToken = null;
-//                    try {
-//                        deviceToken = gcm.register(Global.PROJECT_ID);
-//
-//
-//                        HttpClient httpclient = new DefaultHttpClient();
-//                        HttpPost httppost = new HttpPost("http://web.ist.utl.pt/ist170638/tappitz/append_id.php");
-//
-//                        try {
-//                            // Add your data
-//                            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-//                            nameValuePairs.add(new BasicNameValuePair("id", deviceToken));
-//                            httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-//
-//                            // Execute HTTP Post Request
-//                            HttpResponse response = httpclient.execute(httppost);
-//
-//                        } catch (ClientProtocolException e) {
-//                            // TODO Auto-generated catch block
-//                        } catch (IOException e) {
-//                            // TODO Auto-generated catch block
-//                        }
-//
-//                    } catch (IOException e) {
-//                        e.printStackTrace();
-//                    }
-//                    Log.i("GCM", "Device token : " + deviceToken);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//                return null;
-//            }
-//
-//        }.execute();
     }
 
     private void goToLoginActivity(){
@@ -403,8 +373,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
 
     public void enableSwipe(boolean enable){
-//        if(mPager != null)
-//            mPager.setPagingEnabled(enable);
         if(enable)
             bringToFrontmPager();
         else
@@ -472,16 +440,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     }
 
     public interface HomeToBlankListener {
-        public void onCameraAvailable();
+         void onCameraAvailable();
     }
 
     public interface SplashScreenListener {
-        public void onCameraAvailable();
+         void onCameraAvailable();
     }
-
-//    public interface BlankToHomeListener {
-//        public void getText(String text);
-//    }
 
     public void callbackCameraAvailable(){
         try {
@@ -521,5 +485,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     public void setReloadInboxListener(InBoxFragment.OnNewPhotoReceived reloadInboxListener) {
         this.reloadInboxListener = reloadInboxListener;
+    }
+
+
+    public OutBoxFragment.UpdateAfterPicture getUpdateAfterPicture() {
+        return updateAfterPicture;
+    }
+
+    public void setUpdateAfterPicture(OutBoxFragment.UpdateAfterPicture updateAfterPicture) {
+        this.updateAfterPicture = updateAfterPicture;
     }
 }

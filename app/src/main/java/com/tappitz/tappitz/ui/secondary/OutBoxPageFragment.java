@@ -1,6 +1,7 @@
 package com.tappitz.tappitz.ui.secondary;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -18,14 +19,22 @@ import android.widget.TextView;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.integration.okhttp.OkHttpUrlLoader;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.load.model.UrlLoader;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
+import com.squareup.okhttp.Interceptor;
+import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.Request;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
@@ -37,10 +46,16 @@ import com.tappitz.tappitz.ui.InBoxFragment;
 import com.tappitz.tappitz.ui.OutBoxFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit.RetrofitError;
+import retrofit.client.OkClient;
 import retrofit.client.Response;
 
 public class OutBoxPageFragment extends Fragment implements View.OnClickListener {
@@ -81,14 +96,53 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 //            imageLoader = AppController.getInstance().getImageLoader();
 //        imageView.setImageUrl(url, imageLoader);
 
-        GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
-                .setHeader("Session-Id", AppController.getInstance().getSessionId())
-                .build());
+//        Glide.get(getActivity())
+//                .register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(RestClient.getOk()));
+
+
+//        final GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
+//                .setHeader("Session-Id", AppController.getInstance().getSessionId())
+//                .build());
         Glide.with(this)
-                .load(uri)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .load(url)
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        Log.d("myapp", "onException :" + model + " |||");
+                        Log.d("myapp", "onException e:" + e.getMessage() + " |vcvcvcv|| " + target.toString());
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        Log.d("myapp", "onResourceReady isFromMemoryCache:" + isFromMemoryCache + " ||| isFirstResource: " + isFirstResource + " url:" + model);
+                        return false;
+                    }
+                })
                 .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView);
+
+
+//        new Picasso.Builder(getActivity()).downloader(new OkHttpDownloader(RestClient.getOk())).build().load(url).fit().into(imageView);
+
+
+
+
+//        Picasso.Builder builder = new Picasso.Builder(getActivity());
+//        Picasso picasso =  builder.downloader(new OkHttpDownloader(getActivity()) {
+//            @Override
+//            protected HttpURLConnection openConnection(Uri uri) throws IOException {
+//                HttpURLConnection connection = super.openConnection(uri);
+//                connection.setRequestProperty("Session-Id", AppController.getInstance().getSessionId());
+//                return connection;
+//            }
+//        }).build();
+//        picasso.load(url).centerCrop().into(imageView);
+
+
+
+
 
 //        Picasso.with(getActivity())
 //                .load(url)
@@ -180,6 +234,44 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     }
 
 
+//
+//    public static OkHttpDownloader getOkHttpDownloader(final HashMap<String, String> headers) {
+//        OkHttpClient okHttpClient = mHttpClient.clone();
+//
+//        okHttpClient.interceptors().add(new Interceptor() {
+//            @Override
+//            public Response intercept(Interceptor.Chain chain) throws IOException {
+//                Picasso.Builder builder = chain.request().newBuilder();
+//
+//                if (!headers.isEmpty())
+//                    for (Map.Entry<String, String> entry : headers.entrySet())
+//                        builder.addHeader(entry.getValue(), entry.getKey());
+//
+//                Request newRequest = builder.build();
+//                return chain.proceed(newRequest);
+//            }
+//        });
+//        return new OkHttpDownloader(okHttpClient);
+//    }
+
+
+//    public static Picasso getImageLoader(Context ctx) {
+//
+//
+//
+//        Picasso.Builder builder = new Picasso.Builder(ctx);
+//        builder.downloader(new OkHttpDownloader(ctx) {
+//            @Override
+//            protected HttpURLConnection openConnection(Uri uri) throws IOException {
+//                super
+//                HttpURLConnection connection = super.openConnection(uri);
+//                connection.setRequestProperty("X-HEADER", "VAL");
+//                return connection;
+//            }
+//        });
+//        return builder.build();
+//    }
+
 
     @Override
     public void onResume(){
@@ -205,7 +297,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         ((OutBoxFragment)getParentFragment()).removeStateChange(state);
     }
 
-
     public void showButtonsAndBackground(boolean show){
 
         descriptionText.setVisibility(show? View.VISIBLE : View.GONE);
@@ -213,9 +304,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         color_background.setVisibility(show? View.GONE : View.VISIBLE);
         comment_layout.setVisibility(show? View.GONE : View.VISIBLE);
     }
-
-
-
 
     private void dummyListComments(){
         List<Comment> comments = new ArrayList<>();
@@ -239,12 +327,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                     break;
             }
         }
-
         resetComments();
-
-
-
-
     }
 
     private void resetComments(){
@@ -276,7 +359,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
         if(getList(list).size() == 0)
             return;
-
 
         List<Comment> commentList = getList(list);
         Comment comment = commentList.get(selectedPos);
@@ -355,14 +437,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             case R.id.botaoVermelho:
                 getNext(Global.RED);
                 break;
-//            case R.id.picture:
-//                Log.d("myapp", "containercontainer");
-//                color_background.setVisibility(View.GONE);
-//                comment_layout.setVisibility(View.GONE);
-//                resetComments();
-//                break;
-
         }
-        //Toast.makeText(v.getContext(), "Clicked Position: " + position, Toast.LENGTH_LONG).show();
     }
 }

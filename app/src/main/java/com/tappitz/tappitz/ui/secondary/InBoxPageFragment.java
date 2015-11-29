@@ -28,6 +28,7 @@ import com.bumptech.glide.load.model.LazyHeaders;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.SendVotePictureService;
 import com.tappitz.tappitz.ui.InBoxFragment;
@@ -38,7 +39,7 @@ import com.tappitz.tappitz.util.VerticalViewPager;
 public class InBoxPageFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
     private View rootView, layout_vote, layout_container;
-    private TextView textViewOwner, textViewDate;
+    private TextView textViewOwner, textViewDate, yourComment;
     private Button botaoVermelho, botaoAmarelo, botaoVerde;
     private ImageView color_background;
     private EditText editTextComment;
@@ -63,6 +64,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         rootView = inflater.inflate(R.layout.fragment_inbox_child, container, false);
         ImageView imageView = (ImageView)rootView.findViewById(R.id.picture);
 
+        Log.d("myapp", "inbox Redraw.............................");
+
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         text = getArguments().getString(Global.TEXT_RESOURCE);
         id = getArguments().getInt(Global.ID_RESOURCE);
@@ -76,11 +79,11 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 //            imageLoader = AppController.getInstance().getImageLoader();
 //        imageView.setImageUrl(url, imageLoader);
 
-        GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
-                .setHeader("Session-Id", AppController.getInstance().getSessionId())
-                .build());
+//        GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
+//                .setHeader("Session-Id", AppController.getInstance().getSessionId())
+//                .build());
         Glide.with(this)
-                .load(uri)
+                .load(url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
                 .into(imageView);
@@ -100,6 +103,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         editTextComment = (EditText)rootView.findViewById(R.id.editTextComment);
         layout_vote = rootView.findViewById(R.id.layout_vote);
         layout_container = rootView.findViewById(R.id.container);
+        yourComment = (TextView)rootView.findViewById(R.id.yourComment);
+        yourComment.setText(myComment);
         TextView textview = (TextView) rootView.findViewById(R.id.photo_description);
         textview.setText(text);
         TextView textViewVoted = (TextView) rootView.findViewById(R.id.photo_description_voted);
@@ -274,7 +279,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         botaoVermelho.setEnabled(false);
         botaoAmarelo.setEnabled(false);
         botaoVerde.setEnabled(false);
-        String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
+        final String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
         new SendVotePictureService(comment, id, vote, new CallbackMultiple<Boolean, String>() {
             @Override
             public void success(Boolean response) {
@@ -292,8 +297,9 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                     if(nextPage > 0) {
                         animatePagerTransition(true, pager);
                         //pager.setCurrentItem(nextPage, true);
-
                     }
+
+                    ((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
                 }
             }
 

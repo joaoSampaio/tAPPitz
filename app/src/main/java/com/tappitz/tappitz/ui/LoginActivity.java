@@ -190,49 +190,54 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 break;
             case R.id.btn_login:
                 Log.d("myapp", "****loginBtn**");
-                if (validators()) {
-                    Log.d("myapp", "****validators**");
-
-                    login.setEnabled(false);
-                    editEmail.setEnabled(false);
-                    editPassword.setEnabled(false);
-                    //progressGenerator.start(login);
-                    login.setProgress(50);
-                    final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
-
-                    new LoginService(editEmail.getText().toString(), editPassword.getText().toString(), new CallbackMultiple<String, String>() {
-                        @Override
-                        public void success(String sessionId) {
-
-                            if(sessionId.length() > 0){
-                                SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-//                                SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
-                                SharedPreferences.Editor editor = sp.edit();
-                                editor.putString("sessionId", sessionId);
-                                editor.commit();
-                                Log.d("myapp", "***login**sessionId*" + sessionId);
-                                RestClient.setSessionId(sessionId);
-                                login.setProgress(100);
-                                onSuccessLogin();
-                            }
-                        }
-
-                        @Override
-                        public void failed(String error) {
-
-                            login.setEnabled(true);
-                            editEmail.setEnabled(true);
-                            editPassword.setEnabled(true);
-                            progressDialog.dismiss();
-                            login.setProgress(-1);
-                                Log.d("myapp", "***login**error*" + error);
-                                editEmail.setError( error);
-
-                            //onSuccessLogin();
-                        }
-                    }).execute();
-                }
+                login(editEmail.getText().toString(), editPassword.getText().toString());
                 break;
+        }
+    }
+
+    private void login(String email, String password){
+
+        if (validators()) {
+            Log.d("myapp", "****validators**");
+
+            login.setEnabled(false);
+            editEmail.setEnabled(false);
+            editPassword.setEnabled(false);
+            //progressGenerator.start(login);
+            login.setProgress(50);
+            final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
+
+            new LoginService(email, password, new CallbackMultiple<String, String>() {
+                @Override
+                public void success(String sessionId) {
+
+                    if(sessionId.length() > 0){
+                        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+//                                SharedPreferences sp = getSharedPreferences("your_prefs", Activity.MODE_PRIVATE);
+                        SharedPreferences.Editor editor = sp.edit();
+                        editor.putString("sessionId", sessionId);
+                        editor.commit();
+                        Log.d("myapp", "***login**sessionId*" + sessionId);
+                        RestClient.setSessionId(sessionId);
+                        login.setProgress(100);
+                        onSuccessLogin();
+                    }
+                }
+
+                @Override
+                public void failed(String error) {
+
+                    login.setEnabled(true);
+                    editEmail.setEnabled(true);
+                    editPassword.setEnabled(true);
+                    progressDialog.dismiss();
+                    login.setProgress(-1);
+                    Log.d("myapp", "***login**error*" + error);
+                    editEmail.setError( error);
+
+                    //onSuccessLogin();
+                }
+            }).execute();
         }
     }
 
@@ -269,12 +274,15 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                     editPassword.setText(registerPassword.getText().toString());
                     screens.add(R.id.screen_reg2);
                     showScreen(R.id.screen_login);
+
+                    login(editEmail.getText().toString(), editPassword.getText().toString());
                 }else{
                     Log.d("myapp", "***get(status)**false*");
                     String error = json.getAsJsonObject().get("error").toString();
                     editPassword.setError(error);
                 }
                 progressDialog.dismiss();
+
 
             }
 

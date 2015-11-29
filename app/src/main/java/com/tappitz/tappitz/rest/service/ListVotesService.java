@@ -43,6 +43,8 @@ public class ListVotesService implements ServerCommunicationService {
                 }.getType());
                 //Log.d("myapp", "genericContacts: " + outbox.size());
 
+                if(votes == null)
+                    votes = new ArrayList<Vote>();
                 List<Comment> comments = new ArrayList<Comment>();
                 Comment c;
                 for (Vote v: votes) {

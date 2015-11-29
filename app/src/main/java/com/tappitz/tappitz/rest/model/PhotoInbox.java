@@ -25,6 +25,12 @@ public class PhotoInbox {
         this.vote = vote;
     }
 
+    public PhotoInbox(int pictureId, String comment, int vote) {
+        this.pictureId = pictureId;
+        this.comment = comment;
+        this.vote = vote;
+    }
+
     public String getUrl() {
         return Global.ENDPOINT + "/pictures/"+pictureId;
 ///  return "https://upload.wikimedia.org/wikipedia/pt/e/ed/IST_Logo.png";

@@ -4,9 +4,13 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Request;
+import com.squareup.okhttp.Response;
 import com.tappitz.tappitz.Global;
 
+import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +28,8 @@ public class RestClient {
     private static String sessionId;
 
     private static Api api;
+
+    private static OkHttpClient okHttpClient;
 
     public static String getSessionId(){
         return sessionId;
@@ -52,12 +58,35 @@ public class RestClient {
         }
     };
 
+    public static final OkHttpClient getOk(){
+        if(okHttpClient == null) {
+            OkHttpClient picassoClient = new OkHttpClient();
+            picassoClient.networkInterceptors().add(new Interceptor() {
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+                    Request newRequest = chain.request().newBuilder()
+                            .addHeader("Session-Id", sessionId)
+                            .build();
+                    return chain.proceed(newRequest);
+                }
+            });
+            picassoClient.setConnectTimeout(2, TimeUnit.MINUTES);
+            picassoClient.setReadTimeout(2, TimeUnit.MINUTES);
+            picassoClient.setWriteTimeout(2, TimeUnit.MINUTES);
+            okHttpClient = picassoClient;
+        }
+
+        return okHttpClient;
+    }
+
+
+
     public static final Api getService() {
         if(RestClient.getApi() == null){
             OkHttpClient client = new OkHttpClient(); //create OKHTTPClient
             client.setConnectTimeout(2, TimeUnit.MINUTES);
-            client.setReadTimeout(0, TimeUnit.MINUTES);
-            client.setWriteTimeout(0, TimeUnit.MINUTES);
+            client.setReadTimeout(2, TimeUnit.MINUTES);
+            client.setWriteTimeout(2, TimeUnit.MINUTES);
             CookieManager cookieManager = new CookieManager();
             cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
             client.setCookieHandler(cookieManager); //finally set the cookie handler on client

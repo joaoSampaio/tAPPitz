@@ -1,5 +1,8 @@
 package com.tappitz.tappitz.ui;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -9,16 +12,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.OutBoxPagerAdapter;
+import com.tappitz.tappitz.model.ListViewContactItem;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListInboxService;
 import com.tappitz.tappitz.rest.service.ListOutboxService;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
+import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +49,7 @@ public class OutBoxFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_out_box, container, false);
-
+        //new UploadImageAsyncTask().execute();
 
         //depois de pedir ao servidor um json com os dados crio uma lista de modelos e crio o pageview
         photos = new ArrayList<>();
@@ -67,6 +77,8 @@ public class OutBoxFragment extends Fragment {
             }
 
         });
+
+        loadOffline();
         refreshOutbox();
 
 
@@ -77,11 +89,30 @@ public class OutBoxFragment extends Fragment {
             }
         });
 
+        ((ScreenSlidePagerActivity)getActivity()).setUpdateAfterPicture(new UpdateAfterPicture() {
+            @Override
+            public void updateOutbox(PhotoOutbox outbox) {
+                if(photos != null){
+                    if(!hasPhoto(outbox.getId())){
+                        photos.add(0, outbox);
+                        adapter.notifyDataSetChanged();
+                    }
+                }
 
 
-
+            }
+        });
         return rootView;
     }
+
+    private boolean hasPhoto(int id){
+        for (PhotoOutbox out: photos) {
+           if(out.getId() == id)
+               return true;
+        }
+        return false;
+    }
+
 
     @Override
     public void onDestroy() {
@@ -93,16 +124,18 @@ public class OutBoxFragment extends Fragment {
             @Override
             public void success(List<PhotoOutbox> response) {
                 if(response != null && response.size() > 0) {
-                    viewPager.setCurrentItem(0);
+                    int currentPage = viewPager.getCurrentItem();
+
+
                     photos.clear();
                     photos.addAll(response);
-                    //viewPager.setAdapter(adapter);
                     adapter.notifyDataSetChanged();
+                    currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
+                    viewPager.setCurrentItem(currentPage);
+                    new ModelCache<List<PhotoOutbox>>().saveModel(getActivity(), photos, Global.OFFLINE_OUTBOX);
                 }else {
                     OnDoneLoading();
                 }
-
-
             }
 
             @Override
@@ -112,19 +145,24 @@ public class OutBoxFragment extends Fragment {
         }).execute();
     }
 
+    private void loadOffline(){
+        Log.d("myapp", "**--loadOffline:");
+        if(photos.size() == 0) {
+            List<PhotoOutbox> tmp = new ModelCache<List<PhotoOutbox>>().loadModel(getActivity(),new TypeToken<List<PhotoOutbox>>(){}.getType(), Global.OFFLINE_OUTBOX);
+            Log.d("myapp", "**--loadOffline tmp != null:" + (tmp != null));
+            Log.d("myapp", "**--loadOffline tmp.size() > 0:" + (tmp.size() > 0));
+            Log.d("myapp", "**--loadOffline tmp.get(0) instanceof PhotoOutbox:" + (tmp.get(0) instanceof PhotoOutbox));
+            if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof PhotoOutbox) {
+                Log.d("myapp", "**--loadOffline: inside ");
+                photos.addAll(tmp);
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
+
     private void OnDoneLoading(){
 
-
-//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/1.jpg", 1, "Gostas deste edificio?"));
-//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/2.jpg", 2, "Parece mesmo alto?"));
-//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/3.jpg", 4, "Curtes"));
-//        photos.add(new PhotoOutbox("https://dl.dropboxusercontent.com/u/68830630/tAppitz/4.jpg", 5, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
-//
-//        photos.add(new PhotoOutbox("http://cdn.bgr.com/2014/07/android-blue.jpg", 6, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
-//        photos.add(new PhotoOutbox("http://cdn.gsmarena.com/vv/newsimg/14/06/androidone/gsmarena_001.jpg", 8, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
-//        photos.add(new PhotoOutbox("https://gigaom.com/wp-content/uploads/sites/1/2011/01/android-vs-ios.jpeg?quality=80&strip=all", 9, "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :)"));
-
-        //notifico o adapter para atualizar a lista
         adapter.notifyDataSetChanged();
     }
 
@@ -140,6 +178,29 @@ public class OutBoxFragment extends Fragment {
     public void removeStateChange(ListenerPagerStateChange stateChange) {
         if(this.stateChange != null) {
             this.stateChange.remove(stateChange);
+        }
+    }
+
+
+    public interface UpdateAfterPicture{
+        void updateOutbox(PhotoOutbox outbox);
+    }
+
+
+
+
+    private class UploadImageAsyncTask extends AsyncTask {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected Object doInBackground(Object[] params) {
+            Glide.get(getActivity()).clearDiskCache();
+            Glide.get(getActivity()).clearMemory();
+            return null;
         }
     }
 

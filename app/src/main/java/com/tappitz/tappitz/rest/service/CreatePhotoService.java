@@ -38,7 +38,7 @@ public class CreatePhotoService implements ServerCommunicationService {
                 JsonObject obj = json.getAsJsonObject();
                 boolean status = obj.get("status").getAsBoolean();
                 if(status)
-                    callback.success(status);
+                    callback.success(obj.get("id").getAsInt());
                 else
                     callback.failed(obj.get("error").getAsString());
             }

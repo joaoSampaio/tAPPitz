@@ -175,8 +175,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="@string/descricaoFoto"
                 android:id="@+id/photo_description_voted"
+                android:inputType="textMultiLine"
+                android:gravity="left"
+                style="@style/SelectBar"
+                android:layout_gravity="right|top"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:id="@+id/yourComment"
                 android:inputType="textMultiLine"
                 android:gravity="left"
                 style="@style/SelectBar"

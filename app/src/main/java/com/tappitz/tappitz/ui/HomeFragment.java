@@ -45,6 +45,7 @@ import com.tappitz.tappitz.camera.ControlCameraTask;
 import com.tappitz.tappitz.camera.PhotoSave;
 import com.tappitz.tappitz.camera.SavePhotoBackgroundTask;
 import com.tappitz.tappitz.camera.UriPath;
+import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CreatePhotoService;
 import com.tappitz.tappitz.ui.secondary.SelectContactFragment;
@@ -267,12 +268,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     Log.d("myapp", "btn_shutter2");
                     ((ScreenSlidePagerActivity) getActivity()).enableSwipe(false);
                     onTakePick(true);
-                }else{
-                    Log.d("myapp", "****************btn_shutter erro");
-                    Log.d("myapp", "btn_shutter erro");
-                    Log.d("myapp", "btn_shutter erro");
-                    Log.d("myapp", "btn_shutter erro");
-                    Log.d("myapp", "btn_shutter erro");
                 }
                 break;
 
@@ -410,12 +405,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-
-        // Create and show the dialog.
-
         if(pictureBase64 == null || pictureBase64.equals("")){
-
-
             try {
                 InputStream inputStream = null;//You can get an inputStream using any IO API
                 inputStream = new FileInputStream(photoPath);
@@ -448,15 +438,19 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
             @Override
             public void sendPhoto(final List<Integer> contacts) {
-                new CreatePhotoService(comment, contacts, pictureBase64, new CallbackMultiple<Boolean, String>() {
+                new CreatePhotoService(comment, contacts, pictureBase64, new CallbackMultiple<Integer, String>() {
                     @Override
-                    public void success(Boolean response) {
+                    public void success(Integer pictureId) {
                         if (getActivity() != null) {
                             ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
                             Toast.makeText(getActivity(), "Photo sent", Toast.LENGTH_SHORT).show();
+
+                            PhotoOutbox out = new PhotoOutbox(pictureId, comment);
+                            if (((ScreenSlidePagerActivity) getActivity()).getUpdateAfterPicture() != null) {
+                                ((ScreenSlidePagerActivity) getActivity()).getUpdateAfterPicture().updateOutbox(out);
+                            }
                         }
                         deletePrevious();
-                        //rootView.findViewById(R.id.btnPhotoDelete).callOnClick();
                     }
 
                     @Override
@@ -466,7 +460,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                         //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
                     }
                 }).execute();
-
             }
         });
         newFragment.show(ft, "dialog");
@@ -589,9 +582,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         //Toast.makeText(getActivity(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
         previewing = true;
         btn_shutter.setVisibility(View.VISIBLE);
-        //camera_options.setVisibility(View.VISIBLE);
         showBtnOptions(true);
-
         try {
             if(AppController.getInstance().mCamera != null){
                 Log.d("myapp", "setPreviewCallback: ");
@@ -601,13 +592,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     //nao funciona
                     AppController.getInstance().mCamera.setPreviewCallback(previewCb);
                 }
-                //
-
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     Long currentTime;
@@ -621,15 +609,10 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             @Override
             public void onDone() {
                 onCameraAvailable();
-
             }
 
             @Override
             public void onError() {
-
-
-//                stop_camera();
-//                start_camera();
             }
         });
         c.execute(true);
@@ -638,15 +621,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
 
     public void cameraReturn(){
-        Log.d("myapp", "************cameraReturn");
-//        String[] allPath = new String[photoPath.size()];
-//        for (int i = 0; i < allPath.length; i++) {
-//            allPath[i] = photoPath.get(i);
-//        }
-//
-//        Intent data = new Intent().putExtra("all_path", allPath);
-//        setResult(RESULT_OK, data);
-//        finish();
     }
 
 
@@ -765,26 +739,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         }
 
     };
-
-    // Mimic continuous auto-focusing
-//    Camera.AutoFocusCallback autoFocusCB = new Camera.AutoFocusCallback()
-//    {
-//        public void onAutoFocus(boolean success, Camera camera)
-//        {
-//            Log.d("myapp", "*************************onAutoFocus: " );
-//            autoFocusHandler.postDelayed(doAutoFocus, 2000);
-//        }
-//    };
-//
-//    private Runnable doAutoFocus = new Runnable()
-//    {
-//        public void run()
-//        {
-//            Log.d("myapp", "*************************doAutoFocus run: " );
-//            if (previewing)
-//                AppController.getInstance().mCamera.autoFocus(autoFocusCB);
-//        }
-//    };
 
     public void showToast(String msg){
         try {

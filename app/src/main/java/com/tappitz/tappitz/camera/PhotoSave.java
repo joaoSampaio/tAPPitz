@@ -23,7 +23,8 @@ public class PhotoSave {
         if (true == isExternalStoragePresent())
         {
             //MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera");
+            File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString() + "/tAPPitz");
+//            File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera");
 
             if (!mediaStorageDir.exists())
             {
@@ -36,12 +37,7 @@ public class PhotoSave {
 
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             File mediaFile;
-
-
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
-
-
-
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "tAPPitz_" + timeStamp + ".jpg");
             return mediaFile;
         }
         else
@@ -152,19 +148,6 @@ public class PhotoSave {
                     } catch (IOException e) {
                         Log.d("CAMERA", e.getMessage());
                     }
-
-
-
-
-
-
-//                File file = PhotoSave.getOutputMediaFile();
-//                outStream = new FileOutputStream(file);
-//                outStream.write(photoData);
-//                outStream.close();
-//
-//                photoPath = file.getAbsolutePath();
-//                getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
 
             } catch (Exception e) {
                 Log.d("CAMERA", e.getMessage());

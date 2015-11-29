@@ -48,7 +48,7 @@ public class ListOutboxService implements ServerCommunicationService {
             @Override
             public void failure(RetrofitError error) {
                 Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
+                callback.failed(error.toString());
             }
         });
     }

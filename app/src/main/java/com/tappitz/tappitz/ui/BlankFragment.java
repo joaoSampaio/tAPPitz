@@ -93,47 +93,45 @@ public class BlankFragment extends Fragment  {
 
                         camera_options.setTag("hide");
                         ((ScreenSlidePagerActivity) getActivity()).pass(camera_options);
-//                        if(AppController.getInstance().mCamera != null){
-//                            Log.d("myapp", "autoFocus autoFocus");
-//                            AppController.getInstance().mCamera.autoFocus(myAutoFocusCallback);
-//                        }
-                        Camera camera = AppController.getInstance().mCamera;
-                        if (camera != null) {
-                            camera.cancelAutoFocus();
-                            //Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
-                            Rect focusRect = calculateFocusArea(event.getX(), event.getY(), event.getTouchMajor(), event.getTouchMinor());
-                            Camera.Parameters parameters = camera.getParameters();
-                            if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_AUTO) {
-                                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                            }
-                            if (parameters.getMaxNumFocusAreas() > 0) {
-                                List<Camera.Area> mylist = new ArrayList<Camera.Area>();
-                                mylist.add(new Camera.Area(focusRect, 1000));
-                                parameters.setFocusAreas(mylist);
-                            }
 
-                            try {
-                                camera.cancelAutoFocus();
-                                camera.setParameters(parameters);
-                                camera.startPreview();
-                                camera.autoFocus(new Camera.AutoFocusCallback() {
-                                    @Override
-                                    public void onAutoFocus(boolean success, Camera camera) {
-                                        if (camera.getParameters().getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
-                                            Camera.Parameters parameters = camera.getParameters();
-                                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-                                            if (parameters.getMaxNumFocusAreas() > 0) {
-                                                parameters.setFocusAreas(null);
-                                            }
-                                            camera.setParameters(parameters);
-                                            camera.startPreview();
-                                        }
-                                    }
-                                });
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        }
+
+//                        Camera camera = AppController.getInstance().mCamera;
+//                        if (camera != null) {
+//                            camera.cancelAutoFocus();
+//                            //Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
+//                            Rect focusRect = calculateFocusArea(event.getX(), event.getY(), event.getTouchMajor(), event.getTouchMinor());
+//                            Camera.Parameters parameters = camera.getParameters();
+//                            if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_AUTO) {
+//                                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+//                            }
+//                            if (parameters.getMaxNumFocusAreas() > 0) {
+//                                List<Camera.Area> mylist = new ArrayList<Camera.Area>();
+//                                mylist.add(new Camera.Area(focusRect, 1000));
+//                                parameters.setFocusAreas(mylist);
+//                            }
+//
+//                            try {
+//                                camera.cancelAutoFocus();
+//                                camera.setParameters(parameters);
+//                                camera.startPreview();
+//                                camera.autoFocus(new Camera.AutoFocusCallback() {
+//                                    @Override
+//                                    public void onAutoFocus(boolean success, Camera camera) {
+//                                        if (camera.getParameters().getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
+//                                            Camera.Parameters parameters = camera.getParameters();
+//                                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+//                                            if (parameters.getMaxNumFocusAreas() > 0) {
+//                                                parameters.setFocusAreas(null);
+//                                            }
+//                                            camera.setParameters(parameters);
+//                                            camera.startPreview();
+//                                        }
+//                                    }
+//                                });
+//                            } catch (Exception e) {
+//                                e.printStackTrace();
+//                            }
+//                        }
 
 
 

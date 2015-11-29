@@ -62,5 +62,6 @@ public class Global {
     public static final String OPERATION_TYPE_DELETE = "DELETE";
 
 
+    public static final String OFFLINE_OUTBOX = "OFFLINE_OUTBOX";
 
 }
