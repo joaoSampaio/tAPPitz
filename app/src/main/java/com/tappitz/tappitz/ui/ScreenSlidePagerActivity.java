@@ -14,6 +14,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.util.Log;
 import android.view.View;
@@ -26,6 +27,7 @@ import com.google.android.gms.gcm.GoogleCloudMessaging;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.notification.RegistrationIntentService;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.GoogleId;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
@@ -34,16 +36,7 @@ import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.rest.service.SendGoogleIdService;
 import com.tappitz.tappitz.util.MainViewPager;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BasicNameValuePair;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,6 +51,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     private String sessionId;
     private InBoxFragment.OnNewPhotoReceived reloadInboxListener;
     private HomeToBlankListener listenerCamera;
+    private CameraBackPressed cameraBackPressed;
     private OutBoxFragment.UpdateAfterPicture updateAfterPicture;
 //    private SplashScreenListener listenerSplash;
 
@@ -97,7 +91,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     public void onResume(){
         super.onResume();
         Log.d("myapp", "****onResume onResume onResume: " );
-        this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
         signIn = false;
         cameraReady = false;
         findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
@@ -129,7 +123,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         public void onReceive(Context context, Intent intent) {
 
             // Extract data included in the Intent
-            String message = intent.getStringExtra("message");
+            //String message = intent.getStringExtra("message");
             Log.d("myapp3", "onReceive mMessageReceiver");
             //do other stuff here
 
@@ -140,6 +134,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
             }
 
+            for (String key :  intent.getExtras().keySet()) {
+                Object value =  intent.getExtras().get(key);
+                Log.d("BroadcastReceiver 22 :", String.format("%s %s (%s)", key,
+                        value.toString(), value.getClass().getName()));
+            }
+
+
+
             if(intent.hasExtra("action"))
                 action = intent.getExtras().getString("action");
             if(action != null){
@@ -147,12 +149,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                 switch (action){
 
                     case Global.NOTIFICATION_ACTION_INVITE:
-                        //showFriends();
+                        showFriends();
                         break;
                     case Global.NOTIFICATION_ACTION_NEW_PHOTO:
                         if(reloadInboxListener != null)
                             reloadInboxListener.refreshViewPager();
-
+                        showPage(Global.INBOX);
                        // mPager.setCurrentItem(0);
                         break;
                 }
@@ -169,21 +171,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        this.unregisterReceiver(mMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
-
-    //register your activity onResume()
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        this.registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
-////        if (Build.VERSION.SDK_INT >= 16) {
-////            View decorView = getWindow().getDecorView();
-////// Hide the status bar.
-////            int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-////            decorView.setSystemUiVisibility(uiOptions);
-////        }
-//    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -205,7 +194,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                     showFriends();
                     break;
                 case Global.NOTIFICATION_ACTION_NEW_PHOTO:
-                    mPager.setCurrentItem(0);
+                    showPage(Global.INBOX);
                     break;
             }
 
@@ -325,18 +314,21 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         if(isCameraReady())
             closeSplashScreen();
 
+        Log.d("myapp", "startService(intentRegister); ");
+        Intent intentRegister = new Intent(this, RegistrationIntentService.class);
+        startService(intentRegister);
 
-        new SendGoogleIdService(getApplicationContext(), new CallbackMultiple() {
-            @Override
-            public void success(Object response) {
-
-            }
-
-            @Override
-            public void failed(Object error) {
-
-            }
-        }).execute();
+//        new SendGoogleIdService(getApplicationContext(), new CallbackMultiple() {
+//            @Override
+//            public void success(Object response) {
+//
+//            }
+//
+//            @Override
+//            public void failed(Object error) {
+//
+//            }
+//        }).execute();
     }
 
     private void goToLoginActivity(){
@@ -384,15 +376,21 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     @Override
     public void onBackPressed() {
         try {
-            if (mPager.getCurrentItem() != 1)
-                mPager.setCurrentItem(1);
-            else {
-                finish();
+            //se não houver um listener, ou seja, o fragmento da camera não tiver registado, ou se não tiver o menu após ter tirado a foto aberta
+            if(getCameraBackPressed() == null || getCameraBackPressed().onBackPressed()) {
+                if (mPager.getCurrentItem() != 1)
+                    mPager.setCurrentItem(1);
+                else {
+                    finish();
+                }
             }
         }catch (Exception e){
             Log.d("myapp", "onback error");
         }
+
     }
+
+
 
     /**
      * A simple pager adapter that represents 5 OutBoxPageFragment objects, in
@@ -409,15 +407,15 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
             Fragment fragment = null;
             switch (position){
 
-                case 0:
+                case Global.INBOX:
 //                    fragment = new BlankFragment();
                     fragment = new InBoxFragment();
                     break;
-                case 1:
+                case Global.HOME:
 //                    fragment = new HomeFragment();
                     fragment = new BlankFragment();
                     break;
-                case 2:
+                case Global.OUTBOX:
 //                    fragment = new BlankFragment();
                     fragment = new OutBoxFragment();
                     break;
@@ -443,8 +441,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
          void onCameraAvailable();
     }
 
-    public interface SplashScreenListener {
-         void onCameraAvailable();
+    public interface CameraBackPressed {
+         boolean onBackPressed();
     }
 
     public void callbackCameraAvailable(){
@@ -494,5 +492,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     public void setUpdateAfterPicture(OutBoxFragment.UpdateAfterPicture updateAfterPicture) {
         this.updateAfterPicture = updateAfterPicture;
+    }
+
+    public CameraBackPressed getCameraBackPressed() {
+        return cameraBackPressed;
+    }
+
+    public void setCameraBackPressed(CameraBackPressed cameraBackPressed) {
+        this.cameraBackPressed = cameraBackPressed;
     }
 }

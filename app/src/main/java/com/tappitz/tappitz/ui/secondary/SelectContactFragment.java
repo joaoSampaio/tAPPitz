@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -53,51 +54,10 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
         getDialog().setTitle("Select contacts:");
         loadUI();
 
-        //get contact list from server
         refresh();
 
         return rootView;
     }
-
-//    @Override
-//    public void onStart()
-//    {
-//        super.onStart();
-//        Dialog dialog = getDialog();
-//        if (dialog != null)
-//        {
-//            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-//            int height = ViewGroup.LayoutParams.MATCH_PARENT;
-//            dialog.getWindow().setLayout(width, height);
-//        }
-//    }
-
-//    @Override
-//    public Dialog onCreateDialog(Bundle savedInstanceState) {
-//
-//        return new AlertDialog.Builder(getActivity())
-//                .setIcon(R.drawable.ic_switch_camera)
-//                .setTitle("Select contacts22")
-//                .setPositiveButton("Send",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int whichButton) {
-//                                Toast.makeText(getActivity(), "Send", Toast.LENGTH_SHORT);
-//                                //((FragmentAlertDialog)getActivity()).doPositiveClick();
-//                            }
-//                        }
-//                )
-//                .setNegativeButton("Back",
-//                        new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int whichButton) {
-////                                ((FragmentAlertDialog)getActivity()).doNegativeClick();
-//                            }
-//                        }
-//                )
-//                .create();
-//    }
-
-
-
 
     private void loadUI(){
 
@@ -136,8 +96,9 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
                 List<Integer> selected = adapter.getSelectedContacts();
                 if(selected.size() > 0){
                     if(listener != null) {
+                        ((Button)v).setEnabled(false);
                         listener.sendPhoto(selected);
-                        dismiss();
+                        //dismiss();
                     }
                 }else{
                     Toast.makeText(getActivity(), "Select a contact", Toast.LENGTH_SHORT).show();
@@ -185,8 +146,6 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
             @Override
             public void failed(String error) {
                 showToast(error);
-                //Toast.makeText(getActivity(), "Erro", Toast.LENGTH_SHORT).show();
-                //loadDummyContacts();
                 swipeLayout.setRefreshing(false);
             }
         }).execute();
@@ -202,14 +161,6 @@ public class SelectContactFragment extends DialogFragment implements SwipeRefres
             //pede a lista de todos os contactos
             loadContacts();
         }
-    }
-
-    private void loadDummyContacts(){
-        allContactsList.clear();
-        allContactsList.add(new ListViewContactItem(new Contact("joao miguel", "joaomiguel@gmail.com",1)));
-        allContactsList.add(new ListViewContactItem(new Contact("joao sampaio", "joao@gmail.com", 3)));
-        adapter.notifyDataSetChanged();
-        checkIfHasContacts(allContactsList.size());
     }
 
     public void showToast(String msg){

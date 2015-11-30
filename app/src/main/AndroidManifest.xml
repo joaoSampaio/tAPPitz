@@ -14,17 +14,6 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
-    <!--&lt;!&ndash;-->
-     <!--To retrieve OAuth 2.0 tokens or invalidate tokens to disconnect a user. This disconnect-->
-     <!--option is required to comply with the Google+ Sign-In developer policies-->
-    <!--&ndash;&gt;-->
-    <!--<uses-permission android:name="android.permission.USE_CREDENTIALS" /> &lt;!&ndash; To retrieve the account name (email) as part of sign-in: &ndash;&gt;-->
-    <!--<uses-permission android:name="android.permission.READ_PROFILE" />-->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS" />-->
-
-
-
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
@@ -74,16 +63,52 @@
         </activity>
 
 
-
-
-        <receiver android:name=".notification.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >
+        <receiver
+            android:name="com.google.android.gms.gcm.GcmReceiver"
+            android:exported="true"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <category android:name="com.google.android.gcm.demo.app" />
+                <!-- for Gingerbread GSF backward compat -->
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+                <category android:name="com.tappitz.tappitz" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".notification.GcmIntentService" />
+        <service android:name=".notification.GcmService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".notification.MyInstanceIDListenerService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.android.gms.iid.InstanceID"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".notification.RegistrationIntentService"
+            android:exported="false">
+        </service>
+
+
+        <!--<receiver android:name=".notification.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >-->
+            <!--<intent-filter>-->
+                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
+                <!--<category android:name="com.tappitz.tappitz" />-->
+            <!--</intent-filter>-->
+        <!--</receiver>-->
+
+        <!--<service android:name=".notification.GcmIntentService" />-->
+
+
+
+        <meta-data android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+
         <meta-data
             android:name="com.tappitz.tappitz.rest.MyGlideModule"
             android:value="GlideModule" />

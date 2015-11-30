@@ -1,6 +1,7 @@
 package com.tappitz.tappitz.app;
 
 import android.app.Application;
+import android.content.Context;
 import android.hardware.Camera;
 import android.text.TextUtils;
 import android.view.SurfaceHolder;
@@ -30,6 +31,8 @@ public class AppController extends Application {
     private RequestQueue mRequestQueue;
     private ImageLoaderWithSession mImageLoader;
 
+    private static Context context;
+
     public Camera mCamera;
     public SurfaceHolder surfaceHolder;
     public int currentCameraId;
@@ -45,6 +48,7 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
         mInstance = this;
+        AppController.context = getApplicationContext();
 //        Parse.initialize(this, "klnK5rk22iyv7pVQsNxBKV8x7cjwzCYZLlasKtgJ", "VJKKqDmJeXeJqCO8nAmfkquzaGyRo8QVa0n3EVSc");
 //        ParseInstallation.getCurrentInstallation().saveInBackground();
     }
@@ -52,6 +56,11 @@ public class AppController extends Application {
     public static synchronized AppController getInstance() {
         return mInstance;
     }
+
+    public static Context getAppContext() {
+        return AppController.context;
+    }
+
 
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {

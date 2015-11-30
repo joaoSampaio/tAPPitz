@@ -21,27 +21,6 @@ public class GcmIntentService extends IntentService {
     }
     @Override
     protected void onHandleIntent(Intent intent) {
-//        mNotificationManager = (NotificationManager)
-//                this.getSystemService(Context.NOTIFICATION_SERVICE);
-//        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
-//                new Intent(this, LoginActivity.class), 0);
-//        NotificationCompat.Builder mBuilder =
-//                new NotificationCompat.Builder(this)
-//                        .setSmallIcon(R.drawable.ic_switch_camera)
-//                        .setContentTitle("New Notification");
-//        mBuilder.setContentIntent(contentIntent);
-//
-//
-//        Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//        mBuilder.setSound(uri);
-//        mBuilder.setVibrate(new long[]{1000, 1000});
-//
-//
-//        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
-//        GcmBroadcastReceiver.completeWakefulIntent(intent);
-
-
-
 
 
         Bundle extras = intent.getExtras();
@@ -93,37 +72,7 @@ public class GcmIntentService extends IntentService {
 
 
 
-
-
-
-
-
     }
-
-
-
-
-
-
-//    public void notifyUser(Context context,String data){
-//        Intent intent = new Intent(context, NotificationActivity.class);
-//        intent.putExtra("data", data);
-//        intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-//        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
-//        builder.setSmallIcon(R.mipmap.ic_launcher);
-//        builder.setAutoCancel(true);
-//        builder.setContentTitle("New Notification");
-//        builder.setContentIntent(pendingIntent);
-//        builder.setContentText(data);
-//        NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-//        Uri uri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-//        builder.setSound(uri);
-//        builder.setVibrate(new long[]{1000, 1000});
-//        notificationManager.notify(countNotification++, builder.build());
-//    }
-
-
 
 
 }

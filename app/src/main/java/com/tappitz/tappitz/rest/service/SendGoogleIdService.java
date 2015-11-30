@@ -23,65 +23,87 @@ import retrofit.client.Response;
 public class SendGoogleIdService implements ServerCommunicationService {
 
     private CallbackMultiple callback;
-    private Context context;
+    private String deviceToken;
 
 
-    public SendGoogleIdService(Context context, CallbackMultiple callback) {
+    public SendGoogleIdService(String deviceToken, CallbackMultiple callback) {
         this.callback = callback;
-        this.context = context;
+        this.deviceToken = deviceToken;
 
     }
 
     @Override
     public void execute() {
 
-        new AsyncTask() {
+        RestClient.getService().sendGoogleId(new GoogleId(deviceToken), new Callback<JsonElement>() {
             @Override
-            protected Object doInBackground(Object[] params) {
+            public void success(JsonElement json, Response response2) {
 
-                try {
-                    GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
-
-                    String deviceToken = null;
-                    try {
-                        deviceToken = gcm.register(Global.PROJECT_ID);
-
-                        if(deviceToken == null) {
-                            callback.failed("no token");
-                            return null;
-                        }
-
-                        RestClient.getService().sendGoogleId(new GoogleId(deviceToken), new Callback<JsonElement>() {
-                            @Override
-                            public void success(JsonElement json, Response response2) {
-
-                                JsonObject obj = json.getAsJsonObject();
-                                Log.d("myapp", "**obj****->" + obj);
-                                boolean status = obj.get("status").getAsBoolean();
-                                if (status)
-                                    callback.success(status);
-                                else
-                                    callback.failed(obj.get("error").getAsString());
-                            }
-
-                            @Override
-                            public void failure(RetrofitError error) {
-                                Log.d("myapp", "**error****" + error.toString());
-                                callback.failed(error.toString());
-                            }
-                        });
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Log.i("GCM", "Device token : " + deviceToken);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                return null;
+                JsonObject obj = json.getAsJsonObject();
+                Log.d("myapp", "**obj****->" + obj);
+                boolean status = obj.get("status").getAsBoolean();
+                if (status)
+                    callback.success(status);
+                else
+                    callback.failed(obj.get("error").getAsString());
             }
 
-        }.execute();
+            @Override
+            public void failure(RetrofitError error) {
+                Log.d("myapp", "**error****" + error.toString());
+                callback.failed(error.toString());
+            }
+        });
+
+//
+//
+//        new AsyncTask() {
+//            @Override
+//            protected Object doInBackground(Object[] params) {
+//
+//                try {
+//                    GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(context);
+//
+//                    String deviceToken = null;
+//                    try {
+//                        deviceToken = gcm.register(Global.PROJECT_ID);
+//
+//                        if(deviceToken == null) {
+//                            callback.failed("no token");
+//                            return null;
+//                        }
+//
+//                        RestClient.getService().sendGoogleId(new GoogleId(deviceToken), new Callback<JsonElement>() {
+//                            @Override
+//                            public void success(JsonElement json, Response response2) {
+//
+//                                JsonObject obj = json.getAsJsonObject();
+//                                Log.d("myapp", "**obj****->" + obj);
+//                                boolean status = obj.get("status").getAsBoolean();
+//                                if (status)
+//                                    callback.success(status);
+//                                else
+//                                    callback.failed(obj.get("error").getAsString());
+//                            }
+//
+//                            @Override
+//                            public void failure(RetrofitError error) {
+//                                Log.d("myapp", "**error****" + error.toString());
+//                                callback.failed(error.toString());
+//                            }
+//                        });
+//
+//                    } catch (IOException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Log.i("GCM", "Device token : " + deviceToken);
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//                return null;
+//            }
+//
+//        }.execute();
 
 //
 //

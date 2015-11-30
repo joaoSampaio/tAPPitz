@@ -11,30 +11,35 @@
         android:layout_height="match_parent"/>
 
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true">
+    <include
+        android:id="@+id/camera_buttons"
+        layout="@layout/layout_topbar"
+        />
 
-        <Button
-            android:id="@+id/action_refresh"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#00000000"
-            android:text="Refresh"
-            style="@style/SelectBar" />
+    <!--<LinearLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentRight="true">-->
 
-        <Button
-            android:id="@+id/btn_delete"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="#00000000"
-            android:text="Delete"
-            android:layout_marginLeft="15dp"
-            style="@style/SelectBar" />
+        <!--<Button-->
+            <!--android:id="@+id/action_refresh"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="#00000000"-->
+            <!--android:text="Refresh"-->
+            <!--style="@style/SelectBar" />-->
+
+        <!--<Button-->
+            <!--android:id="@+id/btn_delete"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:background="#00000000"-->
+            <!--android:text="Delete"-->
+            <!--android:layout_marginLeft="15dp"-->
+            <!--style="@style/SelectBar" />-->
 
 
-    </LinearLayout>
+    <!--</LinearLayout>-->
 
 </RelativeLayout>

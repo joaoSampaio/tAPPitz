@@ -23,12 +23,9 @@ public class Global {
     public static final String NOTIFICATION_ACTION_NEW_PHOTO = "photo";
 
 
-    public static String sessionKey;
-    public final static int HOME = 3;
+    public final static int HOME = 1;
     public final static int INBOX = 0;
-    public final static int OUTBOX = 1;
-    public final static int FRIENDS = 2;
-    public final static int SELECTCONTACT = 4;
+    public final static int OUTBOX = 2;
 
     public static final int 	BROWSE_REQUEST = 2010;
     public static final int 	BROWSE_REQUEST_KITKAT = 2011;
@@ -63,5 +60,7 @@ public class Global {
 
 
     public static final String OFFLINE_OUTBOX = "OFFLINE_OUTBOX";
+    public static final String OFFLINE_INBOX = "OFFLINE_INBOX";
+    public static final String OFFLINE_VOTE = "OFFLINE_VOTE";
 
 }

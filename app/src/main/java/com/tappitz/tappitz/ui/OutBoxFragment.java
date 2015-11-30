@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -81,7 +82,13 @@ public class OutBoxFragment extends Fragment {
         loadOffline();
         refreshOutbox();
 
-
+        ((Button)rootView.findViewById(R.id.action_back)).setText("Outbox");
+        rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ScreenSlidePagerActivity)getActivity()).showPage(Global.HOME);
+            }
+        });
         rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -123,7 +130,7 @@ public class OutBoxFragment extends Fragment {
         new ListOutboxService(new CallbackMultiple<List<PhotoOutbox>, String>() {
             @Override
             public void success(List<PhotoOutbox> response) {
-                if(response != null && response.size() > 0) {
+                if(response != null && response.size() > 0 && getActivity() != null) {
                     int currentPage = viewPager.getCurrentItem();
 
 
@@ -149,9 +156,6 @@ public class OutBoxFragment extends Fragment {
         Log.d("myapp", "**--loadOffline:");
         if(photos.size() == 0) {
             List<PhotoOutbox> tmp = new ModelCache<List<PhotoOutbox>>().loadModel(getActivity(),new TypeToken<List<PhotoOutbox>>(){}.getType(), Global.OFFLINE_OUTBOX);
-            Log.d("myapp", "**--loadOffline tmp != null:" + (tmp != null));
-            Log.d("myapp", "**--loadOffline tmp.size() > 0:" + (tmp.size() > 0));
-            Log.d("myapp", "**--loadOffline tmp.get(0) instanceof PhotoOutbox:" + (tmp.get(0) instanceof PhotoOutbox));
             if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof PhotoOutbox) {
                 Log.d("myapp", "**--loadOffline: inside ");
                 photos.addAll(tmp);
@@ -163,7 +167,7 @@ public class OutBoxFragment extends Fragment {
 
     private void OnDoneLoading(){
 
-        adapter.notifyDataSetChanged();
+//        adapter.notifyDataSetChanged();
     }
 
     public List<ListenerPagerStateChange> getStateChange() {

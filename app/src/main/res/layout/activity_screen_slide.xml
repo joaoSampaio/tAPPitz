@@ -1,40 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<!--<android.support.v4.widget.SlidingPaneLayout-->
-    <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-    <!--xmlns:tools="http://schemas.android.com/tools"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="match_parent"-->
-
-    <!--android:id="@+id/sp" >-->
-
-    <!--&lt;!&ndash; Left side pane. (Master) &ndash;&gt;-->
-    <!--<fragment android:id="@+id/leftpane"-->
-        <!--android:name="com.tappitz.tappitz.ui.HomeFragment"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="left"-->
-        <!--tools:layout="@layout/fragment_home" />-->
-
-    <!--&lt;!&ndash; Right side page. (Slave)  &ndash;&gt;-->
-    <!--<fragment android:id="@+id/rightpane"-->
-        <!--android:name="com.tappitz.tappitz.ui.InBoxFragment"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="right"-->
-        <!--tools:layout="@layout/fragment_in_box" />-->
-
-
-
-
-<!--</android.support.v4.widget.SlidingPaneLayout>-->
-
 
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent" android:layout_height="match_parent"
-    android:orientation="vertical">
-
-
+    android:orientation="vertical" android:keepScreenOn="true">
 
 
 
@@ -48,24 +17,6 @@
 
 
 
-
-
-    <!--<android.support.v7.widget.Toolbar-->
-        <!--android:id="@+id/toolbar"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:background="?attr/colorPrimary"/>-->
-
-    <!--<android.support.design.widget.TabLayout-->
-        <!--android:id="@+id/tab_layout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"/>-->
-
-    <!--<android.support.v4.view.ViewPager-->
-        <!--android:id="@+id/pager"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:overScrollMode="never"/>-->
 
     <com.tappitz.tappitz.util.MainViewPager
         android:id="@+id/pager"

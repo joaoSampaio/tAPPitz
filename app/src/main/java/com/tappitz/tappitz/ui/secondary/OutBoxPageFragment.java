@@ -28,6 +28,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.bumptech.glide.request.target.Target;
+import com.google.gson.reflect.TypeToken;
 import com.squareup.okhttp.Interceptor;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.MemoryPolicy;
@@ -40,11 +41,13 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListVotesService;
 import com.tappitz.tappitz.ui.InBoxFragment;
 import com.tappitz.tappitz.ui.OutBoxFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
+import com.tappitz.tappitz.util.ModelCache;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,7 +66,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     private View rootView, comment_layout;
     private TextView commentText, comment_user, descriptionText;
     private List<Comment> listGreen, listRed, listYellow;
-    private int selectdList, selectedPos;
+    private int selectdList, selectedPos, id;
     private Button botaoVermelho, botaoAmarelo, botaoVerde;
     private ImageView color_background;
     private LinearLayout buttonsContainer;
@@ -90,7 +93,29 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         String text = getArguments().getString(Global.TEXT_RESOURCE);
-        int id = getArguments().getInt(Global.ID_RESOURCE);
+        id = getArguments().getInt(Global.ID_RESOURCE);
+
+        for(int idBtn: CLICKABLE) {
+            rootView.findViewById(idBtn).setOnClickListener(this);
+        }
+        botaoVerde = (Button)rootView.findViewById(R.id.botaoVerde);
+        botaoAmarelo = (Button)rootView.findViewById(R.id.botaoAmarelo);
+        botaoVermelho = (Button)rootView.findViewById(R.id.botaoVermelho);
+        color_background = (ImageView)rootView.findViewById(R.id.color_background);
+
+        comment_layout = rootView.findViewById(R.id.comment_layout);
+        listGreen = new ArrayList<>();
+        listRed = new ArrayList<>();
+        listYellow = new ArrayList<>();
+        selectdList = -1;
+        selectedPos = -1;
+
+        buttonsContainer = (LinearLayout)rootView.findViewById(R.id.painelvotacao);
+        descriptionText = (TextView) rootView.findViewById(R.id.photo_description);
+        descriptionText.setText(text);
+
+        commentText = (TextView) rootView.findViewById(R.id.photo_comment);
+        comment_user = (TextView) rootView.findViewById(R.id.comment_user);
 
 //        if (imageLoader == null)
 //            imageLoader = AppController.getInstance().getImageLoader();
@@ -103,6 +128,9 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 //        final GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
 //                .setHeader("Session-Id", AppController.getInstance().getSessionId())
 //                .build());
+
+        loadVotesOffline();
+
         Glide.with(this)
                 .load(url)
                 .listener(new RequestListener<String, GlideDrawable>() {
@@ -151,47 +179,19 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 //                .into(imageView);
 
 
-        for(int idBtn: CLICKABLE) {
-            rootView.findViewById(idBtn).setOnClickListener(this);
-        }
-        botaoVerde = (Button)rootView.findViewById(R.id.botaoVerde);
-        botaoAmarelo = (Button)rootView.findViewById(R.id.botaoAmarelo);
-        botaoVermelho = (Button)rootView.findViewById(R.id.botaoVermelho);
-        color_background = (ImageView)rootView.findViewById(R.id.color_background);
 
-        comment_layout = rootView.findViewById(R.id.comment_layout);
-        listGreen = new ArrayList<>();
-        listRed = new ArrayList<>();
-        listYellow = new ArrayList<>();
-        selectdList = -1;
-        selectedPos = -1;
-
-        buttonsContainer = (LinearLayout)rootView.findViewById(R.id.painelvotacao);
-        descriptionText = (TextView) rootView.findViewById(R.id.photo_description);
-        descriptionText.setText(text);
-
-        commentText = (TextView) rootView.findViewById(R.id.photo_comment);
-        comment_user = (TextView) rootView.findViewById(R.id.comment_user);
 
 
         new ListVotesService(id, new CallbackMultiple<List<Comment>, String>() {
             @Override
             public void success(List<Comment> comments) {
-                for(Comment c: comments){
-                    switch (c.getRate()){
-                        case Global.RED:
-                            listRed.add(c);
-                            break;
-                        case Global.YELLOW:
-                            listYellow.add(c);
-                            break;
-                        case Global.GREEN:
-                            listGreen.add(c);
-                            break;
-                    }
+                Log.d("ListVotesService", "getContext() != null" + (getContext() != null));
+                Log.d("ListVotesService", "app getApplicationContext() != null" + (AppController.getInstance().getApplicationContext() != null));
+                Context ctx = AppController.getInstance().getApplicationContext();
+                new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
+                if(getActivity()!= null) {
+                    sortVotes(comments);
                 }
-
-                resetComments();
 
             }
 
@@ -233,45 +233,37 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         return rootView;
     }
 
+    private void loadVotesOffline(){
+        Log.d("myapp", "**--loadOffline:");
+        if((listRed.size() + listGreen.size() + listYellow.size() ) == 0) {
+            Context ctx = AppController.getInstance().getApplicationContext();
+            List<Comment> comments = new ModelCache<List<Comment>>().loadModel(ctx,new TypeToken<List<Comment>>(){}.getType(), Global.OFFLINE_VOTE+id);
+            if(comments != null && comments.size() > 0 && comments.get(0) instanceof Comment) {
+                Log.d("myapp", "**--loadOffline: inside ");
+                sortVotes(comments);
+            }
+        }
+    }
 
-//
-//    public static OkHttpDownloader getOkHttpDownloader(final HashMap<String, String> headers) {
-//        OkHttpClient okHttpClient = mHttpClient.clone();
-//
-//        okHttpClient.interceptors().add(new Interceptor() {
-//            @Override
-//            public Response intercept(Interceptor.Chain chain) throws IOException {
-//                Picasso.Builder builder = chain.request().newBuilder();
-//
-//                if (!headers.isEmpty())
-//                    for (Map.Entry<String, String> entry : headers.entrySet())
-//                        builder.addHeader(entry.getValue(), entry.getKey());
-//
-//                Request newRequest = builder.build();
-//                return chain.proceed(newRequest);
-//            }
-//        });
-//        return new OkHttpDownloader(okHttpClient);
-//    }
-
-
-//    public static Picasso getImageLoader(Context ctx) {
-//
-//
-//
-//        Picasso.Builder builder = new Picasso.Builder(ctx);
-//        builder.downloader(new OkHttpDownloader(ctx) {
-//            @Override
-//            protected HttpURLConnection openConnection(Uri uri) throws IOException {
-//                super
-//                HttpURLConnection connection = super.openConnection(uri);
-//                connection.setRequestProperty("X-HEADER", "VAL");
-//                return connection;
-//            }
-//        });
-//        return builder.build();
-//    }
-
+    private void sortVotes(List<Comment> comments){
+        listRed.clear();
+        listYellow.clear();
+        listGreen.clear();
+        for(Comment c: comments){
+            switch (c.getRate()){
+                case Global.RED:
+                    listRed.add(c);
+                    break;
+                case Global.YELLOW:
+                    listYellow.add(c);
+                    break;
+                case Global.GREEN:
+                    listGreen.add(c);
+                    break;
+            }
+        }
+        resetComments();
+    }
 
     @Override
     public void onResume(){
@@ -299,35 +291,10 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
     public void showButtonsAndBackground(boolean show){
 
-        descriptionText.setVisibility(show? View.VISIBLE : View.GONE);
-        buttonsContainer.setVisibility(show? View.VISIBLE : View.GONE);
-        color_background.setVisibility(show? View.GONE : View.VISIBLE);
-        comment_layout.setVisibility(show? View.GONE : View.VISIBLE);
-    }
-
-    private void dummyListComments(){
-        List<Comment> comments = new ArrayList<>();
-        comments.add(new Comment(Global.RED, "Não é bonito", "04-10-2015", "João Sampaio"));
-        comments.add(new Comment(Global.YELLOW, "É razoavel", "04-10-2015", "Jorge A."));
-        comments.add(new Comment(Global.RED, "texto, texto, é feio, bla bla", "05-10-2015", "João Sampaio"));
-        comments.add(new Comment(Global.GREEN, "Muito bom, continua!", "05-10-2015", "João Sampaio"));
-        comments.add(new Comment(Global.GREEN, "Adorei!!!!!", "05-10-2015", "Marisa S."));
-        comments.add(new Comment(Global.YELLOW, "lindo.", "06-10-2015", "João Sampaio"));
-
-        for(Comment c: comments){
-            switch (c.getRate()){
-                case Global.RED:
-                    listRed.add(c);
-                    break;
-                case Global.YELLOW:
-                    listYellow.add(c);
-                    break;
-                case Global.GREEN:
-                    listGreen.add(c);
-                    break;
-            }
-        }
-        resetComments();
+        descriptionText.setVisibility(show ? View.VISIBLE : View.GONE);
+        buttonsContainer.setVisibility(show ? View.VISIBLE : View.GONE);
+        color_background.setVisibility(show ? View.GONE : View.VISIBLE);
+        comment_layout.setVisibility(show ? View.GONE : View.VISIBLE);
     }
 
     private void resetComments(){

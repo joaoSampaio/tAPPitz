@@ -38,16 +38,16 @@ import com.tappitz.tappitz.util.VerticalViewPager;
 
 public class InBoxPageFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
-    private View rootView, layout_vote, layout_container;
+    private View rootView, layout_vote, layout_container, layoutVoteText, painelvotacao;
     private TextView textViewOwner, textViewDate, yourComment;
     private Button botaoVermelho, botaoAmarelo, botaoVerde;
     private ImageView color_background;
     private EditText editTextComment;
-    private int id;
+    private int id, currentVote;
     private ListenerPagerStateChange state;
     String text;
 
-    private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
+    private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde, R.id.buttonBack, R.id.buttonSend};
     ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
 
@@ -93,7 +93,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             rootView.findViewById(idBtn).setOnLongClickListener(this);
         }
 
-
+        painelvotacao = rootView.findViewById(R.id.painelvotacao);
+        layoutVoteText = rootView.findViewById(R.id.layoutVoteText);
         botaoVerde = (Button)rootView.findViewById(R.id.botaoVerde);
         botaoAmarelo = (Button)rootView.findViewById(R.id.botaoAmarelo);
         botaoVermelho = (Button)rootView.findViewById(R.id.botaoVermelho);
@@ -113,6 +114,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         textViewDate = (TextView) rootView.findViewById(R.id.textViewDate);
         textViewOwner.setText(owner);
         textViewDate.setText(date);
+        ((TextView) rootView.findViewById(R.id.textViewOwner2)).setText(owner);
+        ((TextView) rootView.findViewById(R.id.textViewDate2)).setText(date);
         if(hasVoted){
             rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
             rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
@@ -220,6 +223,15 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                 toggleButtons(false);
                 sendVote(Global.RED);
                 break;
+            case R.id.buttonBack:
+                showSendExtras(false);
+                closeKeyboard();
+                break;
+            case R.id.buttonSend:
+                closeKeyboard();
+                sendVote(currentVote);
+
+                break;
 
         }
         //Toast.makeText(v.getContext(), "Clicked Position: " + position, Toast.LENGTH_LONG).show();
@@ -227,10 +239,46 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
     @Override
     public boolean onLongClick(View v) {
-        editTextComment.setVisibility(editTextComment.isShown()? View.GONE : View.VISIBLE);
+
+        switch (v.getId()) {
+            case R.id.botaoVerde:
+                currentVote = Global.GREEN;
+                break;
+            case R.id.botaoAmarelo:
+                currentVote = Global.YELLOW;
+                break;
+            case R.id.botaoVermelho:
+                currentVote = Global.RED;
+                break;
+
+        }
+
+        color_background.setBackgroundColor(getResources().getColor(getColor(currentVote)));
+        showSendExtras(true);
+        //editTextComment.setVisibility(editTextComment.isShown() ? View.GONE : View.VISIBLE);
+
         return true;
     }
 
+    private void showSendExtras(boolean show){
+        editTextComment.setVisibility(show? View.VISIBLE : View.GONE);
+        layoutVoteText.setVisibility(show? View.VISIBLE : View.GONE);
+        painelvotacao.setVisibility(show? View.INVISIBLE : View.VISIBLE);
+        color_background.setVisibility(show? View.VISIBLE : View.GONE);
+        botaoAmarelo.setEnabled(!show);
+        botaoVerde.setEnabled(!show);
+        botaoVermelho.setEnabled(!show);
+
+    }
+
+    private void closeKeyboard(){
+        try {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private void animatePagerTransition(final boolean forward, final VerticalViewPager viewPager) {
 

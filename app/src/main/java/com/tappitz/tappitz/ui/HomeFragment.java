@@ -66,27 +66,21 @@ import java.util.List;
 
 public class HomeFragment extends Fragment implements SurfaceHolder.Callback, View.OnClickListener {
 
-    private final int ANIMATION_DURATION = 500;
-    private final int MEDIA_TYPE_IMAGE = 1;
-    private final int MEDIA_TYPE_VIDEO = 2;
     private SurfaceView surfaceView;
     private Button btn_shutter;
-    private LinearLayout btn_layout;
-    private boolean previewing = false;
     private String photoPath;
     private ImageView temp_pic;
     private boolean turnLightOn = false;
-    private int viewWidth, viewHeight;
     private View textMsgWrapper;
     private boolean requestedFile = false;
     RelativeLayout whiteBackground;
     private EditText textMsg;
-    private Handler autoFocusHandler;
     private ImageScanner scanner;
     private boolean barcodeScanned = false;
     private String pictureBase64;
     private int previewCount = 0;
     private int qrCodeSampleTime = 5;
+    private boolean isPhotoMenuOpen;
 
     private byte[] photoData;
 
@@ -111,13 +105,14 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         Log.d("myapp", "onCreateView");
         surfaceView = (SurfaceView) rootView.findViewById(R.id.surfaceview);
         btn_shutter = (Button) rootView.findViewById(R.id.btn_shutter);
-        btn_layout = (LinearLayout) rootView.findViewById(R.id.btn_layout);
         photoPath = "";
         temp_pic = (ImageView) rootView.findViewById(R.id.temp_pic);
 
         textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
         whiteBackground = (RelativeLayout)rootView.findViewById(R.id.whiteBackground);
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
+        isPhotoMenuOpen = false;
+
 
         whiteBackground.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -150,16 +145,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         });
 
 
-//        View v = rootView.findViewById(R.id.container);
-//        v.measure(View.MeasureSpec.makeMeasureSpec(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED));
-//        v.layout(0, 0, v.getMeasuredWidth(), v.getMeasuredHeight());
-//        int w = v.getWidth();
-//        int h = v.getHeight();
-//        viewWidth = v.getMeasuredWidth();
-//        viewHeight = v.getMeasuredHeight();
-//
-//
-//        Log.d("myapp","***width:"+ viewWidth + " height:" + viewHeight);
         for(int id: CLICABLES)
             rootView.findViewById(id).setOnClickListener(this);
 
@@ -180,10 +165,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             //nao funciona
             barcodeScanned = true;
         }else {
-
             scanner = new ImageScanner();
             scanner.setConfig(0, Config.X_DENSITY, 3);
             scanner.setConfig(0, Config.Y_DENSITY, 3);
+
+
             //scanner.setConfig(0, Config.ENABLE, 0);
 //        scanner.setConfig(Symbol.EAN13, Config.ENABLE,1);
 //        scanner.setConfig(Symbol.EAN8, Config.ENABLE,1);
@@ -204,6 +190,16 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
         Log.d("myapp", "onResume");
         setUP();
+        ((ScreenSlidePagerActivity)getActivity()).setCameraBackPressed(new ScreenSlidePagerActivity.CameraBackPressed() {
+            @Override
+            public boolean onBackPressed() {
+                if(isPhotoMenuOpen) {
+                    deletePrevious();
+                    return false;
+                }
+                return true;
+            }
+        });
 
     }
 
@@ -221,7 +217,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         super.onPause();
         Log.d("myapp", "onPause");
         stop_camera();
-
+        ((ScreenSlidePagerActivity)getActivity()).setCameraBackPressed(null);
     }
 
 
@@ -328,13 +324,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
                     AppController.getInstance().mCamera.setParameters(params);
                     AppController.getInstance().mCamera.startPreview();
-                    previewing = true;
                     b.setTextColor(Color.YELLOW);
                 } else {
                     params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
                     AppController.getInstance().mCamera.setParameters(params);
                     AppController.getInstance().mCamera.startPreview();
-                    previewing = true;
                     b.setTextColor(Color.WHITE);
                 }
 
@@ -375,7 +369,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     private void setUP(){
         Log.d("MyCameraApp", "setUP home");
         textMsgWrapper.setVisibility(View.INVISIBLE);
-//        btn_layout.setVisibility(View.INVISIBLE);
         temp_pic.setVisibility(View.VISIBLE);
         surfaceView.setVisibility(View.VISIBLE);
 
@@ -434,10 +427,13 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
 
         final String comment = textMsgWrapper.isShown()? textMsg.getText().toString() : "";
-        SelectContactFragment newFragment = new SelectContactFragment();
+        final SelectContactFragment newFragment = new SelectContactFragment();
         newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
             @Override
             public void sendPhoto(final List<Integer> contacts) {
+
+                final ProgressDialog progressDialog = ProgressDialog.show(getContext(), "Sending Photo", "Your photo is being uploaded", true);
+
                 new CreatePhotoService(comment, contacts, pictureBase64, new CallbackMultiple<Integer, String>() {
                     @Override
                     public void success(Integer pictureId) {
@@ -450,14 +446,20 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                                 ((ScreenSlidePagerActivity) getActivity()).getUpdateAfterPicture().updateOutbox(out);
                             }
                         }
+                        newFragment.dismiss();
+                        progressDialog.dismiss();
                         deletePrevious();
                     }
 
                     @Override
                     public void failed(String error) {
-                        if (getActivity() != null)
+                        if (getActivity() != null) {
+                            ((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
                             Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
-                        //((ScreenSlidePagerActivity) getActivity()).enableSwipe(true);
+                            newFragment.dismiss();
+                            progressDialog.dismiss();
+                            deletePrevious();
+                        }
                     }
                 }).execute();
             }
@@ -552,7 +554,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
     }
 
     private void stop_camera(ControlCameraTask.CallbackCamera callback){
-        previewing = false;
         ControlCameraTask c = new ControlCameraTask();
         c.setCallback(callback);
         c.execute(false);
@@ -560,7 +561,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
     private void stop_camera()
     {
-        previewing = false;
         new ControlCameraTask().execute(false);
     }
 
@@ -580,7 +580,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         Log.d("myapp", "onCameraAvailable: " + pastTime);
         showToast(pastTime + " Miliseconds");
         //Toast.makeText(getActivity(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
-        previewing = true;
         btn_shutter.setVisibility(View.VISIBLE);
         showBtnOptions(true);
         try {
@@ -656,7 +655,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             temp_pic.setVisibility(View.GONE);
             surfaceView.setVisibility(View.VISIBLE);
         }
-
+        isPhotoMenuOpen = takePhoto;
         btn_shutter.setVisibility(takePhoto ? View.GONE : View.VISIBLE);
         showBtnOptions(!takePhoto);
         whiteBackground.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
@@ -706,7 +705,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 if (result != 0)
                 {
                     barcodeScanned = true;
-                    //previewing = false;
                     //stop_camera();
 
 

@@ -47,65 +47,25 @@
             android:visibility="invisible"
             />
 
+
         <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:id="@+id/layout_vote">
 
 
-            <ScrollView
-                android:layout_width="match_parent"
-                android:layout_height="70dp"
-                android:id="@+id/scrollView"
-                >
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearance"
-                    android:id="@+id/photo_description"
-                    android:inputType="textMultiLine"
-                    style="@style/SelectBar"
-                    android:layout_gravity="top|center_horizontal"
-                    android:textAlignment="center" />
-            </ScrollView>
-
-
             <LinearLayout
-                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/scrollView"
-                android:id="@+id/layoutText">
-                <EditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Comment:"
-                    android:id="@+id/editTextComment"
-                    android:layout_marginTop="10dp"
-                    android:visibility="gone"
-                    style="@style/SelectBar"
-                    android:lines="3"
-                    android:maxLines="3"
-                    />
-
-                </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="75dp"
                 android:id="@+id/painelvotacao"
-                android:gravity="center_horizontal"
-                android:layout_marginBottom="10dp"
                 android:layout_gravity="center"
-                android:layout_below="@+id/layoutText"
-                android:layout_marginTop="10dp"
-                android:layout_centerVertical="true">
+                android:gravity="center_horizontal"
+                android:baselineAligned="false"
+                android:layout_centerInParent="true">
 
 
                 <Button
@@ -137,6 +97,89 @@
 
 
             <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/layoutText"
+                android:layout_above="@+id/painelvotacao"
+                android:layout_marginBottom="15dp">
+                <EditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Comment:"
+                    android:id="@+id/editTextComment"
+                    android:visibility="gone"
+                    android:lines="2"
+                    android:maxLines="3"
+                    style="@style/SelectBar" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/layoutText">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:id="@+id/scrollView"
+                    android:layout_alignTop="@+id/layoutText">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textAppearance="?android:attr/textAppearance"
+                        android:id="@+id/photo_description"
+                        android:inputType="textMultiLine"
+                        style="@style/SelectBar"
+                        android:layout_gravity="top|center_horizontal"
+                        android:textAlignment="center" />
+                </ScrollView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/layoutVoteText"
+                android:gravity="center_horizontal"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentLeft="false"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true">
+
+                <Button
+                    android:text="back"
+                    android:textColor="@color/white"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:id="@+id/buttonBack"
+                    android:layout_gravity="center_vertical" />
+
+                <Button
+                    android:text="text"
+                    android:textColor="@color/white"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    android:id="@+id/button3"
+                    android:visibility="invisible" />
+
+                <Button
+                    android:text="Send"
+                    android:textColor="@color/white"
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:id="@+id/buttonSend"
+                    android:layout_gravity="center_vertical" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -161,6 +204,7 @@
         </RelativeLayout>
 
 
+
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -181,6 +225,28 @@
                 style="@style/SelectBar"
                 android:layout_gravity="right|top"/>
 
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                 >
+
+                <TextView
+                    style="@style/SelectBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/textViewOwner2"
+                    android:text="Pedro Artures" />
+
+                <TextView
+                    style="@style/SelectBar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="15/10/2015 - 12:35"
+                    android:id="@+id/textViewDate2" />
+            </LinearLayout>
+
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -189,7 +255,10 @@
                 android:inputType="textMultiLine"
                 android:gravity="left"
                 style="@style/SelectBar"
-                android:layout_gravity="right|top"/>
+                android:layout_gravity="right|top"
+                android:layout_marginTop="25dp" />
+
+
 
         </LinearLayout>
 

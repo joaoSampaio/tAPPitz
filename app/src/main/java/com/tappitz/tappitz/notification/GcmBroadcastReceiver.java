@@ -14,7 +14,7 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
         ComponentName comp = new ComponentName(context.getPackageName(),
                 GcmIntentService.class.getName());
         startWakefulService(context, (intent.setComponent(comp)));
-
+        Log.d("updateMyActivity", "onReceive:" );
 
         updateMyActivity(context, intent.getExtras());
         setResultCode(Activity.RESULT_OK);
@@ -23,6 +23,15 @@ public class GcmBroadcastReceiver extends WakefulBroadcastReceiver {
 
     // This function will create an intent. This intent must take as parameter the "unique_name" that you registered your activity with
     static void updateMyActivity(Context context, Bundle extras) {
+
+        Log.d("updateMyActivity", "extras.size():" + extras.size());
+        Log.d("updateMyActivity", "extras.toString():" + extras.toString());
+
+        for (String key : extras.keySet()) {
+            Object value = extras.get(key);
+            Log.d("updateMyActivity", String.format("%s %s (%s)", key,
+                    value.toString(), value.getClass().getName()));
+        }
 
         Intent intent = new Intent("tAPPitz_1");
         Log.d("myapp3", "updateMyActivity");

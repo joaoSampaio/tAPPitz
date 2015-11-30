@@ -9,15 +9,19 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.InBoxPagerAdapter;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
+import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListInboxService;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
+import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
 import java.util.ArrayList;
@@ -57,7 +61,7 @@ public class InBoxFragment extends Fragment {
         viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
-        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
+        viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
                 Log.d("myapp2", "**--seletcted inBoxFragment:" + position);
@@ -67,17 +71,25 @@ public class InBoxFragment extends Fragment {
             @Override
             public void onPageScrollStateChanged(int state) {
                 Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
-                if(stateChange != null){
-                    for (ListenerPagerStateChange s: stateChange) {
+                if (stateChange != null) {
+                    for (ListenerPagerStateChange s : stateChange) {
                         s.onPageScrollStateChanged(state);
                     }
-                }
-                else
+                } else
                     Log.d("myapp2", "**--stateChange is null:");
             }
 
         });
 
+        ((Button)rootView.findViewById(R.id.action_back)).setText("Inbox");
+        rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.HOME);
+            }
+        });
+
+        loadOffline();
         refreshInbox();
         return rootView;
     }
@@ -106,11 +118,14 @@ public class InBoxFragment extends Fragment {
         new ListInboxService(new CallbackMultiple<List<PhotoInbox>, String>() {
             @Override
             public void success(List<PhotoInbox> response) {
-                if(response != null && response.size() > 0) {
-                    viewPager.setCurrentItem(0);
+                if(response != null && response.size() > 0 && getActivity() != null) {
+                    int currentPage = viewPager.getCurrentItem();
                     photos.clear();
                     photos.addAll(response);
                     adapter.notifyDataSetChanged();
+                    currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
+                    viewPager.setCurrentItem(currentPage);
+                    new ModelCache<List<PhotoInbox>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
                 }else {
                     OnDoneLoading();
                 }
@@ -124,10 +139,22 @@ public class InBoxFragment extends Fragment {
         }).execute();
     }
 
+    private void loadOffline(){
+        Log.d("myapp", "**--loadOffline:");
+        if(photos.size() == 0) {
+            List<PhotoInbox> tmp = new ModelCache<List<PhotoInbox>>().loadModel(getActivity(),new TypeToken<List<PhotoInbox>>(){}.getType(), Global.OFFLINE_INBOX);
+            if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof PhotoInbox) {
+                Log.d("myapp", "**--loadOffline: inside ");
+                photos.addAll(tmp);
+                adapter.notifyDataSetChanged();
+            }
+        }
+    }
+
     private void OnDoneLoading(){
-        viewPager.setCurrentItem(0);
-        photos.clear();
-        adapter.notifyDataSetChanged();
+//        viewPager.setCurrentItem(0);
+//        photos.clear();
+//        adapter.notifyDataSetChanged();
     }
 
     public void updateLocal(PhotoInbox newPhoto){
