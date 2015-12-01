@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
     android:padding="10dp">
     <ImageView android:id="@+id/image"
-        android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
+        android:layout_width="@dimen/abc_action_button_min_width_material"
+        android:layout_height="@dimen/abc_action_button_min_width_material"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="10dp" />
+        android:layout_marginRight="20dp"
+        android:src="@drawable/ic_stat_logo_tappitz"
+        android:scaleType="fitXY" />
     <TextView android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/image"
         android:textAppearance="@style/TextAppearance.StatusBar.EventContent"
-        style="Custom Notification Title"
-        android:textStyle="bold" />
+        style="@style/SelectBar"
+        android:textStyle="bold"
+        android:text="Titulo" />
     <TextView android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/image"
         android:layout_below="@id/title"
         android:textAppearance="@style/TextAppearance.StatusBar.EventContent"
-        style="Custom Notification Text" />
+        style="Custom Notification Text"
+        android:text="Alguem enviou algo" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="data"
+        android:id="@+id/date"
+        android:textAppearance="@style/TextAppearance.StatusBar.EventContent"
+        android:layout_alignTop="@+id/text"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 </RelativeLayout>

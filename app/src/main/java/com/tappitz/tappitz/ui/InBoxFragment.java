@@ -125,6 +125,9 @@ public class InBoxFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                     currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
                     viewPager.setCurrentItem(currentPage);
+
+                    showPage(((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id());
+
                     new ModelCache<List<PhotoInbox>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
                 }else {
                     OnDoneLoading();
@@ -137,6 +140,27 @@ public class InBoxFragment extends Fragment {
                 OnDoneLoading();
             }
         }).execute();
+    }
+
+    private void showPage(int id){
+        int position = -1;
+        int current = 0;
+        if(id < 0)
+            return;
+        for (PhotoInbox in: photos) {
+            if(in.getPictureId() == id){
+                position = current;
+                break;
+            }
+            current++;
+        }
+
+        //foi encontrada a imagem vamos mostra-la
+        if(position >= 0){
+            viewPager.setCurrentItem(position);
+            //((ScreenSlidePagerActivity)getActivity()).setInbox_vote_id(-1);
+        }
+
     }
 
     private void loadOffline(){

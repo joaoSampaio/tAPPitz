@@ -32,6 +32,7 @@ import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.SendVotePictureService;
 import com.tappitz.tappitz.ui.InBoxFragment;
+import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
@@ -348,6 +349,12 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                     }
 
                     ((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
+
+                    //abriu a notificação e votou na picture vamso fechar a app
+                    if(((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id() == id){
+                        getActivity().finish();
+                    }
+
                 }
             }
 

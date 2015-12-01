@@ -19,17 +19,14 @@ public class Global {
     public static final String PROJECT_ID = "324070600220";
 
 
-    public static final String NOTIFICATION_ACTION_INVITE = "invite";
-    public static final String NOTIFICATION_ACTION_NEW_PHOTO = "photo";
 
 
     public final static int HOME = 1;
     public final static int INBOX = 0;
     public final static int OUTBOX = 2;
+    public final static int FRIENDS = 3;
 
     public static final int 	BROWSE_REQUEST = 2010;
-    public static final int 	BROWSE_REQUEST_KITKAT = 2011;
-    public static final int DISK_FILE_TYPE = 2;
 
     public static final String KEY_USER = "KEY_USER";
     public static final String KEY_PASS = "KEY_PASS";
@@ -51,6 +48,15 @@ public class Global {
     //public static final String FONT1 = "fonts/SnackerComic.ttf";
     //public static final String FONT1 = "fonts/Goffik-O.ttf";
     public static final String FONT1 = "fonts/justice.ttf";
+
+
+    public static final String NEW_FRIEND_REQUEST = "NEW_FRIEND_REQUEST";
+    public static final String UNDO_FRIEND_REQUEST = "UNDO_FRIEND_REQUEST";
+    public static final String BLOCKED_FRIEND = "BLOCKED_FRIEND";
+    public static final String REMOVED_FRIEND_REQUEST = "REMOVED_FRIEND_REQUEST";
+    public static final String ACCEPTED_FRIEND_REQUEST = "ACCEPTED_FRIEND_REQUEST";
+    public static final String NEW_PICTURE_RECEIVED = "NEW_PICTURE_RECEIVED";
+    public static final String NEW_PICTURE_VOTE = "NEW_PICTURE_VOTE";
 
 
     public static final String OPERATION_TYPE_INVITE = "INVITE";
