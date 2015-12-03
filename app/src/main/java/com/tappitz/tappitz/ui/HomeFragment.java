@@ -122,17 +122,20 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
                     case MotionEvent.ACTION_DOWN:
                     case MotionEvent.ACTION_POINTER_DOWN:
-
+                        Log.d("myapp2", "ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
-                        whiteBackground.setVisibility(View.INVISIBLE);
-                        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
 
+                        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+                        whiteBackground.setVisibility(View.INVISIBLE);
 
                         return true;
 
                     case MotionEvent.ACTION_UP:
+                        Log.d("myapp2", "ACTION_UP");
                     case MotionEvent.ACTION_POINTER_UP:
+                        Log.d("myapp2", "ACTION_POINTER_UP");
                         whiteBackground.setVisibility(View.VISIBLE);
+                        whiteBackground.bringToFront();
                         //=====Write down you code Finger Released code here
 //                        if(textMsgWrapper.isShown()){
 //                            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
@@ -165,18 +168,11 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             //nao funciona
             barcodeScanned = true;
         }else {
-            scanner = new ImageScanner();
-            scanner.setConfig(0, Config.X_DENSITY, 3);
-            scanner.setConfig(0, Config.Y_DENSITY, 3);
+            barcodeScanned = true;
+//            scanner = new ImageScanner();
+//            scanner.setConfig(0, Config.X_DENSITY, 3);
+//            scanner.setConfig(0, Config.Y_DENSITY, 3);
 
-
-            //scanner.setConfig(0, Config.ENABLE, 0);
-//        scanner.setConfig(Symbol.EAN13, Config.ENABLE,1);
-//        scanner.setConfig(Symbol.EAN8, Config.ENABLE,1);
-//        scanner.setConfig(Symbol.UPCA, Config.ENABLE, 1);
-//        scanner.setConfig(Symbol.UPCE, Config.ENABLE, 1);
-//        scanner.setConfig(Symbol.QRCODE, Config.ENABLE, 1); //Only QRCODE is enable
-            //autoFocusHandler = new Handler();
         }
 
         return rootView;
@@ -280,9 +276,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 break;
             case R.id.btnPhotoAccept:
 
-//                if(v.getTag() != null && v.getTag() instanceof String){
-//                    textMsg.setText((String)v.getTag());
-//                }
 
                 if(photoPath == null || photoPath.equals("")) {
                     final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Please wait", "We're saving the photo to file.", true);
@@ -576,31 +569,26 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
             ((ScreenSlidePagerActivity) getActivity()).notifyCameraReady();
         }
 
-        Long pastTime = System.currentTimeMillis() - currentTime;
-        Log.d("myapp", "onCameraAvailable: " + pastTime);
-        showToast(pastTime + " Miliseconds");
-        //Toast.makeText(getActivity(), pastTime + " Miliseconds", Toast.LENGTH_LONG).show();
+
         btn_shutter.setVisibility(View.VISIBLE);
         showBtnOptions(true);
-        try {
-            if(AppController.getInstance().mCamera != null){
-                Log.d("myapp", "setPreviewCallback: ");
-
-                //isto parte o tlm do Paulo!!!
-                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
-                    //nao funciona
-                    AppController.getInstance().mCamera.setPreviewCallback(previewCb);
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+//        try {
+//            if(AppController.getInstance().mCamera != null){
+//                Log.d("myapp", "setPreviewCallback: ");
+//
+//                //isto parte o tlm do Paulo!!!
+//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN){
+//                    //nao funciona
+//                    AppController.getInstance().mCamera.setPreviewCallback(previewCb);
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
-    Long currentTime;
     private void start_camera()
     {
-        currentTime = System.currentTimeMillis();
         Log.d("MyCameraApp", "start_camera");
         waitForCamera();
         ControlCameraTask c = new ControlCameraTask();
@@ -706,8 +694,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 {
                     barcodeScanned = true;
                     //stop_camera();
-
-
                     SymbolSet syms = scanner.getResults();
                     Log.d("myapp", "*************************syms: " + syms.size());
                     for (Symbol sym : syms)
@@ -727,8 +713,6 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                             }
                         });
                         alertDialog.show();
-    //                    Intent returnIntent = new Intent();
-    //                    returnIntent.putExtra("BARCODE", sym.getData());
                     }
                 }
             } catch (Exception e) {

@@ -113,11 +113,7 @@
                 android:textColor="@color/orange"
                 android:textSize="16dip"/>
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="dummy register"
-                android:id="@+id/button" />
+
 
 
         </LinearLayout>
@@ -152,8 +148,8 @@
                         android:id="@+id/firstname"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPersonName"
-                        android:hint="@string/lastName"/>
+                        android:inputType="textPersonName|textCapSentences"
+                        android:hint="@string/firstName"/>
                 </android.support.design.widget.TextInputLayout>
 
                 <android.support.design.widget.TextInputLayout
@@ -167,7 +163,7 @@
                         android:id="@+id/lastname"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textPersonName"
+                        android:inputType="textCapSentences"
                         android:hint="@string/lastName"/>
                 </android.support.design.widget.TextInputLayout>
 

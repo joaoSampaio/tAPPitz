@@ -51,6 +51,7 @@ public class InBoxFragment extends Fragment {
         rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(getActivity(), "Refreshing", Toast.LENGTH_SHORT).show();
                 refreshInbox();
             }
         });
@@ -81,7 +82,7 @@ public class InBoxFragment extends Fragment {
 
         });
 
-        ((Button)rootView.findViewById(R.id.action_back)).setText("Inbox");
+        ((Button)rootView.findViewById(R.id.action_back)).setText("Received");
         rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -114,7 +115,7 @@ public class InBoxFragment extends Fragment {
 
 
     private void refreshInbox(){
-        Toast.makeText(getActivity(), "Refreshed!", Toast.LENGTH_SHORT).show();;
+        rootView.findViewById(R.id.action_refresh).setEnabled(false);
         new ListInboxService(new CallbackMultiple<List<PhotoInbox>, String>() {
             @Override
             public void success(List<PhotoInbox> response) {
@@ -126,18 +127,17 @@ public class InBoxFragment extends Fragment {
                     currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
                     viewPager.setCurrentItem(currentPage);
 
-                    showPage(((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id());
+                    showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
 
                     new ModelCache<List<PhotoInbox>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
-                }else {
-                    OnDoneLoading();
+                    rootView.findViewById(R.id.action_refresh).setEnabled(true);
                 }
 
             }
 
             @Override
             public void failed(String error) {
-                OnDoneLoading();
+                rootView.findViewById(R.id.action_refresh).setEnabled(true);
             }
         }).execute();
     }

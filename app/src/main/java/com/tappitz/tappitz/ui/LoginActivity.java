@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentActivity;
@@ -56,6 +57,8 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private Spinner paisesSpinner;
     private ActionProcessButton login;
     private ProgressGenerator progressGenerator;
+    private Handler handler;
+    private Runnable runnable;
 
     private List<Integer> screens;
 
@@ -92,7 +95,13 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         editEmail.setText(user);
         editPassword.setText(pass);
 
-
+        handler = new Handler();
+        runnable = new Runnable() {
+            @Override
+            public void run() {
+                login.setProgress(0);
+            }
+        };
 
         date_picker = (AppCompatEditText)findViewById(R.id.date_picker);
         date_picker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
@@ -123,14 +132,13 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 //        btnSignIn.setMode(ActionProcessButton.Mode.ENDLESS);
 
 
-        findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerFakeUser();
-            }
-        });
-
     }
+    @Override
+    public void onPause(){
+        super.onPause();
+        handler.removeCallbacks(runnable);
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -233,8 +241,8 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                     progressDialog.dismiss();
                     login.setProgress(-1);
                     Log.d("myapp", "***login**error*" + error);
-                    editEmail.setError( error);
-
+                    editEmail.setError(error);
+                    new Handler().postDelayed(runnable, 2000);
                     //onSuccessLogin();
                 }
             }).execute();
@@ -493,60 +501,6 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     public void onComplete() {
 
     }
-
-
-
-    private void registerFakeUser(){
-
-        String firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password;
-
-        firstName = "joao";
-        lastName = "sampaio";
-        gender =  "1";
-        //gender = Boolean.toString(male.isChecked());
-        birthDate = 30 + "_" + 4 + "_" + 1992;
-        phoneNumber = "998989898";
-        country = paisesSpinner.getSelectedItemPosition() + "";
-        gpsCoordinates = "1234";
-        email = "js@gmail.com";
-        password = "password";
-        UserRegister user = new UserRegister(firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password);
-
-
-        final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
-
-        new RegisterService(user, new CallbackFromService() {
-            @Override
-            public void success(Object response) {
-                JsonElement json = (JsonElement) response;
-                Log.d("myapp", "***get(status)***" + json.getAsJsonObject().get("status"));
-                String status = json.getAsJsonObject().get("status").toString();
-                if(status.equals("true")){
-                    Log.d("myapp", "***get(status)**true*");
-                    editEmail.setText(registerEmail.getText().toString());
-                    editPassword.setText(registerPassword.getText().toString());
-                    screens.add(R.id.screen_reg2);
-                    showScreen(R.id.screen_login);
-                }else{
-                    Log.d("myapp", "***get(status)**false*");
-                    String error = json.getAsJsonObject().get("error").toString();
-                    editPassword.setError(error);
-                }
-                progressDialog.dismiss();
-
-            }
-
-            @Override
-            public void failed(Object error) {
-                Toast.makeText(getApplicationContext(), "There was an eror, Try again later.", Toast.LENGTH_LONG).show();
-                progressDialog.dismiss();
-            }
-        }).execute();
-
-
-    }
-
-
 
 
 }

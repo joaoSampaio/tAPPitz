@@ -82,7 +82,7 @@ public class OutBoxFragment extends Fragment {
         loadOffline();
         refreshOutbox();
 
-        ((Button)rootView.findViewById(R.id.action_back)).setText("Outbox");
+        ((Button)rootView.findViewById(R.id.action_back)).setText("Sent");
         rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,6 +92,7 @@ public class OutBoxFragment extends Fragment {
         rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(getActivity(), "Refreshing", Toast.LENGTH_SHORT).show();
                 refreshOutbox();
             }
         });
@@ -127,6 +128,7 @@ public class OutBoxFragment extends Fragment {
     }
 
     private void refreshOutbox(){
+        rootView.findViewById(R.id.action_refresh).setEnabled(false);
         new ListOutboxService(new CallbackMultiple<List<PhotoOutbox>, String>() {
             @Override
             public void success(List<PhotoOutbox> response) {
@@ -140,14 +142,13 @@ public class OutBoxFragment extends Fragment {
                     currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
                     viewPager.setCurrentItem(currentPage);
                     new ModelCache<List<PhotoOutbox>>().saveModel(getActivity(), photos, Global.OFFLINE_OUTBOX);
-                }else {
-                    OnDoneLoading();
+                    rootView.findViewById(R.id.action_refresh).setEnabled(true);
                 }
             }
 
             @Override
             public void failed(String error) {
-                OnDoneLoading();
+                rootView.findViewById(R.id.action_refresh).setEnabled(true);
             }
         }).execute();
     }
