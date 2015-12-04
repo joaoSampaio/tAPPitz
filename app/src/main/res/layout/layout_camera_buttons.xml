@@ -209,7 +209,7 @@
             android:id="@+id/btn_goto_in"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:text="Inbox"
+            android:text="Received"
             style="@style/SelectBar"
             android:background="#00000000" />
 
@@ -217,7 +217,7 @@
             android:id="@+id/btn_goto_out"
             android:layout_width="fill_parent"
             android:layout_height="match_parent"
-            android:text="OutBox"
+            android:text="Sent"
             style="@style/SelectBar"
             android:background="#00000000" />
 

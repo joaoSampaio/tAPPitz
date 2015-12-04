@@ -136,14 +136,11 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                 .listener(new RequestListener<String, GlideDrawable>() {
                     @Override
                     public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                        Log.d("myapp", "onException :" + model + " |||");
-                        Log.d("myapp", "onException e:" + e.getMessage() + " |vcvcvcv|| " + target.toString());
                         return false;
                     }
 
                     @Override
                     public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        Log.d("myapp", "onResourceReady isFromMemoryCache:" + isFromMemoryCache + " ||| isFirstResource: " + isFirstResource + " url:" + model);
                         return false;
                     }
                 })

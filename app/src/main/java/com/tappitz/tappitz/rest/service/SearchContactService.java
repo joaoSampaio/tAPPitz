@@ -45,7 +45,7 @@ public class SearchContactService implements ServerCommunicationService {
                     callback.success(contact);
                 } else {
                     Log.d("myapp", "deu erro");
-                    callback.failed("network problem");
+                    callback.failed(obj.get("error").getAsString());
                 }
 
 

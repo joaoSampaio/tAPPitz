@@ -254,8 +254,17 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         }
 
+
+
+
         color_background.setBackgroundColor(getResources().getColor(getColor(currentVote)));
+        color_background.setVisibility(View.VISIBLE);
         showSendExtras(true);
+
+        editTextComment.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(editTextComment, InputMethodManager.SHOW_IMPLICIT);
+
         //editTextComment.setVisibility(editTextComment.isShown() ? View.GONE : View.VISIBLE);
 
         return true;
@@ -328,6 +337,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         botaoVermelho.setEnabled(false);
         botaoAmarelo.setEnabled(false);
         botaoVerde.setEnabled(false);
+        color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
+        color_background.setVisibility(View.VISIBLE);
         final String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
         new SendVotePictureService(comment, id, vote, new CallbackMultiple<Boolean, String>() {
             @Override
@@ -340,6 +351,13 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                     color_background.setVisibility(View.VISIBLE);
                     color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
 
+                    //abriu a notificação e votou na picture vamso fechar a app
+                    if(((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id() == id){
+                        ((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
+                        getActivity().finish();
+                        return;
+                    }
+
                     VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
                     int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
 
@@ -350,10 +368,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
                     ((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
 
-                    //abriu a notificação e votou na picture vamso fechar a app
-                    if(((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id() == id){
-                        getActivity().finish();
-                    }
+
 
                 }
             }

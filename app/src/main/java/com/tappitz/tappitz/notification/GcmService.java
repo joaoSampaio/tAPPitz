@@ -121,7 +121,7 @@ public class GcmService extends GcmListenerService {
 
         int icon = R.drawable.ic_stat_logo_tappitz;
         long when = System.currentTimeMillis();
-        Notification notification = new Notification(icon, "Custom Notification", when);
+        Notification notification = new Notification(icon, "tAPPitz", when);
 
         NotificationManager mNotificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 
@@ -149,21 +149,21 @@ public class GcmService extends GcmListenerService {
             //int vote = extras.getInt("vote");
             String vote = extras.getString("vote", "0");
             Log.d("myapp_new", "vote:" + vote);
-            contentView.setTextViewText(R.id.title, authorName);
+            contentView.setTextViewText(R.id.title, authorName +" has voted!");
             contentView.setTextViewText(R.id.text, comment);
             contentView.setTextColor(R.id.title, getResources().getColor(GetColor.getColor(vote)));
         }else if(action.equals(Global.NEW_PICTURE_RECEIVED)) {
             String authorName = extras.getString("authorName");
-            String comment = extras.getString("comment", "Has sent you a picture.");
+            String comment = extras.getString("comment", "");
             if(comment.length() > 30){
                 comment = comment.substring(0,30) + "...";
             }
 
-            contentView.setTextViewText(R.id.title, authorName);
+            contentView.setTextViewText(R.id.title, authorName + " has sent you a picture!");
             contentView.setTextViewText(R.id.text, comment);
         }else {
-            contentView.setTextViewText(R.id.title, "GCM Message");
-            contentView.setTextViewText(R.id.text, message);
+            contentView.setTextViewText(R.id.title, "tAPPitz");
+            contentView.setTextViewText(R.id.text, "WoW!! we have news");
 
         }
 

@@ -16,7 +16,8 @@
         android:textAppearance="@style/TextAppearance.StatusBar.EventContent"
         style="@style/SelectBar"
         android:textStyle="bold"
-        android:text="Titulo" />
+        android:text="Titulo"
+        android:textSize="6pt" />
     <TextView android:id="@+id/text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +25,8 @@
         android:layout_below="@id/title"
         android:textAppearance="@style/TextAppearance.StatusBar.EventContent"
         style="Custom Notification Text"
-        android:text="Alguem enviou algo" />
+        android:text="Alguem enviou algo"
+        android:textSize="5pt" />
 
     <TextView
         android:layout_width="wrap_content"

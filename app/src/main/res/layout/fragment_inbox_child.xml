@@ -11,10 +11,63 @@
         android:layout_height="match_parent"
         android:id="@+id/background">
 
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center_horizontal"
+                android:baselineAligned="false"
+                android:layout_centerInParent="true">
+
+                <ProgressBar
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                   />
+
+                <ProgressBar
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="20dp"
+                    />
+
+                <ProgressBar
+                    android:layout_width="75dp"
+                    android:layout_height="wrap_content"
+                    />
+
+
+
+            </LinearLayout>
+
+            <!--<ProgressBar-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:id="@+id/progress1"-->
+                <!--android:layout_gravity="center"-->
+                <!--android:layout_centerInParent="true"/>-->
+
+            <!--<ProgressBar-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_toLeftOf="@+id/progress1"/>-->
+
+            <!--<ProgressBar-->
+                <!--android:layout_width="wrap_content"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_toRightOf="@+id/progress1"/>-->
+
+            </RelativeLayout>
+
+
+
 
         <ImageView
             android:layout_width="match_parent"
@@ -23,13 +76,7 @@
             android:id="@+id/picture"
             android:clickable="true"
             android:layout_alignParentBottom="true" />
-        <!--<com.android.volley.toolbox.NetworkImageView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:scaleType="fitCenter"-->
-            <!--android:id="@+id/picture"-->
-            <!--android:clickable="true"-->
-            <!--android:layout_alignParentBottom="true" />-->
+
 
     </FrameLayout>
 
@@ -129,9 +176,9 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textAppearance="?android:attr/textAppearance"
                         android:id="@+id/photo_description"
                         android:inputType="textMultiLine"
+                        android:textSize="@dimen/text_size_normal"
                         style="@style/SelectBar"
                         android:layout_gravity="top|center_horizontal"
                         android:textAlignment="center" />
@@ -189,6 +236,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal"
                     android:id="@+id/textViewOwner"
                     android:text="Pedro Artures"
                     style="@style/SelectBar" />
@@ -196,6 +244,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal"
                     android:text="15/10/2015 - 12:35"
                     android:id="@+id/textViewDate"
                     style="@style/SelectBar" />
@@ -218,12 +267,13 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+
                 android:id="@+id/photo_description_voted"
                 android:inputType="textMultiLine"
                 android:gravity="left"
                 style="@style/SelectBar"
-                android:layout_gravity="right|top"/>
+                android:layout_gravity="right|top"
+                android:textSize="@dimen/text_size_normal" />
 
             <LinearLayout
                 android:orientation="vertical"
@@ -236,11 +286,13 @@
                     style="@style/SelectBar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal"
                     android:id="@+id/textViewOwner2"
-                    android:text="Pedro Artures" />
+                     />
 
                 <TextView
                     style="@style/SelectBar"
+                    android:textSize="@dimen/text_size_normal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="15/10/2015 - 12:35"
@@ -250,7 +302,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textSize="@dimen/text_size_normal"
                 android:id="@+id/yourComment"
                 android:inputType="textMultiLine"
                 android:gravity="left"

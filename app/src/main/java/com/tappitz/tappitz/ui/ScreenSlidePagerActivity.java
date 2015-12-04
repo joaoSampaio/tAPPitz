@@ -25,6 +25,7 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.notification.RegistrationIntentService;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CheckLoggedStateService;
 import com.tappitz.tappitz.rest.service.LoginService;
@@ -49,6 +50,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     //indica qual a picture a ser mostrada no inbox
     private int inbox_vote_id = -1;
+    private PhotoInbox newPhoto;
 
 
     /**
@@ -152,6 +154,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                         showPage(Global.INBOX);
                        // mPager.setCurrentItem(0);
                         break;
+                    case Global.NEW_PICTURE_VOTE:
+                        showPage(Global.OUTBOX);
+//                    afterLoginAction = Global.INBOX;
+                        break;
                 }
 
             }
@@ -193,6 +199,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                     showPage(Global.INBOX);
 //                    afterLoginAction = Global.INBOX;
                     break;
+                case Global.NEW_PICTURE_VOTE:
+                    showPage(Global.OUTBOX);
+//                    afterLoginAction = Global.INBOX;
+                    break;
+
+
             }
 
         }
@@ -279,6 +291,27 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     private void onSuccessSignIn(){
         //esconde splash screen e envia o id para notificações
+        Intent intent = getIntent();
+        String action = null;
+
+        if(intent.hasExtra("action"))
+            action = intent.getExtras().getString("action");
+        if(action != null){
+            Log.d("myapp", "****action: " + action);
+            switch (action){
+                case Global.NEW_PICTURE_RECEIVED:
+                    String pictureId = intent.getExtras().getString("pictureId", "-1");
+                    String pictureSentence = intent.getExtras().getString("pictureSentence", "");
+                    String authorName = intent.getExtras().getString("authorName", "");
+                    inbox_vote_id = Integer.parseInt(pictureId);
+                    newPhoto = new PhotoInbox(inbox_vote_id, pictureSentence, authorName);
+
+                    break;
+            }
+        }
+
+
+
 
         Log.d("myapp_new", "****onSuccessSignIn ");
         signIn = true;
@@ -294,16 +327,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         mPager.setClipChildren(false);
         mPager.setClipToPadding(false);
 
-        Intent intent = getIntent();
-        String action = null;
+
         Log.d("myapp", "****onCreate " + intent.hasExtra("action"));
         if(intent.getExtras() != null){
             Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
 
         }
 
-        if(intent.hasExtra("action"))
-            action = intent.getExtras().getString("action");
         if(action != null){
             Log.d("myapp", "****action: " + action);
             switch (action){
@@ -314,10 +344,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
                 case Global.NEW_PICTURE_RECEIVED:
                     showPage(Global.INBOX);
-                    String pictureId = intent.getExtras().getString("pictureId", "-1");
-                    inbox_vote_id = Integer.parseInt(pictureId);
                     break;
-
             }
 
         }else{
@@ -392,6 +419,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
             }
         }catch (Exception e){
             Log.d("myapp", "onback error");
+            super.onBackPressed();
         }
 
     }
@@ -497,6 +525,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     public void setInbox_vote_id(int inbox_vote_id) {
         this.inbox_vote_id = inbox_vote_id;
+    }
+
+    public PhotoInbox getNewPhoto() {
+        return newPhoto;
+    }
+
+    public void setNewPhoto(PhotoInbox newPhoto) {
+        this.newPhoto = newPhoto;
     }
 
     public OutBoxFragment.UpdateAfterPicture getUpdateAfterPicture() {

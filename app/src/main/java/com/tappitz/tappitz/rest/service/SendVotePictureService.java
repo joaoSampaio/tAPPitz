@@ -39,7 +39,7 @@ public class SendVotePictureService implements ServerCommunicationService {
                     callback.success(true);
                 } else {
                     Log.d("myapp", "deu erro");
-                    callback.failed(obj.get("error").getAsString());
+                    callback.failed(obj != null? obj.get("error").getAsString() : "error");
                 }
             }
 

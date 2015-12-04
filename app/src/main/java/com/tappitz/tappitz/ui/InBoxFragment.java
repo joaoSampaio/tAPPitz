@@ -90,8 +90,23 @@ public class InBoxFragment extends Fragment {
             }
         });
 
+
+
+
+
+
+
         loadOffline();
+
+        PhotoInbox in = ((ScreenSlidePagerActivity) getActivity()).getNewPhoto();
+        if(in != null){
+            photos.add(0, in);
+            adapter.notifyDataSetChanged();
+            ((ScreenSlidePagerActivity) getActivity()).setNewPhoto(null);
+        }
+
         refreshInbox();
+
         return rootView;
     }
 
@@ -124,10 +139,17 @@ public class InBoxFragment extends Fragment {
                     photos.clear();
                     photos.addAll(response);
                     adapter.notifyDataSetChanged();
-                    currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
-                    viewPager.setCurrentItem(currentPage);
 
-                    showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
+                    if(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id() >= 0){
+                        showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
+                    }else{
+                        currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
+                        viewPager.setCurrentItem(currentPage);
+                    }
+
+
+
+                    //showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
 
                     new ModelCache<List<PhotoInbox>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
                     rootView.findViewById(R.id.action_refresh).setEnabled(true);
