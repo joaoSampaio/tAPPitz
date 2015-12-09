@@ -308,4 +308,7 @@
         <item>320x240</item>
     </string-array>
 
+    <string name="crash_toast_text">Ocorreu um erro, a enviar logs ao dev</string>
+
+
 </resources>

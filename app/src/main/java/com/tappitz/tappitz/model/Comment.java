@@ -18,6 +18,12 @@ public class Comment {
         this.name = name;
     }
 
+    public Comment(int rate, String name, String dateSent) {
+        this.rate = rate;
+        this.name = name;
+        this.dateSent = dateSent;
+    }
+
     public int getRate() {
         return rate;
     }

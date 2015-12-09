@@ -42,7 +42,15 @@ public class BlankFragment extends Fragment  {
         rootView = inflater.inflate(R.layout.fragment_blank, container, false);
 
 
-
+        ((ScreenSlidePagerActivity)getActivity()).setButtonEnable(new ButtonEnable() {
+            @Override
+            public void enableCameraButtons(boolean enable) {
+                Log.d("myapp", "enableCameraButtons:" + enable);
+                rootView.findViewById(R.id.btn_toggle_camera).setEnabled(enable);
+                rootView.findViewById(R.id.btn_flash).setEnabled(enable);
+                rootView.findViewById(R.id.btn_load).setEnabled(enable);
+            }
+        });
 
         View.OnClickListener click = new View.OnClickListener() {
             @Override
@@ -79,76 +87,7 @@ public class BlankFragment extends Fragment  {
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
 
 
-        whiteBackground.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                Log.d("myapp", "setOnTouchListener blank ");
-                switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
-                    case MotionEvent.ACTION_DOWN:
-                        Log.d("myapp", "inbox ACTION_DOWN");
-                    case MotionEvent.ACTION_POINTER_DOWN:
-                        Log.d("myapp", "inbox ACTION_POINTER_DOWN");
-                        //=====Write down your Finger Pressed code here
-
-                        camera_options.setTag("hide");
-                        ((ScreenSlidePagerActivity) getActivity()).pass(camera_options);
-
-
-//                        Camera camera = AppController.getInstance().mCamera;
-//                        if (camera != null) {
-//                            camera.cancelAutoFocus();
-//                            //Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
-//                            Rect focusRect = calculateFocusArea(event.getX(), event.getY(), event.getTouchMajor(), event.getTouchMinor());
-//                            Camera.Parameters parameters = camera.getParameters();
-//                            if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_AUTO) {
-//                                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-//                            }
-//                            if (parameters.getMaxNumFocusAreas() > 0) {
-//                                List<Camera.Area> mylist = new ArrayList<Camera.Area>();
-//                                mylist.add(new Camera.Area(focusRect, 1000));
-//                                parameters.setFocusAreas(mylist);
-//                            }
-//
-//                            try {
-//                                camera.cancelAutoFocus();
-//                                camera.setParameters(parameters);
-//                                camera.startPreview();
-//                                camera.autoFocus(new Camera.AutoFocusCallback() {
-//                                    @Override
-//                                    public void onAutoFocus(boolean success, Camera camera) {
-//                                        if (camera.getParameters().getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
-//                                            Camera.Parameters parameters = camera.getParameters();
-//                                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
-//                                            if (parameters.getMaxNumFocusAreas() > 0) {
-//                                                parameters.setFocusAreas(null);
-//                                            }
-//                                            camera.setParameters(parameters);
-//                                            camera.startPreview();
-//                                        }
-//                                    }
-//                                });
-//                            } catch (Exception e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-
-
-
-                        return true;
-
-                    case MotionEvent.ACTION_UP:
-                        Log.d("myapp", "inbox ACTION_UP");
-                    case MotionEvent.ACTION_POINTER_UP:
-                        //=====Write down you code Finger Released code here
-                    case MotionEvent.ACTION_MOVE:
-                        Log.d("myapp", "inbox ACTION_MOVE");
-
-                }
-
-                return false;
-            }
-        });
 
 
 
@@ -156,17 +95,6 @@ public class BlankFragment extends Fragment  {
                 rootView.findViewById(id).setOnClickListener(click);
 
 
-
-        //rootView.getParent().requestDisallowInterceptTouchEvent(false);
-//        rootView.setOnTouchListener(new View.OnTouchListener() {
-//            @Override
-//            public boolean onTouch(View v, MotionEvent event) {
-//                Log.d("myapp2", "blank");
-//                //getActivity().onTouchEvent(event);
-//                ((ScreenSlidePagerActivity)getActivity()).pass(event);
-//                return false;
-//            }
-//        });
         return rootView;
     }
 
@@ -202,6 +130,11 @@ int FOCUS_AREA_SIZE = 100;
         return targetFocusRect;
     }
 
+    private void enableCameraButtons(boolean enable){
+        rootView.findViewById(R.id.btn_toggle_camera).setEnabled(enable);
+        rootView.findViewById(R.id.btn_flash).setEnabled(enable);
+        rootView.findViewById(R.id.btn_load).setEnabled(enable);
+    }
 
 
     @Override
@@ -262,6 +195,78 @@ int FOCUS_AREA_SIZE = 100;
 //        showBtnOptions(true);
 //    }
 
+    private void enableFocus(){
+        whiteBackground.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                Log.d("myapp", "setOnTouchListener blank ");
+                switch (event.getAction() & MotionEvent.ACTION_MASK) {
+
+                    case MotionEvent.ACTION_DOWN:
+                        Log.d("myapp", "inbox ACTION_DOWN");
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        Log.d("myapp", "inbox ACTION_POINTER_DOWN");
+                        //=====Write down your Finger Pressed code here
+
+                        camera_options.setTag("hide");
+                        ((ScreenSlidePagerActivity) getActivity()).pass(camera_options);
+
+
+                        Camera camera = AppController.getInstance().mCamera;
+                        if (camera != null) {
+                            camera.cancelAutoFocus();
+                            //Rect focusRect = calculateTapArea(event.getX(), event.getY(), 1f);
+                            Rect focusRect = calculateFocusArea(event.getX(), event.getY(), event.getTouchMajor(), event.getTouchMinor());
+                            Camera.Parameters parameters = camera.getParameters();
+                            if (parameters.getFocusMode() != Camera.Parameters.FOCUS_MODE_AUTO) {
+                                parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                            }
+                            if (parameters.getMaxNumFocusAreas() > 0) {
+                                List<Camera.Area> mylist = new ArrayList<Camera.Area>();
+                                mylist.add(new Camera.Area(focusRect, 1000));
+                                parameters.setFocusAreas(mylist);
+                            }
+
+                            try {
+                                camera.cancelAutoFocus();
+                                camera.setParameters(parameters);
+                                camera.startPreview();
+                                camera.autoFocus(new Camera.AutoFocusCallback() {
+                                    @Override
+                                    public void onAutoFocus(boolean success, Camera camera) {
+                                        if (camera.getParameters().getFocusMode() != Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE) {
+                                            Camera.Parameters parameters = camera.getParameters();
+                                            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+                                            if (parameters.getMaxNumFocusAreas() > 0) {
+                                                parameters.setFocusAreas(null);
+                                            }
+                                            camera.setParameters(parameters);
+                                            camera.startPreview();
+                                        }
+                                    }
+                                });
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+
+
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        Log.d("myapp", "inbox ACTION_UP");
+                    case MotionEvent.ACTION_POINTER_UP:
+                        //=====Write down you code Finger Released code here
+                    case MotionEvent.ACTION_MOVE:
+                        Log.d("myapp", "inbox ACTION_MOVE");
+
+                }
+
+                return false;
+            }
+        });
+    }
 
 
     private void showBtnOptions(boolean show){
@@ -271,31 +276,8 @@ int FOCUS_AREA_SIZE = 100;
         rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
     }
 
-//    private void onTakePick(final boolean takePhoto)
-//    {
-//        //este metodo esconde o menu da camera ou mostra o botao para tirar foto, simplesmente tem animações porque era codigo que ja tinha feito para outra app
-//
-//        btn_shutter.setVisibility(takePhoto ? View.GONE : View.VISIBLE);
-//        showBtnOptions(!takePhoto);
-//        whiteBackground.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
-//    }
-//
-//    private void showEditText(){
-//        Log.d("myapp", "showEditText");
-//        final boolean isVisible = textMsgWrapper.isShown();
-//        rootView.findViewById( R.id.btnText).setEnabled(false);
-//        textMsgWrapper.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
-//        rootView.findViewById(R.id.btnText).setEnabled(true);
-//
-//        if(!isVisible){
-//            textMsg.requestFocus();
-//            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
-//        }else {
-//            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//            imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-//        }
-//    }
-
+    public interface ButtonEnable{
+        void enableCameraButtons(boolean enable);
+    }
 
 }

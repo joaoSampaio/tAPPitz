@@ -131,10 +131,6 @@ public class FriendsFragment extends DialogFragment implements SwipeRefreshLayou
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d("myapp", "onTextChanged: " );
-                Log.d("myapp", "contactsFriends.size(): " + contactsFriends.size() );
-                Log.d("myapp", "allContactsList.size(): " + allContactsList.size() );
-                Log.d("myapp", "contactsRequest.size(): " + contactsRequest.size() );
                 if(allContactsList.size() < (contactsFriends.size() + contactsRequest.size())){
                     allContactsList.clear();
                     allContactsList.addAll(contactsRequest);

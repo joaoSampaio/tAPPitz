@@ -256,6 +256,8 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                             @Override
                             public void success(Boolean response) {
                                 Toast.makeText(activity, "Invitation Sent", Toast.LENGTH_SHORT).show();
+
+                                getFilter().filter("");
                             }
 
                             @Override

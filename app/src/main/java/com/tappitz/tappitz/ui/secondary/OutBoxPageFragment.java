@@ -40,12 +40,14 @@ import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.model.ListViewContactItem;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListVotesService;
 import com.tappitz.tappitz.ui.InBoxFragment;
 import com.tappitz.tappitz.ui.OutBoxFragment;
+import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
 
@@ -53,6 +55,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,11 +75,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     private ImageView color_background;
     private LinearLayout buttonsContainer;
     private ListenerPagerStateChange state;
-
-
     private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
-    ImageLoader imageLoader = AppController.getInstance().getImageLoader();
-
 
     public static OutBoxPageFragment newInstance(Bundle args) {
         OutBoxPageFragment fragment = new OutBoxPageFragment();
@@ -88,8 +88,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                              Bundle savedInstanceState) {
 
         rootView = inflater.inflate(R.layout.fragment_outbox_child, container, false);
-//        NetworkImageView imageView = (NetworkImageView)rootView.findViewById(R.id.picture);
-      ImageView imageView = (ImageView)rootView.findViewById(R.id.picture);
+        ImageView imageView = (ImageView)rootView.findViewById(R.id.picture);
 
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         String text = getArguments().getString(Global.TEXT_RESOURCE);
@@ -117,19 +116,36 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         commentText = (TextView) rootView.findViewById(R.id.photo_comment);
         comment_user = (TextView) rootView.findViewById(R.id.comment_user);
 
-//        if (imageLoader == null)
-//            imageLoader = AppController.getInstance().getImageLoader();
-//        imageView.setImageUrl(url, imageLoader);
-
-//        Glide.get(getActivity())
-//                .register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(RestClient.getOk()));
-
-
-//        final GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
-//                .setHeader("Session-Id", AppController.getInstance().getSessionId())
-//                .build());
-
         loadVotesOffline();
+        Log.d("ListVotesService", "getContext() != null" + (getContext() != null));
+        if(((ScreenSlidePagerActivity)getActivity()).getOutbox_id() >= 0){
+
+            Comment c = ((ScreenSlidePagerActivity) getActivity()).getCommentVote();
+            if(c != null) {
+                openComment(c.getName(), c.getDateSent(), c.getRate());
+                ((ScreenSlidePagerActivity)getActivity()).setOutbox_id(-1);
+                ((ScreenSlidePagerActivity)getActivity()).setCommentVote(null);
+            }
+        }else{
+            new ListVotesService(id, new CallbackMultiple<List<Comment>, String>() {
+                @Override
+                public void success(List<Comment> comments) {
+                    Log.d("ListVotesService", "getContext() != null" + (getContext() != null));
+                    Log.d("ListVotesService", "app getApplicationContext() != null" + (AppController.getInstance().getApplicationContext() != null));
+                    Context ctx = AppController.getInstance().getApplicationContext();
+                    new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
+                    if(getActivity()!= null) {
+                        sortVotes(comments);
+                    }
+
+                }
+
+                @Override
+                public void failed(String error) {
+
+                }
+            }).execute();
+        }
 
         Glide.with(this)
                 .load(url)
@@ -147,56 +163,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .into(imageView);
-
-
-//        new Picasso.Builder(getActivity()).downloader(new OkHttpDownloader(RestClient.getOk())).build().load(url).fit().into(imageView);
-
-
-
-
-//        Picasso.Builder builder = new Picasso.Builder(getActivity());
-//        Picasso picasso =  builder.downloader(new OkHttpDownloader(getActivity()) {
-//            @Override
-//            protected HttpURLConnection openConnection(Uri uri) throws IOException {
-//                HttpURLConnection connection = super.openConnection(uri);
-//                connection.setRequestProperty("Session-Id", AppController.getInstance().getSessionId());
-//                return connection;
-//            }
-//        }).build();
-//        picasso.load(url).centerCrop().into(imageView);
-
-
-
-
-
-//        Picasso.with(getActivity())
-//                .load(url)
-//                .centerCrop()
-//                .noFade()
-//                .into(imageView);
-
-
-
-
-
-        new ListVotesService(id, new CallbackMultiple<List<Comment>, String>() {
-            @Override
-            public void success(List<Comment> comments) {
-                Log.d("ListVotesService", "getContext() != null" + (getContext() != null));
-                Log.d("ListVotesService", "app getApplicationContext() != null" + (AppController.getInstance().getApplicationContext() != null));
-                Context ctx = AppController.getInstance().getApplicationContext();
-                new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
-                if(getActivity()!= null) {
-                    sortVotes(comments);
-                }
-
-            }
-
-            @Override
-            public void failed(String error) {
-
-            }
-        }).execute();
 
         rootView.findViewById(R.id.picture).setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -259,7 +225,20 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                     break;
             }
         }
+        sortDesc(listRed);
+        sortDesc(listYellow);
+        sortDesc(listGreen);
+
         resetComments();
+    }
+
+    public static void sortDesc(List< Comment > list){
+        Collections.sort(list, new Comparator<Comment>() {
+            @Override
+            public int compare(Comment obj1, Comment obj2) {
+                return obj2.getDateSent().compareToIgnoreCase(obj1.getDateSent());
+            }
+        });
     }
 
     @Override
@@ -296,11 +275,52 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
     private void resetComments(){
         botaoVermelho.setText(listRed.size()+"");
-        botaoVerde.setText(listGreen.size()+"");
-        botaoAmarelo.setText(listYellow.size()+"");
+        botaoVerde.setText(listGreen.size() + "");
+        botaoAmarelo.setText(listYellow.size() + "");
         selectdList = -1;
         selectedPos = -1;
     }
+
+
+    private void openComment(String author, String date, int vote){
+        Comment comment = null;
+        List<Comment> comments = new ArrayList<>();
+        switch (vote){
+            case Global.RED:
+                comments =  listRed;
+                break;
+            case Global.YELLOW:
+                comments = listYellow;
+                break;
+            case Global.GREEN:
+                comments = listGreen;
+                break;
+        }
+        selectdList = vote;
+        int pos = -1;
+        for (Comment c: comments) {
+            pos++;
+            if(c.getDateSent().equals(date) && c.getName().equals(author)){
+                selectedPos = pos;
+                comment = c;
+                break;
+            }
+        }
+
+        if(comment != null && selectdList >= 0){
+            commentText.setText(comment.getComment());
+            comment_user.setText(comment.getName() + " - " + comment.getDateSent());
+            getButton(selectdList).setText((selectedPos + 1) + "/" + comments.size());
+            color_background.setBackgroundColor(getResources().getColor(getColor(selectdList)));
+            Log.d("myapp", "getNext end");
+            color_background.setVisibility(View.VISIBLE);
+            comment_layout.setVisibility(View.VISIBLE);
+        }
+
+
+
+    }
+
 
 
     private void getNext(int list){

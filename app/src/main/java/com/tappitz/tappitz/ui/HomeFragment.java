@@ -189,7 +189,7 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
         ((ScreenSlidePagerActivity)getActivity()).setCameraBackPressed(new ScreenSlidePagerActivity.CameraBackPressed() {
             @Override
             public boolean onBackPressed() {
-                if(isPhotoMenuOpen) {
+                if (isPhotoMenuOpen) {
                     deletePrevious();
                     return false;
                 }
@@ -307,31 +307,46 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
 
                 break;
             case R.id.btn_flash:
-                Camera.Parameters params = AppController.getInstance().mCamera.getParameters();
-                Button b = (Button)rootView.findViewById(R.id.btn_flash);
+                Log.d("myapp", "btn_flash:");
+                try {
+                    enableCameraButtons(false);
+                    if(AppController.getInstance().mCamera == null) {
+                        Log.d("myapp", "btn_flash is null:");
+                        enableCameraButtons(true);
+                        return;
+                    }
+                    Camera.Parameters params = AppController.getInstance().mCamera.getParameters();
+                    Button b = (Button)rootView.findViewById(R.id.btn_flash);
 
-                turnLightOn = !turnLightOn;
-                AppController.getInstance().turnLightOn = turnLightOn;
+                    turnLightOn = !turnLightOn;
+                    AppController.getInstance().turnLightOn = turnLightOn;
 
-                if (turnLightOn) {
-                    params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
-                    AppController.getInstance().mCamera.setParameters(params);
-                    AppController.getInstance().mCamera.startPreview();
-                    b.setTextColor(Color.YELLOW);
-                } else {
-                    params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-                    AppController.getInstance().mCamera.setParameters(params);
-                    AppController.getInstance().mCamera.startPreview();
-                    b.setTextColor(Color.WHITE);
+                    if (turnLightOn) {
+                        params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+                        AppController.getInstance().mCamera.setParameters(params);
+                        AppController.getInstance().mCamera.startPreview();
+                        b.setTextColor(Color.YELLOW);
+                    } else {
+                        params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                        AppController.getInstance().mCamera.setParameters(params);
+                        AppController.getInstance().mCamera.startPreview();
+                        b.setTextColor(Color.WHITE);
+                    }
+                    Log.d("myapp", "btn_flash end:");
+                    enableCameraButtons(true);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Log.d("myapp", "btn_flash Exception:");
+                    enableCameraButtons(true);
                 }
-
                 break;
             case R.id.btn_toggle_camera:
-
+                Log.d("myapp", "btn_toggle_camera:");
+                enableCameraButtons(false);
                 PackageManager pm = getActivity().getPackageManager();
 
                 if (!pm.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
-
+                    enableCameraButtons(true);
                     Toast.makeText(getActivity(), "You only have one camera!", Toast.LENGTH_SHORT).show();
                     break;
                 }
@@ -345,18 +360,33 @@ public class HomeFragment extends Fragment implements SurfaceHolder.Callback, Vi
                 stop_camera(new ControlCameraTask.CallbackCamera() {
                     @Override
                     public void onDone() {
+                        Log.d("myapp", "btn_toggle_camera onDone:");
                         start_camera();
+                        enableCameraButtons(true);
                     }
 
                     @Override
                     public void onError() {
+                        Log.d("myapp", "btn_toggle_camera onError:");
                         stop_camera();
                         start_camera();
+                        enableCameraButtons(true);
                     }
                 });
                 break;
 
         }
+    }
+
+    private void enableCameraButtons(boolean enable){
+
+        BlankFragment.ButtonEnable listener = ((ScreenSlidePagerActivity) getActivity()).getButtonEnable();
+        if(listener != null){
+            listener.enableCameraButtons(enable);
+        }
+//        rootView.findViewById(R.id.btn_toggle_camera).setEnabled(enable);
+//        rootView.findViewById(R.id.btn_flash).setEnabled(enable);
+//        rootView.findViewById(R.id.btn_load).setEnabled(enable);
     }
 
     private void setUP(){

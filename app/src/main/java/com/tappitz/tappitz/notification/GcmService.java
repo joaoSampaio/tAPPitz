@@ -14,14 +14,23 @@ import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.google.android.gms.gcm.GcmListenerService;
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.GetColor;
+import com.tappitz.tappitz.util.ModelCache;
 
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 
 /**
@@ -56,7 +65,7 @@ public class GcmService extends GcmListenerService {
 //                .setContentText(message);
 //        notificationManager.notify(1, mBuilder.build());
 
-
+        saveVotesOffline(data);
 
         sendNotification("Received GCM Message: ", data);
         updateMyActivity(data);
@@ -139,6 +148,7 @@ public class GcmService extends GcmListenerService {
         Log.d("myapp_new", "date:" + date);
         contentView.setImageViewResource(R.id.image, icon);
         contentView.setTextViewText(R.id.date, date);
+        contentView.setTextColor(R.id.title, getResources().getColor(R.color.black));
         if(action.equals(Global.NEW_PICTURE_VOTE)) {
             String authorName = extras.getString("authorName");
             String comment = extras.getString("comment", "Has sent you a vote.");
@@ -212,6 +222,58 @@ public class GcmService extends GcmListenerService {
         //send broadcast
         LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
     }
+
+    private void saveVotesOffline(Bundle extras){
+        //authorName=Miguel Sampaio, action=NEW_PICTURE_VOTE, pictureId=272, date=Sun Dec 06 17:10:33 UTC 2015, vote=1, comment=, authorId=34
+        String pictureId = extras.getString("pictureId", "-1");
+        String voteAuthorName = extras.getString("authorName", "");
+        String comment = extras.getString("comment", "");
+        String vote = extras.getString("vote", "-1");
+        String votedDate = extras.getString("date", "");
+        int id = Integer.parseInt(pictureId);
+        int voteInt = Integer.parseInt(vote);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("EE MMM dd HH:mm:ss z yyyy",
+                Locale.ENGLISH);
+//        DateFormat format = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH);
+        Date date = null;
+        try {
+            date = sdf.parse(votedDate);
+
+            DateFormat dfmt = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            votedDate = dfmt.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        System.out.println(date);
+        Log.d("updateMyActivity","..." + date);
+
+
+        //DateFormat dfmt = new SimpleDateFormat("EEEE, d 'de' MMMM 'às' HH:mm");
+        //Log.d("updateMyActivity", "..." + dfmt.format(date));
+
+        //nao recebemos um vote
+        if(voteInt < 0 || id < 0)
+            return;
+
+        Log.d("myapp", "**--loadOffline:");
+            Context ctx = getApplicationContext();
+            List<Comment> comments = new ModelCache<List<Comment>>().loadModel(ctx,new TypeToken<List<Comment>>(){}.getType(), Global.OFFLINE_VOTE+id);
+            if(comments != null && comments.size() > 0 && comments.get(0) instanceof Comment) {
+                Log.d("myapp", "**--loadOffline: inside ");
+
+
+            }else{
+                comments = new ArrayList<>();
+            }
+        comments.add(0, new Comment(voteInt, comment, votedDate, voteAuthorName));
+        new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
+        extras.putString("date", votedDate);
+    }
+
+
+
+
 
 
 }

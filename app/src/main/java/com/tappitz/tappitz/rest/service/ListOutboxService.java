@@ -33,11 +33,8 @@ public class ListOutboxService implements ServerCommunicationService {
 
                 Gson gson = new Gson();
                 JsonObject obj = json.getAsJsonObject();
-                Log.d("myapp", "obj->" + obj.toString());
-
                 List<PhotoOutbox> outbox = gson.fromJson(obj.get("pictures"), new TypeToken<List<PhotoOutbox>>() {
                 }.getType());
-                //Log.d("myapp", "genericContacts: " + outbox.size());
                 if (outbox == null)
                     outbox = new ArrayList<PhotoOutbox>();
                 callback.success(outbox);
@@ -47,7 +44,6 @@ public class ListOutboxService implements ServerCommunicationService {
 
             @Override
             public void failure(RetrofitError error) {
-                Log.d("myapp", "**error****" + error.toString());
                 callback.failed(error.toString());
             }
         });

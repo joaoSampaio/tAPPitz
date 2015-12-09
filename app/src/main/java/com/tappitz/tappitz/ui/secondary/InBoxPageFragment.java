@@ -49,7 +49,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
     String text;
 
     private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde, R.id.buttonBack, R.id.buttonSend};
-    ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
 
     public static InBoxPageFragment newInstance(Bundle args) {

@@ -23,6 +23,7 @@ import com.bumptech.glide.load.model.GlideUrl;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.notification.RegistrationIntentService;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
@@ -46,12 +47,16 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     private HomeToBlankListener listenerCamera;
     private CameraBackPressed cameraBackPressed;
     private OutBoxFragment.UpdateAfterPicture updateAfterPicture;
+    private BlankFragment.ButtonEnable buttonEnable;
     private int afterLoginAction = -1;
 
     //indica qual a picture a ser mostrada no inbox
     private int inbox_vote_id = -1;
     private PhotoInbox newPhoto;
+    private Comment commentVote;
+    private int outbox_id = -1;
 
+    private Bundle extras;
 
     /**
      * The number of pages (wizard steps) to show.
@@ -72,14 +77,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-//        if (Build.VERSION.SDK_INT < 16) {
-//            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-//                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-//        }
         setContentView(R.layout.activity_screen_slide);
         Log.d("myapp_new", "****onCreate ");
 
         frame = findViewById(R.id.frame);
+        extras = getIntent().getExtras();
         // Instantiate a ViewPager and a PagerAdapter.
 
     }
@@ -88,7 +90,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     public void onResume(){
         super.onResume();
         Log.d("myapp_new", "****onResume onResume onResume: ");
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
+        //LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
         signIn = false;
         cameraReady = false;
         afterLoginAction = -1;
@@ -151,12 +153,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
                     case Global.NEW_PICTURE_RECEIVED:
                         if(reloadInboxListener != null)
                             reloadInboxListener.refreshViewPager();
-                        showPage(Global.INBOX);
-                       // mPager.setCurrentItem(0);
+                        //showPage(Global.INBOX);
                         break;
                     case Global.NEW_PICTURE_VOTE:
                         showPage(Global.OUTBOX);
-//                    afterLoginAction = Global.INBOX;
                         break;
                 }
 
@@ -172,9 +172,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
 
+
+    //determina o que acontece quando clica na notificação
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
@@ -184,30 +186,32 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
             Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
 
         }
+        extras = intent.getExtras();
+        checkIsSignedIn();
 
-        if(intent.hasExtra("action"))
-            action = intent.getExtras().getString("action");
-        if(action != null){
-            Log.d("myapp", "****action: " + action);
-            switch (action){
-
-                case Global.NEW_FRIEND_REQUEST:
-                    showFriends();
-//                    afterLoginAction = Global.FRIENDS;
-                    break;
-                case Global.NEW_PICTURE_RECEIVED:
-                    showPage(Global.INBOX);
-//                    afterLoginAction = Global.INBOX;
-                    break;
-                case Global.NEW_PICTURE_VOTE:
-                    showPage(Global.OUTBOX);
-//                    afterLoginAction = Global.INBOX;
-                    break;
-
-
-            }
-
-        }
+//        if(intent.hasExtra("action"))
+//            action = intent.getExtras().getString("action");
+//        if(action != null){
+//            Log.d("myapp", "****action: " + action);
+//            switch (action){
+//
+//                case Global.NEW_FRIEND_REQUEST:
+//                    showFriends();
+////                    afterLoginAction = Global.FRIENDS;
+//                    break;
+//                case Global.NEW_PICTURE_RECEIVED:
+//                   // showPage(Global.INBOX);
+////                    afterLoginAction = Global.INBOX;
+//                    break;
+//                case Global.NEW_PICTURE_VOTE:
+////                    showPage(Global.OUTBOX);
+////                    afterLoginAction = Global.INBOX;
+//                    break;
+//
+//
+//            }
+//
+//        }
     }
 
 
@@ -291,21 +295,36 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     private void onSuccessSignIn(){
         //esconde splash screen e envia o id para notificações
-        Intent intent = getIntent();
-        String action = null;
-
-        if(intent.hasExtra("action"))
-            action = intent.getExtras().getString("action");
+        //Intent intent = getIntent();
+        String action = "",pictureId;
+        Log.d("myapp_notific", "****onSuccessSignIn: ");
+        if(extras != null)
+            action = extras.getString("action","");
         if(action != null){
-            Log.d("myapp", "****action: " + action);
+            Log.d("myapp_notific", "****action: " + action);
             switch (action){
                 case Global.NEW_PICTURE_RECEIVED:
-                    String pictureId = intent.getExtras().getString("pictureId", "-1");
-                    String pictureSentence = intent.getExtras().getString("pictureSentence", "");
-                    String authorName = intent.getExtras().getString("authorName", "");
+                    pictureId = extras.getString("pictureId", "-1");
+                    String pictureSentence = extras.getString("pictureSentence", "");
+                    String authorName = extras.getString("authorName", "");
                     inbox_vote_id = Integer.parseInt(pictureId);
                     newPhoto = new PhotoInbox(inbox_vote_id, pictureSentence, authorName);
 
+                    break;
+                case Global.NEW_PICTURE_VOTE:
+
+                    pictureId = extras.getString("pictureId", "-1");
+                    String voteAuthorName = extras.getString("authorName", "");
+                    String comment = extras.getString("comment", "");
+                    String vote = extras.getString("vote", "-1");
+                    String votedDate = extras.getString("date", "");
+                    outbox_id = Integer.parseInt(pictureId);
+                    int voteInt = Integer.parseInt(vote);
+
+                    commentVote = new Comment(voteInt, voteAuthorName, votedDate);
+//                    showPage(Global.OUTBOX);
+//                    afterLoginAction = Global.INBOX;
+                    Log.d("myapp_notific", "****NEW_PICTURE_VOTE: outbox_id:"+outbox_id + " voteInt:" + voteInt);
                     break;
             }
         }
@@ -327,13 +346,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         mPager.setClipChildren(false);
         mPager.setClipToPadding(false);
 
-
-        Log.d("myapp", "****onCreate " + intent.hasExtra("action"));
-        if(intent.getExtras() != null){
-            Log.d("myapp", "****getExtras: " + intent.getExtras().getString("action"));
-
-        }
-
         if(action != null){
             Log.d("myapp", "****action: " + action);
             switch (action){
@@ -344,6 +356,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
                 case Global.NEW_PICTURE_RECEIVED:
                     showPage(Global.INBOX);
+                    break;
+
+                case Global.NEW_PICTURE_VOTE:
+                    showPage(Global.OUTBOX);
+                    Log.d("myapp_notific", "****showPage:");
                     break;
             }
 
@@ -519,6 +536,22 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         this.reloadInboxListener = reloadInboxListener;
     }
 
+    public Comment getCommentVote() {
+        return commentVote;
+    }
+
+    public void setCommentVote(Comment commentVote) {
+        this.commentVote = commentVote;
+    }
+
+    public int getOutbox_id() {
+        return outbox_id;
+    }
+
+    public void setOutbox_id(int outbox_id) {
+        this.outbox_id = outbox_id;
+    }
+
     public int getInbox_vote_id() {
         return inbox_vote_id;
     }
@@ -549,5 +582,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
     public void setCameraBackPressed(CameraBackPressed cameraBackPressed) {
         this.cameraBackPressed = cameraBackPressed;
+    }
+
+    public BlankFragment.ButtonEnable getButtonEnable() {
+        return buttonEnable;
+    }
+
+    public void setButtonEnable(BlankFragment.ButtonEnable buttonEnable) {
+        this.buttonEnable = buttonEnable;
     }
 }

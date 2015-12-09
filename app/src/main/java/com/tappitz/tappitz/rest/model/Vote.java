@@ -2,6 +2,12 @@ package com.tappitz.tappitz.rest.model;
 
 import com.tappitz.tappitz.model.Comment;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 /**
  * Created by sampaio on 27-11-2015.
  */
@@ -63,6 +69,17 @@ public class Vote {
 
     public Comment convertToComment(){
         if(hasVoted()){
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss.S",
+                    Locale.ENGLISH);
+            Date date = null;
+            try {
+                date = sdf.parse(votedDate);
+
+                DateFormat dfmt = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+                votedDate = dfmt.format(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
             return new Comment(getVote(), getComment(), getVotedDate(), getReceiverName());
         }else {
             return null;

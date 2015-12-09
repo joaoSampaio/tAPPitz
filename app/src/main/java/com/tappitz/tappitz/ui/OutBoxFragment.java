@@ -50,14 +50,12 @@ public class OutBoxFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_out_box, container, false);
-        //new UploadImageAsyncTask().execute();
 
         //depois de pedir ao servidor um json com os dados crio uma lista de modelos e crio o pageview
         photos = new ArrayList<>();
         adapter = new OutBoxPagerAdapter(getChildFragmentManager(), photos);
         Log.d("myapp2", "**--new OutBoxFragment:");
         viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
-        /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
         viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
@@ -80,8 +78,11 @@ public class OutBoxFragment extends Fragment {
         });
 
         loadOffline();
-        refreshOutbox();
-
+        if(((ScreenSlidePagerActivity)getActivity()).getOutbox_id() >= 0){
+            showPage(((ScreenSlidePagerActivity)getActivity()).getOutbox_id());
+        }else {
+            refreshOutbox();
+        }
         ((Button)rootView.findViewById(R.id.action_back)).setText("Sent");
         rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,10 +105,11 @@ public class OutBoxFragment extends Fragment {
                     if(!hasPhoto(outbox.getId())){
                         photos.add(0, outbox);
                         adapter.notifyDataSetChanged();
+                        //guardamos offline a nova foto
+                        new ModelCache<List<PhotoOutbox>>().saveModel(getActivity(), photos, Global.OFFLINE_OUTBOX);
+
                     }
                 }
-
-
             }
         });
         return rootView;
@@ -134,7 +136,6 @@ public class OutBoxFragment extends Fragment {
             public void success(List<PhotoOutbox> response) {
                 if(response != null && response.size() > 0 && getActivity() != null) {
                     int currentPage = viewPager.getCurrentItem();
-
 
                     photos.clear();
                     photos.addAll(response);
@@ -166,6 +167,26 @@ public class OutBoxFragment extends Fragment {
     }
 
 
+    private void showPage(int id){
+        int position = -1;
+        int current = 0;
+        if(id < 0)
+            return;
+        for (PhotoOutbox in: photos) {
+            if(in.getId() == id){
+                position = current;
+                break;
+            }
+            current++;
+        }
+
+        //foi encontrada a imagem vamos mostra-la
+        if(position >= 0){
+            viewPager.setCurrentItem(position);
+            //((ScreenSlidePagerActivity)getActivity()).setInbox_vote_id(-1);
+        }
+
+    }
     private void OnDoneLoading(){
 
 //        adapter.notifyDataSetChanged();
