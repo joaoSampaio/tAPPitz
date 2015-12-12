@@ -148,7 +148,7 @@ public class GcmService extends GcmListenerService {
         Log.d("myapp_new", "date:" + date);
         contentView.setImageViewResource(R.id.image, icon);
         contentView.setTextViewText(R.id.date, date);
-        contentView.setTextColor(R.id.title, getResources().getColor(R.color.black));
+        contentView.setTextColor(R.id.title, getResources().getColor(R.color.white));
         if(action.equals(Global.NEW_PICTURE_VOTE)) {
             String authorName = extras.getString("authorName");
             String comment = extras.getString("comment", "Has sent you a vote.");

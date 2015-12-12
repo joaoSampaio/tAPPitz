@@ -107,11 +107,15 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         date_picker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus) {
-                    v.clearFocus();
-                    launchCalendar();
-                } else {
+                try {
+                    if (hasFocus) {
+                        v.clearFocus();
+                        launchCalendar();
+                    } else {
 
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -317,16 +321,17 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     }
 
     private void launchCalendar(){
-
+        Log.d("myapp", "***launchCalendar*");
         DatePickerFragment newFragment = new DatePickerFragment();
         newFragment.show(getSupportFragmentManager(), "datePicker");
         newFragment.setDate(year, month, day);
         newFragment.setDatePicked(new DatePickerFragment.DatePicked() {
             @Override
             public void onDatePicked(int year1, int monthOfYear, int dayOfMonth) {
+                Log.d("myapp", "***launchCalendar*" + dayOfMonth+"-"+(monthOfYear+1)+"-"+year1);
                 date_picker.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year1);
                 day = dayOfMonth;
-                month = monthOfYear;
+                month = (monthOfYear+1);
                 year = year1;
             }
         });
@@ -381,6 +386,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             boolean nameFirstValidated = nameValidator.validate(firstname.getText().toString());
             boolean nameLastValidated = nameValidator.validate(lastname.getText().toString());
             boolean radioSelected = male.isChecked() || female.isChecked();
+            Log.d("myapp", "***day*" + day);
+            Log.d("myapp", "***month*" + month);
+            Log.d("myapp", "***year*" + year);
             boolean dateSelected = year > 0 && month > 0 && day > 0;
 
             if(nameFirstValidated){
