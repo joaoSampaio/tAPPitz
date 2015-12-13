@@ -87,7 +87,7 @@ public class OutBoxFragment extends Fragment {
         rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((ScreenSlidePagerActivity)getActivity()).showPage(Global.HOME);
+                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.HOME);
             }
         });
         rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
@@ -95,6 +95,12 @@ public class OutBoxFragment extends Fragment {
             public void onClick(View v) {
                 Toast.makeText(getActivity(), "Refreshing", Toast.LENGTH_SHORT).show();
                 refreshOutbox();
+            }
+        });
+        rootView.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "Not implemented", Toast.LENGTH_SHORT).show();
             }
         });
 

@@ -56,6 +56,13 @@ public class InBoxFragment extends Fragment {
             }
         });
 
+        rootView.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getActivity(), "Not implemented", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         photos = new ArrayList<>();
         adapter = new InBoxPagerAdapter(getChildFragmentManager(), photos);
         Log.d("myapp2", "**--new inBoxFragment:");

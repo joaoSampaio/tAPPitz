@@ -112,7 +112,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
 
 
 
-//        onSuccessSignIn();
         checkIsSignedIn();
     }
 
@@ -188,51 +187,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         }
         extras = intent.getExtras();
         checkIsSignedIn();
-
-//        if(intent.hasExtra("action"))
-//            action = intent.getExtras().getString("action");
-//        if(action != null){
-//            Log.d("myapp", "****action: " + action);
-//            switch (action){
-//
-//                case Global.NEW_FRIEND_REQUEST:
-//                    showFriends();
-////                    afterLoginAction = Global.FRIENDS;
-//                    break;
-//                case Global.NEW_PICTURE_RECEIVED:
-//                   // showPage(Global.INBOX);
-////                    afterLoginAction = Global.INBOX;
-//                    break;
-//                case Global.NEW_PICTURE_VOTE:
-////                    showPage(Global.OUTBOX);
-////                    afterLoginAction = Global.INBOX;
-//                    break;
-//
-//
-//            }
-//
-//        }
     }
-
-
-
-    private void openPageIfNotification(){
-        if(afterLoginAction != -1){
-            switch (afterLoginAction){
-
-                case Global.FRIENDS:
-                    showFriends();
-                    break;
-                case Global.INBOX:
-                    showPage(Global.INBOX);
-                    break;
-            }
-        }
-    }
-
 
     private void checkIsSignedIn(){
-//        SharedPreferences sp = getPreferences(Context.MODE_PRIVATE);
         SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String sessionid = sp.getString("sessionId", "");
         RestClient.setSessionId(sessionid);
@@ -243,12 +200,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         Log.d("myapp", "**email**** " + sp.getString(Global.KEY_USER, ""));
         Log.d("myapp", "**password**** " + password);
         this.sessionId = sessionid;
-
-
-
-//        onSuccessSignIn();
-//        if(true)
-//            return;
 
         new CheckLoggedStateService(new CallbackMultiple() {
             @Override
@@ -300,37 +251,31 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         Log.d("myapp_notific", "****onSuccessSignIn: ");
         if(extras != null)
             action = extras.getString("action","");
-        if(action != null){
-            Log.d("myapp_notific", "****action: " + action);
-            switch (action){
-                case Global.NEW_PICTURE_RECEIVED:
-                    pictureId = extras.getString("pictureId", "-1");
-                    String pictureSentence = extras.getString("pictureSentence", "");
-                    String authorName = extras.getString("authorName", "");
-                    inbox_vote_id = Integer.parseInt(pictureId);
-                    newPhoto = new PhotoInbox(inbox_vote_id, pictureSentence, authorName);
 
-                    break;
-                case Global.NEW_PICTURE_VOTE:
+        Log.d("myapp_notific", "****action: " + action);
+        switch (action){
+            case Global.NEW_PICTURE_RECEIVED:
+                pictureId = extras.getString("pictureId", "-1");
+                String pictureSentence = extras.getString("pictureSentence", "");
+                String authorName = extras.getString("authorName", "");
+                inbox_vote_id = Integer.parseInt(pictureId);
+                newPhoto = new PhotoInbox(inbox_vote_id, pictureSentence, authorName);
 
-                    pictureId = extras.getString("pictureId", "-1");
-                    String voteAuthorName = extras.getString("authorName", "");
-                    String comment = extras.getString("comment", "");
-                    String vote = extras.getString("vote", "-1");
-                    String votedDate = extras.getString("date", "");
-                    outbox_id = Integer.parseInt(pictureId);
-                    int voteInt = Integer.parseInt(vote);
+                break;
+            case Global.NEW_PICTURE_VOTE:
 
-                    commentVote = new Comment(voteInt, voteAuthorName, votedDate);
-//                    showPage(Global.OUTBOX);
-//                    afterLoginAction = Global.INBOX;
-                    Log.d("myapp_notific", "****NEW_PICTURE_VOTE: outbox_id:"+outbox_id + " voteInt:" + voteInt);
-                    break;
-            }
+                pictureId = extras.getString("pictureId", "-1");
+                String voteAuthorName = extras.getString("authorName", "");
+                String comment = extras.getString("comment", "");
+                String vote = extras.getString("vote", "-1");
+                String votedDate = extras.getString("date", "");
+                outbox_id = Integer.parseInt(pictureId);
+                int voteInt = Integer.parseInt(vote);
+
+                commentVote = new Comment(voteInt, voteAuthorName, votedDate);
+                Log.d("myapp_notific", "****NEW_PICTURE_VOTE: outbox_id:"+outbox_id + " voteInt:" + voteInt);
+                break;
         }
-
-
-
 
         Log.d("myapp_new", "****onSuccessSignIn ");
         signIn = true;
@@ -346,26 +291,27 @@ public class ScreenSlidePagerActivity extends FragmentActivity {
         mPager.setClipChildren(false);
         mPager.setClipToPadding(false);
 
-        if(action != null){
-            Log.d("myapp", "****action: " + action);
-            switch (action){
 
-                case Global.NEW_FRIEND_REQUEST:
-                    showFriends();
-                    break;
+        Log.d("myapp", "****action: " + action);
+        switch (action){
 
-                case Global.NEW_PICTURE_RECEIVED:
-                    showPage(Global.INBOX);
-                    break;
+            case Global.NEW_FRIEND_REQUEST:
+                showFriends();
+                break;
 
-                case Global.NEW_PICTURE_VOTE:
-                    showPage(Global.OUTBOX);
-                    Log.d("myapp_notific", "****showPage:");
-                    break;
-            }
+            case Global.NEW_PICTURE_RECEIVED:
+                showPage(Global.INBOX);
+                break;
 
-        }else{
-            mPager.setCurrentItem(1);
+            case Global.NEW_PICTURE_VOTE:
+                showPage(Global.OUTBOX);
+                Log.d("myapp_notific", "****showPage NEW_PICTURE_VOTE:");
+                break;
+        }
+
+        if(action.equals("")){
+            Log.d("myapp", "****showPage(Global.HOME): " + action);
+            showPage(Global.HOME);
         }
 
 
