@@ -5,6 +5,7 @@ import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.rest.model.AnswerContactRequest;
 import com.tappitz.tappitz.rest.model.ContactSendId;
 import com.tappitz.tappitz.rest.model.CreatePhoto;
+import com.tappitz.tappitz.rest.model.ErrorLogEntry;
 import com.tappitz.tappitz.rest.model.GoogleId;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.model.UserLogin;
@@ -103,11 +104,11 @@ public interface Api {
     void sendphoto(@Body CreatePhoto photo, Callback<JsonElement> callback);
 
 
-
-
-
     @GET("/pictures/votes/{id_photo}")
     void getOutboxComments(@Path("id_photo") int id_photo, Callback<JsonElement> response);
 
+    /***********SEND ERROR LOG************/
+    @POST("/logError")
+    void sendErrorLog(@Body ErrorLogEntry entry, Callback<JsonElement> response);
 
 }

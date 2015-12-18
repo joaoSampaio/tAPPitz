@@ -38,7 +38,12 @@
         android:hardwareAccelerated="true"
         android:theme="@style/AppTheme" >
 
-
+        <activity android:name="org.acra.CrashReportDialog"
+            android:theme="@android:style/Theme.Dialog"
+            android:process=":error_report"
+            android:launchMode="singleInstance"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true" />
 
         <activity
             android:name=".ui.ScreenSlidePagerActivity"

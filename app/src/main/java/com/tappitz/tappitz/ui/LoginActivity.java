@@ -65,6 +65,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_login);
 
         screens = new ArrayList<>();
@@ -134,7 +135,6 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         progressGenerator = new ProgressGenerator(this);
 //        final ActionProcessButton btnSignIn = (ActionProcessButton) findViewById(R.id.btnSignIn);
 //        btnSignIn.setMode(ActionProcessButton.Mode.ENDLESS);
-
 
     }
     @Override

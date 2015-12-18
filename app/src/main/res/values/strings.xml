@@ -308,7 +308,9 @@
         <item>320x240</item>
     </string-array>
 
-    <string name="crash_toast_text">Ocorreu um erro, a enviar logs ao dev</string>
+    <string name="crash_toast_text">There was a fatal error with tAPPitz.</string>
+    <string name="crash_dialog_title">There was an error with tAPPitz.</string>
+    <string name="crash_dialog_text">Our developers will look at your report and solve this problem as soon as possible! Thank you!</string>
 
 
 </resources>

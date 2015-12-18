@@ -31,7 +31,7 @@ public class RestClient {
 
     private static OkHttpClient okHttpClient;
 
-    public static String getSessionId(){
+    public static String getSessionId() {
         return sessionId;
     }
 
@@ -39,7 +39,7 @@ public class RestClient {
         RestClient.sessionId = sessionId;
     }
 
-    public static Api getApi(){
+    public static Api getApi() {
         return api;
     }
 
@@ -58,8 +58,8 @@ public class RestClient {
         }
     };
 
-    public static final OkHttpClient getOk(){
-        if(okHttpClient == null) {
+    public static final OkHttpClient getOk() {
+        if (okHttpClient == null) {
             OkHttpClient picassoClient = new OkHttpClient();
             picassoClient.networkInterceptors().add(new Interceptor() {
                 @Override
@@ -80,9 +80,8 @@ public class RestClient {
     }
 
 
-
     public static final Api getService() {
-        if(RestClient.getApi() == null){
+        if (RestClient.getApi() == null) {
             OkHttpClient client = new OkHttpClient(); //create OKHTTPClient
             client.setConnectTimeout(2, TimeUnit.MINUTES);
             client.setReadTimeout(2, TimeUnit.MINUTES);
@@ -107,7 +106,6 @@ public class RestClient {
                     .create(Api.class);
 
         }
-
 
 
         return RestClient.getApi();
