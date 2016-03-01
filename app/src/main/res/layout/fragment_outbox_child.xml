@@ -26,8 +26,8 @@
             android:layout_gravity="center" />
 
         <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
             android:id="@+id/picture"/>
 
         <!--<com.android.volley.toolbox.NetworkImageView-->
@@ -42,16 +42,18 @@
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:textSize="@dimen/text_size_normal"
         android:id="@+id/photo_description"
         android:inputType="textMultiLine"
         android:gravity="left"
-        style="@style/SelectBar"
+        style="@style/text_normal"
         android:layout_gravity="right|top"
-        android:layout_marginTop="60dp"
         android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp" />
+        android:layout_marginRight="15dp"
+        android:layout_centerInParent="true"
+        android:layout_alignParentBottom="false"
+        android:layout_marginBottom="50dp" />
 
 
     <ImageView
@@ -60,80 +62,6 @@
         android:id="@+id/color_background"
         android:visibility="gone"
         />
-
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="right|top"
-        android:layout_centerInParent="true"
-        android:id="@+id/comment_layout"
-        android:visibility="gone"
-        >
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/text_size_normal"
-            android:id="@+id/comment_user"
-            android:gravity="left"
-            style="@style/SelectBar"
-            android:layout_gravity="right|top"
-            android:layout_margin="10dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="@dimen/text_size_normal"
-            android:id="@+id/photo_comment"
-            android:gravity="left"
-            android:inputType="textMultiLine"
-            style="@style/SelectBar"
-            android:layout_gravity="right|top"
-            android:layout_margin="10dp" />
-
-
-
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:text="user"-->
-            <!--android:id="@+id/comment_user"-->
-            <!--android:gravity="left"-->
-            <!--android:background="@color/sblue"-->
-            <!--android:textColor="@color/brown"-->
-            <!--/>-->
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:text="data"-->
-            <!--android:id="@+id/comment_date"-->
-            <!--android:gravity="left"-->
-            <!--android:background="@color/sblue"-->
-            <!--android:textColor="@color/brown"-->
-            <!--/>-->
-
-
-
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:text="@string/descricaoFoto"-->
-            <!--android:id="@+id/photo_comment"-->
-            <!--android:inputType="textMultiLine"-->
-            <!--android:gravity="left"-->
-            <!--android:background="@color/sblue"-->
-            <!--android:textColor="@color/brown"-->
-            <!--/>-->
-
-    </LinearLayout>
-
-
-
 
     <LinearLayout
         android:orientation="horizontal"
@@ -181,6 +109,139 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="right|top"
+        android:layout_centerInParent="true"
+        android:id="@+id/comment_layout"
+        android:visibility="gone"
+        android:layout_margin="15dp"
+        android:layout_above="@+id/painelvotacao">
+
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="X"
+            android:id="@+id/action_close"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:textColor="@color/white"
+            android:textStyle="bold|italic"
+            android:textSize="20pt"
+            android:background="@null" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scrollView3"
+            android:layout_below="@+id/action_close"
+            android:layout_marginTop="10dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/white"
+                    android:id="@+id/bar1"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginBottom="10dp">
+
+                </View>
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal"
+                    android:id="@+id/photo_comment"
+                    android:gravity="left"
+                    android:inputType="textMultiLine"
+                    style="@style/text_normal"
+                    android:layout_gravity="right|top"
+                    android:layout_margin="10dp"
+                    android:layout_below="@+id/bar1" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/white"
+                    android:id="@+id/bar2"
+                    android:layout_below="@+id/photo_comment"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="5dp">
+
+                </View>
+
+            </RelativeLayout>
+
+        </ScrollView>
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textSize="@dimen/text_size_normal"-->
+            <!--android:id="@+id/comment_user"-->
+            <!--android:gravity="left"-->
+            <!--style="@style/SelectBar"-->
+            <!--android:layout_gravity="right|top"-->
+            <!--android:layout_margin="10dp" />-->
+
+
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:text="user"-->
+            <!--android:id="@+id/comment_user"-->
+            <!--android:gravity="left"-->
+            <!--android:background="@color/sblue"-->
+            <!--android:textColor="@color/brown"-->
+            <!--/>-->
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:text="data"-->
+            <!--android:id="@+id/comment_date"-->
+            <!--android:gravity="left"-->
+            <!--android:background="@color/sblue"-->
+            <!--android:textColor="@color/brown"-->
+            <!--/>-->
+
+
+
+        <!--<TextView-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:text="@string/descricaoFoto"-->
+            <!--android:id="@+id/photo_comment"-->
+            <!--android:inputType="textMultiLine"-->
+            <!--android:gravity="left"-->
+            <!--android:background="@color/sblue"-->
+            <!--android:textColor="@color/brown"-->
+            <!--/>-->
+
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temporary"
+        android:id="@+id/textViewTemp"
+        android:background="#eb0909"
+        android:textColor="#ffffff"
+        android:textSize="13pt"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:visibility="gone" />
 
 
 </RelativeLayout>

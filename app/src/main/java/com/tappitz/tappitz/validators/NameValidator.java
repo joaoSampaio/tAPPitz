@@ -9,7 +9,9 @@ public class NameValidator {
 	private Pattern pattern;
 	private Matcher matcher;
 
-	private static final String NAME_PATTERN = "^[A-Za-z]+$";
+//	private static final String NAME_PATTERN = "^[A-Za-z]+$";
+    private static final String NAME_PATTERN = "^[\\p{L}\\s]+$";
+
 
 	public NameValidator() {
 		pattern = Pattern.compile(NAME_PATTERN);

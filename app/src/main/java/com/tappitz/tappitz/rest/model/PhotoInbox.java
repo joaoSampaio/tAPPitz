@@ -1,6 +1,14 @@
 package com.tappitz.tappitz.rest.model;
 
+import android.util.Log;
+
 import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.util.DateHelper;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PhotoInbox {
 
@@ -106,5 +114,23 @@ public class PhotoInbox {
 
     public void setVote(int vote) {
         this.vote = vote;
+    }
+
+    public long getTimeMilliseconds(String dateTime){
+        long time = 0;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            Date date = null;
+            date = sdf.parse(dateTime);
+            time = date.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return time;
+    }
+
+    public String getTimeAgo(String dateTime){
+        String tmp =DateHelper.getTimeAgo(getTimeMilliseconds(dateTime));
+        return tmp;
     }
 }

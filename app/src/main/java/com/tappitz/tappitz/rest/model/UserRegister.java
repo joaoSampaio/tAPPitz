@@ -5,6 +5,7 @@ package com.tappitz.tappitz.rest.model;
  */
 public class UserRegister {
 
+    private String username;
     private String firstName;
     private String lastName;
     private String gender;
@@ -15,7 +16,7 @@ public class UserRegister {
     private String email;
     private String password;
 
-    public UserRegister(String firstName, String lastName, String gender, String birthDate, String phoneNumber, String country, String gpsCoordinates, String email, String password) {
+    public UserRegister(String firstName, String lastName, String gender, String birthDate, String phoneNumber, String country, String gpsCoordinates, String email, String password, String username) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.gender = gender;
@@ -25,6 +26,7 @@ public class UserRegister {
         this.gpsCoordinates = gpsCoordinates;
         this.email = email;
         this.password = password;
+        this.username = username;
     }
 
     public String getFirstName() {

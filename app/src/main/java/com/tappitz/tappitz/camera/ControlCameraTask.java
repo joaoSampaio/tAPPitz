@@ -48,14 +48,17 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
                 tryOpenCamera(1);
             }else{
                 try {
-                    Log.d("MyCameraApp", "preview");
+                    Log.d("MyCameraApp", "preview:" + (app.surfaceHolder != null));
+//                    app.mCamera.stopPreview();
                     app.mCamera.setPreviewDisplay(app.surfaceHolder);
                     app.mCamera.startPreview();
                     //previewing = true;
                 } catch (Exception e) {
-                    Log.e("myapp",  "erro3");
+                    Log.e("MyCameraApp", "erro3");
                     e.printStackTrace();
                     error = true;
+                    tryOpenCamera(1);
+
                 }
             }
         }
@@ -64,13 +67,24 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
     }
 
     private void tryOpenCamera(int attempts){
+        Log.d("MyCameraApp", "tryOpenCamera:" + attempts);
         if(attempts > 3)
             return;
         error = false;
         AppController app = AppController.getInstance();
-
+//        try {
+//            app.mCamera.stopPreview();
+//            app.mCamera.setPreviewCallback(null);
+//            app.mCamera.release();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            Log.d("MyCameraApp", "Camera.setPreviewDisplay erro 2222");
+//        }
 
         try {
+
+
+
             Log.d("MyCameraApp", "Camera.open antes");
             app.mCamera = Camera.open(app.currentCameraId);
             Log.d("MyCameraApp", "Camera.open");
@@ -91,6 +105,7 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
                 @Override
                 public void onError(int error, Camera camera) {
                     Log.d("MyCameraApp", "------------************* null null holder onError");
+                    tenta();
                 }
             });
 
@@ -105,22 +120,76 @@ public class ControlCameraTask extends AsyncTask<Boolean, Void, Void> {
             Log.d("MyCameraApp", "Camera.startPreview");
             return;
         } catch (Exception e) {
-            Log.e("myapp2", e.getMessage());
-            Log.e("myapp",  "erro2");
+//            Log.e("myapp2", e.getMessage());
+            Log.e("MyCameraApp",  "erro2");
+            Log.d("MyCameraApp", e.getMessage());
             error = true;
         }
 
 
         if(error){
             try {
-                Thread.sleep(100);
+                Thread.sleep(150);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Log.d("MyCameraApp", e.getMessage());
             }
             tryOpenCamera(attempts + 1);
         }
-
     }
+
+    private void tenta(){
+
+        AppController app = AppController.getInstance();
+        try {
+            Thread.sleep(150);
+            app.mCamera.stopPreview();
+            app.mCamera.setPreviewCallback(null);
+            app.mCamera.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Log.d("MyCameraApp", "tenta erro 2222");
+            Log.d("MyCameraApp", e.getMessage());
+        }
+
+        try {
+
+            app.mCamera = Camera.open(app.currentCameraId);
+            Log.d("MyCameraApp", "Camera.open");
+            setCameraDisplayOrientation(app.currentCameraId, app.mCamera);
+            Log.d("MyCameraApp", "setCameraDisplayOrientation");
+            if(app.surfaceHolder == null)
+                Log.d("MyCameraApp", "------------************* null null holder");
+
+            if(app.surfaceHolder != null) {
+                Log.d("MyCameraApp", "------------************* not null holder");
+                Log.d("MyCameraApp", "------------************* not null holder" + app.surfaceHolder.toString());
+            }
+
+            if(app.surfaceHolder.isCreating())
+                Log.d("MyCameraApp", "------------************* null null holder .isCreating()");
+
+
+
+            try {
+                app.mCamera.setPreviewDisplay(app.surfaceHolder);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Log.d("MyCameraApp", "Camera.setPreviewDisplay erro");
+                Log.d("MyCameraApp", e.getMessage());
+            }
+            Log.d("MyCameraApp", "Camera.setPreviewDisplay");
+            app.mCamera.startPreview();
+            Log.d("MyCameraApp", "Camera.startPreview");
+            return;
+        } catch (Exception e) {
+//            Log.e("myapp2", e.getMessage());
+            Log.e("MyCameraApp",  "erro2");
+            error = true;
+            Log.d("MyCameraApp", e.getMessage());
+        }
+    }
+
 
 
     @Override

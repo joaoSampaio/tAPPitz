@@ -74,7 +74,8 @@
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
                 android:layout_marginBottom="16dp"
-                android:hint="@string/emailHint"/>
+                android:hint="@string/emailHint"
+                android:capitalize="none" />
 
 
             <android.support.v7.widget.AppCompatEditText
@@ -215,10 +216,23 @@
                 android:gravity="center"
                 android:id="@+id/linearLayout">
 
+                <!--<Button-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:text="Date of Birth:"-->
+                    <!--android:id="@+id/btn_date_picker" />-->
+
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:text=""-->
+                    <!--android:id="@+id/textViewDate" />-->
+
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/date_holder"
                     android:layout_width="match_parent"
                     android:alpha="0.8"
+                    android:focusable="false"
                     android:theme="@style/TextLabel"
 
                     android:layout_height="wrap_content"
@@ -229,6 +243,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="date"
+                        android:focusable="false"
                         android:hint="@string/date_hint"/>
 
                 </android.support.design.widget.TextInputLayout>
@@ -241,7 +256,7 @@
                 android:layout_height="wrap_content"
                 android:text="Country:"
                 android:layout_marginTop="10dp"
-                android:id="@+id/textView" />
+                android:id="@+id/textViewCountry" />
 
             <android.support.v7.widget.AppCompatSpinner
                 android:layout_width="match_parent"
@@ -263,11 +278,31 @@
             android:visibility="gone">
 
             <android.support.design.widget.TextInputLayout
+                android:id="@+id/username_holder"
+                android:layout_width="match_parent"
+                android:alpha="0.8"
+                android:theme="@style/TextLabel"
+                android:layout_height="wrap_content"
+
+                style="@style/TextLabel">
+
+                <android.support.v7.widget.AppCompatEditText
+                    android:id="@+id/registerUsername"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textEmailAddress"
+                    android:hint="Username"
+                    android:capitalize="none" />
+
+            </android.support.design.widget.TextInputLayout>
+
+            <android.support.design.widget.TextInputLayout
                 android:id="@+id/email_holder"
                 android:layout_width="match_parent"
                 android:alpha="0.8"
                 android:theme="@style/TextLabel"
                 android:layout_height="wrap_content"
+                android:hint="Email teste"
                 style="@style/TextLabel">
 
                 <android.support.v7.widget.AppCompatEditText
@@ -275,7 +310,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textEmailAddress"
-                    android:hint="Email"/>
+                    android:hint="Email"
+                    android:capitalize="none" />
 
             </android.support.design.widget.TextInputLayout>
 

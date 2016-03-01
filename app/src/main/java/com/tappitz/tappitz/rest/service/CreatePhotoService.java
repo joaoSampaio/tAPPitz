@@ -6,16 +6,23 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.RestClientV2;
 import com.tappitz.tappitz.rest.model.CreatePhoto;
+import com.tappitz.tappitz.rest.model.GenericContact;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit2.Call;
 
-public class CreatePhotoService implements ServerCommunicationService {
+public class CreatePhotoService extends ServerCommunicationService {
 
     private CallbackMultiple callback;
     private String comment;
@@ -31,25 +38,50 @@ public class CreatePhotoService implements ServerCommunicationService {
 
     @Override
     public void execute() {
-        RestClient.getService().sendphoto(new CreatePhoto(comment, contacts, picture), new Callback<JsonElement>() {
-            @Override
-            public void success(JsonElement json, Response response2) {
+        if(Global.VERSION_V2) {
+            Call<JsonElement> call = RestClientV2.getService().sendphoto(new CreatePhoto(comment, contacts, picture, true));
+            call.enqueue(new retrofit2.Callback<JsonElement>() {
+                @Override
+                public void onResponse(Call<JsonElement> call, retrofit2.Response<JsonElement> response) {
+                    if (response.isSuccess()) {
+                        JsonElement json = response.body();
+                        if (json != null) {
+                            JsonObject obj = json.getAsJsonObject();
+                            boolean status = obj.get("status").getAsBoolean();
+                            if (status)
+                                callback.success(obj.get("id").getAsInt());
+                            else
+                                callback.failed(obj.get("error").getAsString());
+                        } else {
+                            callback.failed("Ups there was something wrong");
+                        }
+                    }
+                }
 
-                JsonObject obj = json.getAsJsonObject();
-                boolean status = obj.get("status").getAsBoolean();
-                if(status)
-                    callback.success(obj.get("id").getAsInt());
-                else
-                    callback.failed(obj.get("error").getAsString());
-            }
+                @Override
+                public void onFailure(Call<JsonElement> call, Throwable t) {
+                    callback.failed("network problem");
+                }
+            });
+        }else {
+            RestClient.getService().sendphoto(new CreatePhoto(comment, contacts, picture, true), new Callback<JsonElement>() {
+                @Override
+                public void success(JsonElement json, Response response2) {
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("myapp", "**error****" + error.toString());
-                callback.failed("Ups there was something wrong, plz post more boobs.");
-            }
-        });
+                    JsonObject obj = json.getAsJsonObject();
+                    boolean status = obj.get("status").getAsBoolean();
+                    if (status)
+                        callback.success(obj.get("id").getAsInt());
+                    else
+                        callback.failed(obj.get("error").getAsString());
+                }
 
-
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("myapp", "**error****" + error.toString());
+                    callback.failed("Ups there was something wrong, plz post more boobs.");
+                }
+            });
+        }
     }
 }

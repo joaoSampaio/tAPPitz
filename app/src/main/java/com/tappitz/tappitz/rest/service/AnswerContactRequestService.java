@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.ContactSendId;
 
@@ -12,7 +13,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class AnswerContactRequestService implements ServerCommunicationService {
+public class AnswerContactRequestService extends ServerCommunicationService {
 
     private CallbackMultiple callback;
     private int contactId;
@@ -25,7 +26,7 @@ public class AnswerContactRequestService implements ServerCommunicationService {
 
     @Override
     public void execute() {
-        RestClient.getService().answerContactRequest(new ContactSendId(contactId, answer? "ACCEPT": "REJECT"), new Callback<JsonElement>() {
+        RestClient.getService().answerContactRequest(new ContactSendId(contactId, answer? Global.OPERATION_TYPE_ACCEPT: Global.OPERATION_TYPE_REJECT), new Callback<JsonElement>() {
             @Override
             public void success(JsonElement json, Response response2) {
 

@@ -3,28 +3,34 @@ package com.tappitz.tappitz.ui;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.InBoxPagerAdapter;
-import com.tappitz.tappitz.rest.model.PhotoInbox;
-import com.tappitz.tappitz.rest.model.PhotoOutbox;
+import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListInboxService;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -33,9 +39,10 @@ public class InBoxFragment extends Fragment {
 
     View rootView;
     private InBoxPagerAdapter adapter;
-    private List<PhotoInbox> photos;
+    private List<ReceivedPhoto> photos;
     private VerticalViewPager viewPager;
     private List<ListenerPagerStateChange> stateChange;
+
     public InBoxFragment() {
         // Required empty public constructor
     }
@@ -46,26 +53,11 @@ public class InBoxFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_in_box, container, false);
 
-        Log.d("myapp2", "**--new InBoxFragment:");
+        Log.d("myappllllll", "**--new InBoxFragment:");
 
-        rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "Refreshing", Toast.LENGTH_SHORT).show();
-                refreshInbox();
-            }
-        });
-
-        rootView.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Toast.makeText(getActivity(), "Not implemented", Toast.LENGTH_SHORT).show();
-            }
-        });
 
         photos = new ArrayList<>();
         adapter = new InBoxPagerAdapter(getChildFragmentManager(), photos);
-        Log.d("myapp2", "**--new inBoxFragment:");
         viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
@@ -89,30 +81,17 @@ public class InBoxFragment extends Fragment {
 
         });
 
-        ((Button)rootView.findViewById(R.id.action_back)).setText("Received");
-        rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.HOME);
-            }
-        });
-
-
-
-
-
-
-
         loadOffline();
 
-        PhotoInbox in = ((ScreenSlidePagerActivity) getActivity()).getNewPhoto();
-        if(in != null){
-            photos.add(0, in);
-            adapter.notifyDataSetChanged();
-            ((ScreenSlidePagerActivity) getActivity()).setNewPhoto(null);
-        }
+//        PhotoInbox in = ((ScreenSlidePagerActivity) getActivity()).getNewPhoto();
+//        if(in != null){
+//            photos.add(0, in);
+//            adapter.notifyDataSetChanged();
+//            ((ScreenSlidePagerActivity) getActivity()).setNewPhoto(null);
+//        }
 
-        refreshInbox();
+//        refreshInbox();
+
 
         return rootView;
     }
@@ -120,9 +99,19 @@ public class InBoxFragment extends Fragment {
     @Override
     public void onResume(){
         super.onResume();
-        ((ScreenSlidePagerActivity)getActivity()).setReloadInboxListener(new OnNewPhotoReceived() {
+        ((ScreenSlidePagerActivity)getActivity()).setReloadInbox(new ReloadInbox() {
             @Override
-            public void refreshViewPager() {
+            public void updateAfterVote() {
+                loadOffline();
+            }
+
+            @Override
+            public void updateNewReceivedPhoto(ReceivedPhoto photo) {
+                refreshInbox();
+            }
+
+            @Override
+            public void refreshOnline() {
                 refreshInbox();
             }
         });
@@ -132,41 +121,51 @@ public class InBoxFragment extends Fragment {
     @Override
     public void onStop(){
         super.onStop();
-        ((ScreenSlidePagerActivity)getActivity()).setReloadInboxListener(null);
+        ((ScreenSlidePagerActivity)getActivity()).setReloadInbox(null);
     }
 
 
     private void refreshInbox(){
-        rootView.findViewById(R.id.action_refresh).setEnabled(false);
-        new ListInboxService(new CallbackMultiple<List<PhotoInbox>, String>() {
-            @Override
-            public void success(List<PhotoInbox> response) {
-                if(response != null && response.size() > 0 && getActivity() != null) {
-                    int currentPage = viewPager.getCurrentItem();
-                    photos.clear();
-                    photos.addAll(response);
-                    adapter.notifyDataSetChanged();
+//        rootView.findViewById(R.id.action_refresh).setEnabled(false);
+        Log.d("myappllllll", "**--refreshInbox:");
 
-                    if(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id() >= 0){
-                        showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
-                    }else{
-                        currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
-                        viewPager.setCurrentItem(currentPage);
+        new ListInboxService(new CallbackMultiple<List<ReceivedPhoto>, String>() {
+            @Override
+            public void success(List<ReceivedPhoto> response) {
+                Log.d("myappllllll", "**--refreshInbox:success");
+
+                if(response != null && response.size() > 0 && getActivity() != null) {
+                    int showPage = 0;
+                    if(viewPager != null){
+                        int currentPage = viewPager.getCurrentItem();
+                        if(photos.size() > currentPage)
+                            showPage = photos.get(currentPage).getPictureId();
                     }
+
+
+                    photos.clear();
+                    photos.addAll(ReceivedPhoto.join(response));
+                    adapter.notifyDataSetChanged();
+                    Log.d("myappllllll", "**--refreshInbox:showPage:"+showPage);
+                    showPage(showPage);
+//                    if(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id() >= 0){
+//                        showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
+//                    }else{
+//                        currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
+//                        viewPager.setCurrentItem(currentPage);
+//                    }
 
 
 
                     //showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
 
-                    new ModelCache<List<PhotoInbox>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
-                    rootView.findViewById(R.id.action_refresh).setEnabled(true);
+                    new ModelCache<List<ReceivedPhoto>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
                 }
-
             }
 
             @Override
             public void failed(String error) {
-                rootView.findViewById(R.id.action_refresh).setEnabled(true);
+//                rootView.findViewById(R.id.action_refresh).setEnabled(true);
             }
         }).execute();
     }
@@ -176,7 +175,7 @@ public class InBoxFragment extends Fragment {
         int current = 0;
         if(id < 0)
             return;
-        for (PhotoInbox in: photos) {
+        for (ReceivedPhoto in: photos) {
             if(in.getPictureId() == id){
                 position = current;
                 break;
@@ -192,42 +191,41 @@ public class InBoxFragment extends Fragment {
 
     }
 
-    private void loadOffline(){
-        Log.d("myapp", "**--loadOffline:");
-        if(photos.size() == 0) {
-            List<PhotoInbox> tmp = new ModelCache<List<PhotoInbox>>().loadModel(getActivity(),new TypeToken<List<PhotoInbox>>(){}.getType(), Global.OFFLINE_INBOX);
-            if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof PhotoInbox) {
-                Log.d("myapp", "**--loadOffline: inside ");
-                photos.addAll(tmp);
-                adapter.notifyDataSetChanged();
-            }
+    public void loadOffline(){
+        int showPage = 0;
+        if(viewPager != null){
+            showPage = viewPager.getCurrentItem();
+            if(photos.size() > showPage)
+                showPage = photos.get(showPage).getPictureId();
         }
-    }
 
-    private void OnDoneLoading(){
-//        viewPager.setCurrentItem(0);
-//        photos.clear();
-//        adapter.notifyDataSetChanged();
-    }
+        List<ReceivedPhoto> tmp = new ModelCache<List<ReceivedPhoto>>().loadModel(getActivity(),new TypeToken<List<ReceivedPhoto>>(){}.getType(), Global.OFFLINE_INBOX);
+        if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof ReceivedPhoto) {
 
-    public void updateLocal(PhotoInbox newPhoto){
-        PhotoInbox old = getItemWithId(newPhoto.getPictureId());
-        if(old != null){
-
-            old.setVote(newPhoto.getVote());
-            old.setComment(newPhoto.getComment());
-            old.setHasVoted(true);
+            photos.clear();
+            photos.addAll(tmp);
+            Log.d("myapp", "**--inbox has  " + photos.size());
+            adapter.notifyDataSetChanged();
+            showPage(showPage);
         }
 
     }
 
-    private PhotoInbox getItemWithId(int id){
-        for(PhotoInbox p: photos){
-            if(p.getPictureId() == id)
-                return p;
-        }
-        return null;
-    }
+//    public void updateTemporaryLocal(ReceivedPhoto newPhoto){
+//        ReceivedPhoto old = getItemWithId(newPhoto.getPictureId());
+//        if(old != null){
+//
+//            old.setVote(newPhoto.getVote());
+//            old.setComment(newPhoto.getComment());
+//            old.setHasVoted(true);
+//            old.setIsVoteTemporary(false);
+//            String now = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+//            old.setVotedDate(now);
+//            adapter.notifyDataSetChanged();
+//            new ModelCache<List<ReceivedPhoto>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
+//        }
+//
+//    }
 
 
     @Override
@@ -258,13 +256,12 @@ public class InBoxFragment extends Fragment {
     }
 
 
-    public interface OnNewPhotoReceived{
-        public void refreshViewPager();
+    public interface ReloadInbox{
+        void updateAfterVote();
+
+        void updateNewReceivedPhoto(ReceivedPhoto photo);
+
+        void refreshOnline();
     }
-
-//    public interface ListenerStateChange{
-//        public void onPageScrollStateChanged(int state);
-//    }
-
 
 }

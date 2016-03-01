@@ -8,11 +8,13 @@ public class GenericContact {
     private String name;
     private String eMail;
     private int id;
+    private String username;
 
-    public GenericContact(String email, int id, String name) {
+    public GenericContact(String email, int id, String name, String username) {
         this.eMail = email;
         this.id = id;
         this.name = name;
+        this.username = username;
     }
 
     public String getName() {
@@ -39,58 +41,13 @@ public class GenericContact {
         this.id = id;
     }
 
-//    {
-//        "status": "true",
-//            "data": [
-//        {
-//            "name":"Andre Gomes",
-//                "email":"andre@gmail.com"
-//        },
-//        {
-//            "name":"Beatriz Alves",
-//                "email":"bea@gmail.com"
-//        },
-//        {
-//            "name":"Bruno sampaio",
-//                "email":"bruno@gmail.com"
-//        },
-//        {
-//            "name":"Carla sampaio",
-//                "email":"carla@gmail.com"
-//        },
-//        {
-//            "name":"carlos Silves",
-//                "email":"joao@gmail.com"
-//        },
-//        {
-//            "name":"Joana Silves",
-//                "email":"jojo@gmail.com"
-//        },
-//        {
-//            "name":"Joao sampaio",
-//                "email":"joao@gmail.com"
-//        },
-//        {
-//            "name":"Helio Vito",
-//                "email":"vito@gmail.com"
-//        },
-//        {
-//            "name":"Luisa Sampaio",
-//                "email":"lu@gmail.com"
-//        },
-//        {
-//            "name":"Marta Gomes",
-//                "email":"marta@gmail.com"
-//        },
-//        {
-//            "name":"Vitoria Mangas",
-//                "email":"vit@gmail.com"
-//        },
-//        {
-//            "name":"Rui Vitória",
-//                "email":"rui@gmail.com"
-//        }
-//        ]
-//    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
 }

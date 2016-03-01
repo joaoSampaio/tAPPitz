@@ -1,25 +1,27 @@
 package com.tappitz.tappitz.rest.model;
 
+import android.util.Log;
+
 import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.util.DateHelper;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class PhotoOutbox {
 
-//    private String url;
     private int id;
     private String comment;
+    private String createdDate;
 
     public PhotoOutbox( int id, String text){
         this.id = id;
         this.comment = text;
     }
 
-
-
-
-
     public String getUrl() {
         return Global.ENDPOINT + "/pictures/"+id;
-///  return "https://upload.wikimedia.org/wikipedia/pt/e/ed/IST_Logo.png";
     }
 
     public int getId() {
@@ -30,32 +32,32 @@ public class PhotoOutbox {
         return comment;
     }
 
-//    [
-//    {
-//        "url": "https://dl.dropboxusercontent.com/u/68830630/tAppitz/t1.jpg",
-//            "id": "11",
-//            "text": "Que imagem linda, concordão?"
-//    },
-//    {
-//        "url": "https://dl.dropboxusercontent.com/u/68830630/tAppitz/t2.jpg",
-//            "id": "12",
-//            "text": "texto ramdom , bla bla ..."
-//    },
-//    {
-//        "url": "https://dl.dropboxusercontent.com/u/68830630/tAppitz/t3.jpg",
-//            "id": "13",
-//            "text": "Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique"
-//    },
-//    {
-//        "url": "https://dl.dropboxusercontent.com/u/68830630/tAppitz/t4.jpg",
-//            "id": "14",
-//            "text": "Curtes"
-//    },
-//    {
-//        "url": "https://dl.dropboxusercontent.com/u/68830630/tAppitz/t5.jpg",
-//            "id": "15",
-//            "text": "Que imagem linda, concordão?"
-//    }
-//    ]
 
+    public long getTimeMilliseconds(){
+        long time = 0;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            Date date = null;
+
+            date = sdf.parse(createdDate);
+            time = date.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return time;
+    }
+
+    public String getTimeAgo(){
+        String tmp = DateHelper.getTimeAgo(getTimeMilliseconds());
+        return tmp;
+    }
+
+    public String getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
 }

@@ -16,54 +16,6 @@
             android:layout_height="match_parent">
 
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:gravity="center_horizontal"
-                android:baselineAligned="false"
-                android:layout_centerInParent="true">
-
-                <ProgressBar
-                    android:layout_width="75dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="20dp"
-                   />
-
-                <ProgressBar
-                    android:layout_width="75dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginRight="20dp"
-                    />
-
-                <ProgressBar
-                    android:layout_width="75dp"
-                    android:layout_height="wrap_content"
-                    />
-
-
-
-            </LinearLayout>
-
-            <!--<ProgressBar-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:id="@+id/progress1"-->
-                <!--android:layout_gravity="center"-->
-                <!--android:layout_centerInParent="true"/>-->
-
-            <!--<ProgressBar-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_centerVertical="true"-->
-                <!--android:layout_toLeftOf="@+id/progress1"/>-->
-
-            <!--<ProgressBar-->
-                <!--android:layout_width="wrap_content"-->
-                <!--android:layout_height="wrap_content"-->
-                <!--android:layout_centerVertical="true"-->
-                <!--android:layout_toRightOf="@+id/progress1"/>-->
-
             </RelativeLayout>
 
 
@@ -157,7 +109,7 @@
                     android:visibility="gone"
                     android:lines="2"
                     android:maxLines="3"
-                    style="@style/SelectBar" />
+                    style="@style/text_normal" />
 
             </LinearLayout>
 
@@ -165,7 +117,8 @@
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/layoutText">
+                android:layout_above="@+id/layoutText"
+                android:id="@+id/descriptionContainer">
 
                 <ScrollView
                     android:layout_width="match_parent"
@@ -178,8 +131,7 @@
                         android:layout_height="wrap_content"
                         android:id="@+id/photo_description"
                         android:inputType="textMultiLine"
-                        android:textSize="@dimen/text_size_normal"
-                        style="@style/SelectBar"
+                        style="@style/text_normal"
                         android:layout_gravity="top|center_horizontal"
                         android:textAlignment="center" />
                 </ScrollView>
@@ -231,94 +183,185 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
-                android:layout_below="@+id/painelvotacao">
+                android:layout_above="@+id/descriptionContainer">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/text_size_normal"
                     android:id="@+id/textViewOwner"
-                    android:text="Pedro Artures"
-                    style="@style/SelectBar" />
+                    style="@style/text_normal" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/text_size_normal"
-                    android:text="15/10/2015 - 12:35"
-                    android:id="@+id/textViewDate"
-                    style="@style/SelectBar" />
             </LinearLayout>
 
         </RelativeLayout>
 
 
-
-        <LinearLayout
+        <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_centerInParent="true"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
             android:id="@+id/layout_already_voted"
             android:visibility="invisible">
 
-            <TextView
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                android:id="@+id/photo_description_voted"
-                android:inputType="textMultiLine"
-                android:gravity="left"
-                style="@style/SelectBar"
-                android:layout_gravity="right|top"
-                android:textSize="@dimen/text_size_normal" />
+                android:layout_height="75dp"
+                android:id="@+id/dummy_btns"
+                android:layout_centerVertical="true"></LinearLayout>
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                 >
+                android:id="@+id/linearLayout2"
+                android:layout_alignBaseline="@+id/dummy_btns"
+                android:layout_alignBottom="@+id/dummy_btns">
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="140dp"
+                    android:id="@+id/scrollView2"
+                    android:layout_alignTop="@+id/layoutText" >
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/yourComment"
+                        android:inputType="textMultiLine"
+                        android:gravity="left"
+                        style="@style/text_normal"
+                         />
+
+
+                </ScrollView>
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_above="@+id/linearLayout2">
 
                 <TextView
-                    style="@style/SelectBar"
+                    style="@style/text_normal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/text_size_normal"
                     android:id="@+id/textViewOwner2"
                      />
 
-                <TextView
-                    style="@style/SelectBar"
-                    android:textSize="@dimen/text_size_normal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="15/10/2015 - 12:35"
-                    android:id="@+id/textViewDate2" />
             </LinearLayout>
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textSize="@dimen/text_size_normal"
-                android:id="@+id/yourComment"
-                android:inputType="textMultiLine"
-                android:gravity="left"
-                style="@style/SelectBar"
-                android:layout_gravity="right|top"
-                android:layout_marginTop="25dp" />
 
-
-
-        </LinearLayout>
-
+        </RelativeLayout>
 
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:id="@+id/layout_already_voted_original"
+        android:visibility="invisible" >
 
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="75dp"
+            android:id="@+id/linearLayout3"
+            android:layout_centerVertical="true" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/linearLayout5"
+            android:layout_alignBottom="@+id/linearLayout3" >
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:id="@+id/scrollView3"
+                android:layout_alignTop="@+id/layoutText" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:id="@+id/photo_description_voted"
+                    android:inputType="textMultiLine"
+                    android:gravity="left"
+                    style="@style/text_normal"
+                    android:layout_gravity="right|top"
+                    android:textSize="@dimen/text_size_normal" />
+            </ScrollView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/linearLayout5" >
+
+            <TextView
+                style="@style/text_normal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_normal"
+                android:id="@+id/textViewOwner3" />
+        </LinearLayout>
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:baselineAligned="false"
+        android:layout_centerInParent="true"
+        android:id="@+id/loading">
+
+        <ProgressBar
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            />
+
+        <ProgressBar
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="20dp"
+            />
+
+        <ProgressBar
+            android:layout_width="75dp"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Temporary"
+        android:id="@+id/textViewTemp"
+        android:background="#eb0909"
+        android:textColor="#ffffff"
+        android:textSize="13pt"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:visibility="gone" />
 
 
 </RelativeLayout>

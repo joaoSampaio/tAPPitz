@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@color/white"
+    android:paddingTop="10dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingBottom="10dp">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TextView
+            style="@style/ButtonOptions"
+            android:text="Sent"
+            android:id="@+id/option_title"
+            android:textColor="@color/black"
+            android:gravity="center_horizontal" />
+
+        <View style="@style/line"></View>
+
+        <Button
+            android:text="Delete"
+            android:id="@+id/action_delete"
+            style="@style/ButtonOptions"
+            />
+
+        <View style="@style/line"></View>
+
+        <Button
+            android:text="List"
+            android:id="@+id/action_show_list"
+            style="@style/ButtonOptions" />
+
+        <View style="@style/line"></View>
+
+        <Button
+            android:text="See All"
+            android:id="@+id/action_see_all"
+            style="@style/ButtonOptions" />
+
+        <View style="@style/line"></View>
+    </LinearLayout>
+
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView3"
+        android:layout_alignParentTop="false"
+        android:layout_alignParentLeft="false"
+        android:layout_alignParentStart="false"
+        android:src="@drawable/icon_tappitz"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+</RelativeLayout>

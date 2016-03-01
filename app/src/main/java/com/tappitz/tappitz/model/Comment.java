@@ -1,5 +1,12 @@
 package com.tappitz.tappitz.model;
 
+import com.tappitz.tappitz.util.DateHelper;
+
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 /**
  * Created by sampaio on 06-10-2015.
  */
@@ -54,5 +61,24 @@ public class Comment {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getTimeMilliseconds(){
+        long time = 0;
+        try {
+            DateFormat dfmt = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+            Date date = null;
+
+            date = dfmt.parse(getDateSent());
+            time = date.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        return time;
+    }
+
+    public String getTimeAgo(){
+        return DateHelper.getTimeAgo(getTimeMilliseconds());
     }
 }

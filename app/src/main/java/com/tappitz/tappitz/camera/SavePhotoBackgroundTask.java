@@ -22,12 +22,13 @@ public class SavePhotoBackgroundTask extends AsyncTask<Void, Void, String> {
     @Override
     protected String doInBackground(Void... params) {
 
-
-
-        File file = PhotoSave.saveImageToFile(photoData);
-        photoPath = file.getAbsolutePath();
-        uri=  Uri.fromFile(file);
-
+        try {
+            File file = PhotoSave.saveImageToFile(photoData);
+            photoPath = file.getAbsolutePath();
+            uri=  Uri.fromFile(file);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return "";
     }

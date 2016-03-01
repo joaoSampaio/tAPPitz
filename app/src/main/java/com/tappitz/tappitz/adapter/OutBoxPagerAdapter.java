@@ -3,11 +3,10 @@ package com.tappitz.tappitz.adapter;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.tappitz.tappitz.Global;
-import com.tappitz.tappitz.rest.model.PhotoOutbox;
+import com.tappitz.tappitz.model.SentPicture;
 import com.tappitz.tappitz.ui.secondary.OutBoxPageFragment;
 
 import java.util.List;
@@ -15,8 +14,8 @@ import java.util.List;
 
 public class OutBoxPagerAdapter extends FragmentStatePagerAdapter {
 
-    private List<PhotoOutbox> photos;
-    public OutBoxPagerAdapter(FragmentManager fm, List<PhotoOutbox> photos) {
+    private List<SentPicture> photos;
+    public OutBoxPagerAdapter(FragmentManager fm, List<SentPicture> photos) {
         super(fm);
         this.photos = photos;
     }
@@ -32,8 +31,12 @@ public class OutBoxPagerAdapter extends FragmentStatePagerAdapter {
         //args.putInt(OutBoxPageFragment.POSITION_KEY, position);
         args.putString(Global.IMAGE_RESOURCE_URL, photos.get(position).getUrl());
         args.putString(Global.TEXT_RESOURCE, photos.get(position).getText());
-        args.putString(Global.TEXT_RESOURCE, photos.get(position).getText());
+        args.putString(Global.DATE_RESOURCE, photos.get(position).getTimeAgo());
         args.putInt(Global.ID_RESOURCE, photos.get(position).getId());
+        args.putBoolean(Global.IS_TEMPORARY_RESOURCE, photos.get(position).isTemporary());
+        args.putString(Global.TEMP_FINAL_RESOURCE, photos.get(position).getPathPictureTemporary());
+
+
 
         return OutBoxPageFragment.newInstance(args);
     }

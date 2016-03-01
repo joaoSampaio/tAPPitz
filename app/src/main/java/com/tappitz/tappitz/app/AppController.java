@@ -1,48 +1,28 @@
 package com.tappitz.tappitz.app;
 
-import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.SurfaceHolder;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaders;
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.squareup.okhttp.Interceptor;
-import com.squareup.okhttp.OkHttpClient;
-//import com.squareup.okhttp.Request;
-import com.squareup.okhttp.Response;
-import com.squareup.picasso.Downloader;
-import com.squareup.picasso.OkHttpDownloader;
-import com.squareup.picasso.Picasso;
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.rest.ImageLoaderWithSession;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.ErrorLogEntry;
-import com.tappitz.tappitz.util.LruBitmapCache;
 
-import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
+
+//import com.squareup.okhttp.Request;
 
 @ReportsCrashes(
         mailTo = "watermelonprojects@gmail.com",//"joaosampaio30@gmail.com",
@@ -63,7 +43,9 @@ public class AppController extends Application {
     public int height;
     private String sessionId;
     public boolean turnLightOn;
-    private Picasso picasso;
+
+    public boolean mCameraReady;
+
 
     private static AppController mInstance;
 
@@ -72,19 +54,19 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
 
-        ACRA.init(this);
+        //ACRA.init(this);
         mInstance = this;
         AppController.context = getApplicationContext();
 
         // Setup handler for uncaught exceptions.
-        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable e) {
-                handleUncaughtException(thread, e);
-                oldHandler.uncaughtException(thread, e);
-            }
-        });
+//        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
+//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//            @Override
+//            public void uncaughtException(Thread thread, Throwable e) {
+//                handleUncaughtException(thread, e);
+//                oldHandler.uncaughtException(thread, e);
+//            }
+//        });
     }
 
     public void handleUncaughtException(Thread thread, Throwable e) {

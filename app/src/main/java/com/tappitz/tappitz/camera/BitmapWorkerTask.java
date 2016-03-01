@@ -9,6 +9,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.tappitz.tappitz.app.AppController;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -76,7 +83,7 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
         }
 
 
-        if(isRotated){
+        //if(isRotated){
 
             FileOutputStream outStream = null;
             try {
@@ -96,7 +103,7 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
             }
 
 
-        }
+        //}
 
 
         return original;
@@ -114,10 +121,25 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
             final ImageView imageView = imageViewReference.get();
             if (imageView != null) {
                 imageView.setVisibility(View.VISIBLE);
-                imageView.setImageBitmap(bitmap);
+//                imageView.setImageBitmap(bitmap);
+                Glide.with(AppController.getInstance().getApplicationContext())
+                        .load(uri)
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .centerCrop()
+                        .into(imageView);
             }
+
+
+
+
+
+
+
+
         }
-        if(listener != null && isRotated){
+        //        if(listener != null && isRotated){
+
+        if(listener != null){
             listener.onSaveToFileRotated(uri, photoPath);
         }
     }

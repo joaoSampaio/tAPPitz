@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <item name="green" type="color">#8032CD32</item>
-    <item name="red" type="color">#80FF4444</item>
-    <item name="yellow" type="color">#80FFFF00</item>
+    <color name="bg_transparent">#003e4c59</color>
+    <!--<color name="bg_middle">#fc03ba</color>-->
+    <color name="bg_middle">#FFFFFF</color>
 
-    <item name="greenA" type="color">#9618cc00</item>
-    <item name="redA" type="color">#96ff0600</item>
-    <item name="yellowA" type="color">#c8feff00</item>
+    <item name="green" type="color">#60b22e</item>
+    <item name="red" type="color">#e7253b</item>
+    <item name="yellow" type="color">#fae918</item>
+
+    <item name="greenA" type="color">#be60b22e</item>
+    <item name="redA" type="color">#bee7253b</item>
+    <item name="yellowA" type="color">#befae918</item>
 
     <!-- <item name="orange" type="color">#FBA046</item> a minha escolha suave -->
     <!-- <item name="orange" type="color">#FFa500</item> -->

@@ -18,12 +18,16 @@ public class Global {
     public static final String PROJECT_ID = "324070600220";
 
 
+    public final static int NOTIFICATION_ID = 66;
+    public static final String NOTIFICATION_COUNT = "NOTIFICATION_COUNT";
 
+    public final static int INBOX_OP = 0;
+    public final static int INBOX = 1;
+    public final static int HOME = 2;
+    public final static int OUTBOX = 3;
+    public final static int OUTBOX_OP = 4;
 
-    public final static int HOME = 1;
-    public final static int INBOX = 0;
-    public final static int OUTBOX = 2;
-    public final static int FRIENDS = 3;
+    //public final static int FRIENDS = 3;
 
     public static final int 	BROWSE_REQUEST = 2010;
 
@@ -38,6 +42,9 @@ public class Global {
     public static final String MYCOMMENT_RESOURCE = "MYCOMMENT_RESOURCE";
     public static final String HAS_VOTED_RESOURCE = "HAS_VOTED_RESOURCE";
     public static final String CHOICE_RESOURCE = "CHOICE_RESOURCE";
+    public static final String VOTE_DATE_RESOURCE = "VOTE_DATE_RESOURCE";
+    public static final String IS_TEMPORARY_RESOURCE = "IS_TEMPORARY_RESOURCE";
+    public static final String TEMP_FINAL_RESOURCE = "TEMP_FINAL_RESOURCE";
 
     public final static int RED = 2;
     public final static int YELLOW = 1;
@@ -49,23 +56,41 @@ public class Global {
     public static final String FONT1 = "fonts/justice.ttf";
 
 
-    public static final String NEW_FRIEND_REQUEST = "NEW_FRIEND_REQUEST";
-    public static final String UNDO_FRIEND_REQUEST = "UNDO_FRIEND_REQUEST";
+    public static final String NEW_FRIEND_REQUEST = "NEW_FOLLOWER";
+    public static final String UNDO_FRIEND_REQUEST = "RELATION_DELETED";
     public static final String BLOCKED_FRIEND = "BLOCKED_FRIEND";
     public static final String REMOVED_FRIEND_REQUEST = "REMOVED_FRIEND_REQUEST";
-    public static final String ACCEPTED_FRIEND_REQUEST = "ACCEPTED_FRIEND_REQUEST";
+    public static final String ACCEPTED_FRIEND_REQUEST = "NEW_FRIEND";
     public static final String NEW_PICTURE_RECEIVED = "NEW_PICTURE_RECEIVED";
     public static final String NEW_PICTURE_VOTE = "NEW_PICTURE_VOTE";
 
-
-    public static final String OPERATION_TYPE_INVITE = "INVITE";
-    public static final String OPERATION_TYPE_UNDO_INVITE = "UNDO_INVITE";
+    public static final String OPERATION_TYPE_REJECT = "REJECT";
+    public static final String OPERATION_TYPE_ACCEPT = "ADD_FOLLOWER_AS_FRIEND";
+    public static final String OPERATION_TYPE_INVITE = "FOLLOW";
+    public static final String OPERATION_TYPE_UNDO_INVITE = "DELETE";
     public static final String OPERATION_TYPE_BLOCK = "BLOCK";
     public static final String OPERATION_TYPE_DELETE = "DELETE";
+
 
 
     public static final String OFFLINE_OUTBOX = "OFFLINE_OUTBOX";
     public static final String OFFLINE_INBOX = "OFFLINE_INBOX";
     public static final String OFFLINE_VOTE = "OFFLINE_VOTE";
+    public static final String OFFLINE_WORK = "OFFLINE_WORK";
+
+    public final static String FRIENDS = "FRIENDS";
+    public final static String MYFOLLOWERS = "MYFOLLOWERS";
+    public final static String FOLLOWING = "FOLLOWING";
+
+    public final static String SCREEN_WIDTH = "screen_width";
+    public final static String SCREEN_HEIGHT = "screen_height";
+
+    public static final boolean VERSION_V2 = true;
+
+
+    public static final String OPTIONS_TYPE = "OPTIONS_TYPE";
+    public static final int OPTIONS_TYPE_INBOX  = 0;
+    public static final int OPTIONS_TYPE_OUTBOX  = 1;
+    public static final String OPTIONS_TITLE = "OPTIONS_TITLE";
 
 }

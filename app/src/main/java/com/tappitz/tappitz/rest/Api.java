@@ -61,10 +61,14 @@ public interface Api {
 
     /*********Contactos************/
 
-    /*List Contacts*/
-    @GET("/contacts")
-//    @GET("/listMyContacts.json")
-    void listMyContacts( Callback<JsonElement> callback);
+    /*List friends*/
+    @GET("/friends")
+    void listMyFriends(Callback<JsonElement> callback);
+
+    /*******Contactos - Pedidos de contacto********/
+    @GET("/followers")
+    void listMyFollowers(Callback<JsonElement> callback);
+
 
     /*Contactos - Procura*/
     @GET("/contacts/{user_id}")
@@ -86,12 +90,10 @@ public interface Api {
     @POST("/contacts")
     void deleteContact(@Body ContactSendId id, Callback<JsonElement> callback);
 
-    @GET("/users/login")
+    @GET("/users/me")
     void isLogin(Callback<JsonElement> callback);
 
-    /*******Contactos - Pedidos de contacto********/
-    @GET("/contact_requests")
-    void listContactRequests( Callback<JsonElement> callback);
+
 
     /*Contacto - aceitar*/
     @POST("/contacts")

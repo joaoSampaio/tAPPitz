@@ -2264,7 +2264,8 @@ public class VerticalViewPager extends ViewGroup {
                     0, mLastMotionY, 0);
             mVelocityTracker.addMovement(ev);
             ev.recycle();
-        } catch (IllegalStateException e) {
+        } catch (Exception e) {
+            Log.d("erro", e.getMessage());
             e.printStackTrace();
         }
     }

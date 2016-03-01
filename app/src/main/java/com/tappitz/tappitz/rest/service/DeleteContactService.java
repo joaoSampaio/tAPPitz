@@ -12,7 +12,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class DeleteContactService implements ServerCommunicationService {
+public class DeleteContactService extends ServerCommunicationService {
 
     private CallbackMultiple callback;
     private ContactSendId id;

@@ -12,7 +12,7 @@ import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
 
-public class UndoInviteContactService implements ServerCommunicationService {
+public class UndoInviteContactService extends ServerCommunicationService {
 
     private CallbackMultiple callback;
     private ContactSendId id;

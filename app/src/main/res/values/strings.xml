@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">tAPPitz</string>
+    <string name="app_name">tappitz</string>
 
     <string name="descricaoFoto">Alguem conhce este livro? Devo ler isto? Penso que parece bom. Se alguem souber que comunique, pff :) </string>
 
@@ -273,7 +273,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_refresh">Refresh</string>
 
-<!-- TODO: Remove or change this placeholder text -->
+    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="top_in">In</string>
     <string name="out">out</string>

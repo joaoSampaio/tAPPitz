@@ -1,6 +1,7 @@
 package com.tappitz.tappitz.ui;
 
 import android.app.Activity;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -19,8 +20,10 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.dd.processbutton.iml.ActionProcessButton;
@@ -28,6 +31,7 @@ import com.google.gson.JsonElement;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.RestClientV2;
 import com.tappitz.tappitz.rest.model.UserRegister;
 import com.tappitz.tappitz.rest.service.CallbackFromService;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
@@ -39,7 +43,6 @@ import com.tappitz.tappitz.validators.EmailValidator;
 import com.tappitz.tappitz.validators.NameValidator;
 import com.tappitz.tappitz.validators.PasswordValidator;
 import com.tappitz.tappitz.validators.PhoneValidator;
-import com.wdullaer.materialdatetimepicker.date.DatePickerDialog;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -49,16 +52,18 @@ import java.util.Locale;
 public class LoginActivity extends FragmentActivity implements View.OnClickListener, DatePickerDialog.OnDateSetListener, ProgressGenerator.OnCompleteListener {
 
 
-    private final static int[] CLICKABLES = {R.id.btn_login, R.id.link_signup, R.id.backToPrevious, R.id.nextTo};
+    private final static int[] CLICKABLES = {R.id.btn_login, R.id.link_signup, R.id.backToPrevious, R.id.nextTo, R.id.textViewCountry};
     private final static int[] SCREENS = {R.id.screen_login, R.id.screen_reg1, R.id.screen_reg2, R.id.bottom_actions};
     private int curScreen, day, month, year;
-    AppCompatEditText editEmail, editPassword, date_picker, firstname, lastname, registerEmail, registerPassword, registerPhoneNumber;
+    AppCompatEditText editEmail, editPassword, date_picker, firstname, lastname, registerEmail, registerPassword, registerPhoneNumber, registerUsername;
     private AppCompatRadioButton female, male;
     private Spinner paisesSpinner;
     private ActionProcessButton login;
     private ProgressGenerator progressGenerator;
     private Handler handler;
     private Runnable runnable;
+    private Button btn_date_picker;
+    private TextView textViewDate;
 
     private List<Integer> screens;
 
@@ -84,7 +89,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         registerEmail = (AppCompatEditText) findViewById(R.id.registerEmail);
         registerPassword = (AppCompatEditText) findViewById(R.id.registerPassword);
         registerPhoneNumber = (AppCompatEditText) findViewById(R.id.registerPhoneNumber);
-
+        registerUsername = (AppCompatEditText) findViewById(R.id.registerUsername);
         login = (ActionProcessButton)findViewById(R.id.btn_login);
         login.setMode(ActionProcessButton.Mode.ENDLESS);
 
@@ -104,22 +109,27 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             }
         };
 
+//        textViewDate = (TextView)findViewById(R.id.textViewDate);
+//        btn_date_picker = (Button)findViewById(R.id.btn_date_picker);
+//        btn_date_picker.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                launchCalendar();
+//            }
+//        });
         date_picker = (AppCompatEditText)findViewById(R.id.date_picker);
-        date_picker.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                try {
-                    if (hasFocus) {
-                        v.clearFocus();
-                        launchCalendar();
-                    } else {
+        date_picker.setOnClickListener(this);
+        ((TextInputLayout)findViewById(R.id.date_holder)).setOnClickListener(this);
+//        date_picker.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                launchCalendar();
+//            }
+//        });
 
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+
+
+
 
         //definicao dos spinner para os paises
         paisesSpinner = (Spinner) findViewById(R.id.counties);
@@ -204,6 +214,15 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 Log.d("myapp", "****loginBtn**");
                 login(editEmail.getText().toString(), editPassword.getText().toString());
                 break;
+            case R.id.date_picker:
+                launchCalendar();
+                break;
+            case R.id.date_holder:
+                launchCalendar();
+                break;
+            case R.id.textViewCountry:
+                paisesSpinner.performClick();
+                break;
         }
     }
 
@@ -230,7 +249,12 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                         editor.putString("sessionId", sessionId);
                         editor.commit();
                         Log.d("myapp", "***login**sessionId*" + sessionId);
-                        RestClient.setSessionId(sessionId);
+                        if(Global.VERSION_V2) {
+                            RestClientV2.setSessionId(sessionId);
+                        }else {
+                            RestClient.setSessionId(sessionId);
+                        }
+//                        RestClient.setSessionId(sessionId);
                         login.setProgress(100);
                         onSuccessLogin();
                     }
@@ -256,20 +280,21 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
     private void registerUser(){
 
-        String firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password;
+        String firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password, username;
 
-        firstName = firstname.getText().toString();
-        lastName = lastname.getText().toString();
-        lastName = lastname.getText().toString();
+        firstName = firstname.getText().toString().trim();
+        lastName = lastname.getText().toString().trim();
         gender = male.isChecked()? "1": "0";
         //gender = Boolean.toString(male.isChecked());
         birthDate = day + "_" + month + "_" + year;
         phoneNumber = registerPhoneNumber.getText().toString();
+        Log.d("myapp", "***phoneNumber.length()***" + phoneNumber.length());
         country = paisesSpinner.getSelectedItemPosition() + "";
         gpsCoordinates = "1234";
-        email = registerEmail.getText().toString();
+        email = registerEmail.getText().toString().toLowerCase().trim();
         password = registerPassword.getText().toString();
-        UserRegister user = new UserRegister(firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password);
+        username = registerUsername.getText().toString();
+        UserRegister user = new UserRegister(firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password, username);
 
 
         final ProgressDialog progressDialog = ProgressDialog.show(LoginActivity.this, "Please wait", "You're about to experience the tAPPitz effect!", true);
@@ -329,6 +354,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             @Override
             public void onDatePicked(int year1, int monthOfYear, int dayOfMonth) {
                 Log.d("myapp", "***launchCalendar*" + dayOfMonth+"-"+(monthOfYear+1)+"-"+year1);
+                //textViewDate.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year1);
                 date_picker.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year1);
                 day = dayOfMonth;
                 month = (monthOfYear+1);
@@ -428,10 +454,13 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             TextInputLayout email_holder = (TextInputLayout)findViewById(R.id.email_holder);
             TextInputLayout pass_holder = (TextInputLayout)findViewById(R.id.pass_holder);
             TextInputLayout phone_holder = (TextInputLayout)findViewById(R.id.phone_holder);
+            TextInputLayout username_holder = (TextInputLayout)findViewById(R.id.username_holder);
 
             boolean emailValidated = emailValidator.validate(registerEmail.getText().toString());
             boolean passValidated = passwordValidator.validate(registerPassword.getText().toString());
-            boolean phoneValidated = phoneValidator.validate(registerPhoneNumber.getText().toString());
+            boolean phoneValidated = true;
+            boolean usernameValidated = !isEmpty(registerUsername);
+//            boolean phoneValidated = phoneValidator.validate(registerPhoneNumber.getText().toString());
 
             if(!emailValidated) {
                 email_holder.setErrorEnabled(true);
@@ -445,13 +474,20 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
             }else
                 pass_holder.setErrorEnabled(false);
 
-            if(!phoneValidated) {
-                phone_holder.setErrorEnabled(true);
-                phone_holder.setError("Required");
-            }else
-                phone_holder.setErrorEnabled(false);
+            if(!usernameValidated){
+                username_holder.setErrorEnabled(true);
+                username_holder.setError("Required");
+            }else{
+                username_holder.setErrorEnabled(false);
+            }
 
-            return emailValidated && passValidated && phoneValidated;
+//            if(!phoneValidated) {
+//                phone_holder.setErrorEnabled(true);
+//                phone_holder.setError("Required");
+//            }else
+//                phone_holder.setErrorEnabled(false);
+
+            return emailValidated && passValidated && phoneValidated && usernameValidated;
         }
         return false;
     }
@@ -476,13 +512,13 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         }
     }
 
-    @Override
-    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
-        date_picker.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year);
-        this.day = dayOfMonth;
-        this.month = monthOfYear;
-        this.year = year;
-    }
+//    @Override
+//    public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth) {
+//        date_picker.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year);
+//        this.day = dayOfMonth;
+//        this.month = monthOfYear;
+//        this.year = year;
+//    }
 
 
     private boolean validators() {
@@ -511,4 +547,11 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     }
 
 
+    @Override
+    public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+        date_picker.setText(dayOfMonth+"-"+(monthOfYear+1)+"-"+year);
+        this.day = dayOfMonth;
+        this.month = monthOfYear;
+        this.year = year;
+    }
 }

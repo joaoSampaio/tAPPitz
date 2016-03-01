@@ -6,15 +6,24 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.tappitz.tappitz.Global;
+import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.rest.RestClient;
+import com.tappitz.tappitz.rest.RestClientV2;
 import com.tappitz.tappitz.rest.model.ContactSearchResult;
+import com.tappitz.tappitz.rest.model.Vote;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
+import retrofit2.Call;
 
-public class SearchContactService implements ServerCommunicationService {
+public class SearchContactService extends ServerCommunicationService {
 
     private CallbackMultiple callback;
     private String search;
@@ -25,39 +34,76 @@ public class SearchContactService implements ServerCommunicationService {
 
     @Override
     public void execute() {
-        RestClient.getService().searchContact(search, new Callback<JsonElement>() {
-            @Override
-            public void success(JsonElement json, Response response2) {
 
-                Gson gson = new Gson();
-                JsonObject obj = json.getAsJsonObject();
-                Log.d("myapp", "obj->" + obj.toString());
-                boolean status = obj.get("status").getAsBoolean();
-                Log.d("myapp", "status->" + status);
-                if (status) {
-                    ContactSearchResult contactSearch = gson.fromJson(obj.get("data"), ContactSearchResult.class);
-                    if(contactSearch == null || contactSearch.getEmail() == null) {
-                        callback.success(null);
-                        return;
+        if (Global.VERSION_V2) {
+            Call<JsonElement> call = RestClientV2.getService().searchContact(search);
+            call.enqueue(new retrofit2.Callback<JsonElement>() {
+                @Override
+                public void onResponse(Call<JsonElement> call, retrofit2.Response<JsonElement> response) {
+                    if (response.isSuccess()) {
+                        JsonElement json = response.body();
+                        if (json != null) {
+                            Gson gson = new Gson();
+                            JsonObject obj = json.getAsJsonObject();
+                            boolean status = obj.get("status").getAsBoolean();
+                            if (status) {
+                                ContactSearchResult contactSearch = gson.fromJson(obj.get("data"), ContactSearchResult.class);
+                                if (contactSearch == null || contactSearch.getEmail() == null) {
+                                    callback.success(null);
+                                    return;
+                                }
+
+                                Contact contact = new Contact(contactSearch.getName(), contactSearch.getUsername(), contactSearch.getEmail(), contactSearch.getId());
+                                callback.success(contact);
+                            } else {
+                                Log.d("myapp", "deu erro");
+                                callback.failed(obj.get("error").getAsString());
+                            }
+                        } else {
+                            callback.failed("problem");
+                        }
                     }
-
-                    Contact contact = new Contact(contactSearch.getName(), contactSearch.getEmail(), contactSearch.getId(),false, contactSearch.isInvited());
-                    callback.success(contact);
-                } else {
-                    Log.d("myapp", "deu erro");
-                    callback.failed(obj.get("error").getAsString());
                 }
 
+                @Override
+                public void onFailure(Call<JsonElement> call, Throwable t) {
+                    callback.failed("network problem");
+                }
+            });
+        } else {
+            RestClient.getService().searchContact(search, new Callback<JsonElement>() {
+                @Override
+                public void success(JsonElement json, Response response2) {
 
-            }
+                    Gson gson = new Gson();
+                    JsonObject obj = json.getAsJsonObject();
+                    Log.d("myapp", "obj->" + obj.toString());
+                    boolean status = obj.get("status").getAsBoolean();
+                    Log.d("myapp", "status->" + status);
+                    if (status) {
+                        ContactSearchResult contactSearch = gson.fromJson(obj.get("data"), ContactSearchResult.class);
+                        if (contactSearch == null || contactSearch.getEmail() == null) {
+                            callback.success(null);
+                            return;
+                        }
 
-            @Override
-            public void failure(RetrofitError error) {
-                Log.d("myapp", "**error****" + error.toString());
-                callback.failed(error);
-            }
-        });
+                        Contact contact = new Contact(contactSearch.getName(), contactSearch.getUsername(), contactSearch.getEmail(), contactSearch.getId());
+                        callback.success(contact);
+                    } else {
+                        Log.d("myapp", "deu erro");
+                        callback.failed(obj.get("error").getAsString());
+                    }
 
+
+                }
+
+                @Override
+                public void failure(RetrofitError error) {
+                    Log.d("myapp", "**error****" + error.toString());
+                    callback.failed(error);
+                }
+            });
+        }
 
     }
 }

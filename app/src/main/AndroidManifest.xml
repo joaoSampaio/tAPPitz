@@ -13,43 +13,53 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
-
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
-
+    <uses-permission android:name="android.permission.EXPAND_STATUS_BAR" />
     <!--
       IMPORTANT: Change "com.parse.starter.permission.C2D_MESSAGE" in the lines below
       to match your app's package name + ".permission.C2D_MESSAGE".
     -->
-    <permission android:protectionLevel="signature"
-        android:name="com.tappitz.tappitz.permission.C2D_MESSAGE" />
+    <permission
+        android:name="com.tappitz.tappitz.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
     <uses-permission android:name="com.tappitz.tappitz.permission.C2D_MESSAGE" />
-
-
-
 
     <application
         android:name=".app.AppController"
         android:allowBackup="true"
-        android:icon="@drawable/ic_stat_logo_tappitz"
-        android:label="@string/app_name"
         android:hardwareAccelerated="true"
-        android:theme="@style/AppTheme" >
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:logo="@mipmap/ic_launcher"
+        android:theme="@style/AppTheme">
 
-        <activity android:name="org.acra.CrashReportDialog"
-            android:theme="@android:style/Theme.Dialog"
-            android:process=":error_report"
-            android:launchMode="singleInstance"
+        <activity android:name=".ui.toBeRemoved.TestActivity"
+            android:screenOrientation="portrait">
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+        </activity>
+
+
+        <activity
+            android:name="org.acra.CrashReportDialog"
             android:excludeFromRecents="true"
-            android:finishOnTaskLaunch="true" />
-
+            android:finishOnTaskLaunch="true"
+            android:launchMode="singleInstance"
+            android:process=":error_report"
+            android:theme="@android:style/Theme.Dialog" />
         <activity
             android:name=".ui.ScreenSlidePagerActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden">
             android:theme="@style/AppTheme.DarkActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -61,63 +71,69 @@
             android:name=".ui.LoginActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize"
             android:theme="@style/AppTheme"
-            >
-
-        </activity>
-
+            android:windowSoftInputMode="stateHidden|adjustResize"></activity>
 
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
-            android:permission="com.google.android.c2dm.permission.SEND" >
+            android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <!-- for Gingerbread GSF backward compat -->
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
                 <category android:name="com.tappitz.tappitz" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".notification.GcmService" android:exported="false">
+        <service
+            android:name=".notification.GcmService"
+            android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
             </intent-filter>
         </service>
-
         <service
             android:name=".notification.MyInstanceIDListenerService"
             android:exported="false">
             <intent-filter>
-                <action android:name="com.google.android.gms.iid.InstanceID"/>
+                <action android:name="com.google.android.gms.iid.InstanceID" />
             </intent-filter>
         </service>
-
         <service
             android:name=".notification.RegistrationIntentService"
-            android:exported="false">
-        </service>
+            android:exported="false"></service>
+
+        <service android:name=".background.BackgroundService" />
+
+        <receiver android:name=".background.WifiReceiver">
+            <intent-filter>
+                <action android:name="android.net.wifi.supplicant.CONNECTION_CHANGE" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- <receiver android:name=".notification.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" > -->
+        <!-- <intent-filter> -->
+        <!-- <action android:name="com.google.android.c2dm.intent.RECEIVE" /> -->
+        <!-- <category android:name="com.tappitz.tappitz" /> -->
+        <!-- </intent-filter> -->
+        <!-- </receiver> -->
 
 
-        <!--<receiver android:name=".notification.GcmBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND" >-->
-            <!--<intent-filter>-->
-                <!--<action android:name="com.google.android.c2dm.intent.RECEIVE" />-->
-                <!--<category android:name="com.tappitz.tappitz" />-->
-            <!--</intent-filter>-->
-        <!--</receiver>-->
+        <!-- <service android:name=".notification.GcmIntentService" /> -->
 
-        <!--<service android:name=".notification.GcmIntentService" />-->
-
-
-
-        <meta-data android:name="com.google.android.gms.version"
+        <meta-data
+            android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
-
         <meta-data
             android:name="com.tappitz.tappitz.rest.MyGlideModule"
             android:value="GlideModule" />
-        <meta-data android:name="com.bumptech.glide.integration.okhttp.OkHttpGlideModule" tools:node="remove"/>
+        <meta-data
+            android:name="com.bumptech.glide.integration.okhttp.OkHttpGlideModule"
+            tools:node="remove" />
 
 
     </application>

@@ -3,6 +3,7 @@ package com.tappitz.tappitz.ui.secondary;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -19,34 +20,47 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.toolbox.ImageLoader;
-import com.android.volley.toolbox.NetworkImageView;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.background.BackgroundService;
+import com.tappitz.tappitz.model.FutureUpload;
+import com.tappitz.tappitz.model.FutureVote;
+import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.SendVotePictureService;
 import com.tappitz.tappitz.ui.InBoxFragment;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
+import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.VerticalViewPager;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
 
 
 public class InBoxPageFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
-    private View rootView, layout_vote, layout_container, layoutVoteText, painelvotacao;
-    private TextView textViewOwner, textViewDate, yourComment;
+    private View rootView, layout_vote, layout_container, layoutVoteText, painelvotacao, layout_already_voted_original, loading;
+    private TextView textViewOwner, yourComment;
     private Button botaoVermelho, botaoAmarelo, botaoVerde;
     private ImageView color_background;
     private EditText editTextComment;
     private int id, currentVote;
     private ListenerPagerStateChange state;
     String text;
+    private boolean hasVoted, isTemporary;
 
     private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde, R.id.buttonBack, R.id.buttonSend};
 
@@ -63,29 +77,46 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         rootView = inflater.inflate(R.layout.fragment_inbox_child, container, false);
         ImageView imageView = (ImageView)rootView.findViewById(R.id.picture);
-
-        Log.d("myapp", "inbox Redraw.............................");
-
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
         text = getArguments().getString(Global.TEXT_RESOURCE);
         id = getArguments().getInt(Global.ID_RESOURCE);
         String owner = getArguments().getString(Global.OWNER_RESOURCE);
-        String date = getArguments().getString(Global.DATE_RESOURCE);
+        String dateSentTimeAgo = getArguments().getString(Global.DATE_RESOURCE);
+
+
         String myComment = getArguments().getString(Global.MYCOMMENT_RESOURCE);
 
-        boolean hasVoted = getArguments().getBoolean(Global.HAS_VOTED_RESOURCE);
-        int choice = getArguments().getInt(Global.CHOICE_RESOURCE);
-//        if (imageLoader == null)
-//            imageLoader = AppController.getInstance().getImageLoader();
-//        imageView.setImageUrl(url, imageLoader);
+        hasVoted = getArguments().getBoolean(Global.HAS_VOTED_RESOURCE);
+        isTemporary = getArguments().getBoolean(Global.IS_TEMPORARY_RESOURCE);
 
-//        GlideUrl uri = new GlideUrl(url, new LazyHeaders.Builder()
-//                .setHeader("Session-Id", AppController.getInstance().getSessionId())
-//                .build());
+
+        rootView.findViewById(R.id.textViewTemp).setVisibility(isTemporary? View.VISIBLE: View.GONE);
+
+
+        String dateVoteTimeAgo = "";
+        if(hasVoted)
+            dateVoteTimeAgo = getArguments().getString(Global.VOTE_DATE_RESOURCE);
+        int choice = getArguments().getInt(Global.CHOICE_RESOURCE);
+
+        loading = rootView.findViewById(R.id.loading);
+        loading.setVisibility(View.VISIBLE);
         Glide.with(this)
                 .load(url)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
+                .listener(new RequestListener<String, GlideDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                        loading.setVisibility(View.GONE);
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        loading.setVisibility(View.GONE);
+                        return false;
+                    }
+                })
                 .into(imageView);
 
         for(int idBtn: CLICKABLE) {
@@ -99,23 +130,23 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         botaoAmarelo = (Button)rootView.findViewById(R.id.botaoAmarelo);
         botaoVermelho = (Button)rootView.findViewById(R.id.botaoVermelho);
         color_background = (ImageView)rootView.findViewById(R.id.color_background);
-
+        layout_already_voted_original = rootView.findViewById(R.id.layout_already_voted_original);
 
         editTextComment = (EditText)rootView.findViewById(R.id.editTextComment);
         layout_vote = rootView.findViewById(R.id.layout_vote);
         layout_container = rootView.findViewById(R.id.container);
         yourComment = (TextView)rootView.findViewById(R.id.yourComment);
-        yourComment.setText(myComment);
+        yourComment.setText("\""+myComment);
         TextView textview = (TextView) rootView.findViewById(R.id.photo_description);
-        textview.setText(text);
+        textview.setText("\""+text);
         TextView textViewVoted = (TextView) rootView.findViewById(R.id.photo_description_voted);
-        textViewVoted.setText(text);
+        textViewVoted.setText("\""+text);
         textViewOwner = (TextView) rootView.findViewById(R.id.textViewOwner);
-        textViewDate = (TextView) rootView.findViewById(R.id.textViewDate);
-        textViewOwner.setText(owner);
-        textViewDate.setText(date);
-        ((TextView) rootView.findViewById(R.id.textViewOwner2)).setText(owner);
-        ((TextView) rootView.findViewById(R.id.textViewDate2)).setText(date);
+
+        textViewOwner.setText(owner + " - " + dateSentTimeAgo);
+        ((TextView) rootView.findViewById(R.id.textViewOwner3)).setText(owner + " - " + dateSentTimeAgo);
+        if(hasVoted)
+            ((TextView) rootView.findViewById(R.id.textViewOwner2)).setText("You - " + dateVoteTimeAgo);
         if(hasVoted){
             rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
             rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
@@ -155,19 +186,18 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             }
         });
 
+
         return rootView;
     }
 
     @Override
     public void onResume(){
         super.onResume();
-        Log.d("myapp2", "**--page text  :" + text);
         state = new ListenerPagerStateChange() {
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
                     //voltamos a mostrar as opções
-                    Log.d("myapp2", "**--inboxpage  :" + state);
                     showButtonsAndBackground(true);
                 }
             }
@@ -184,8 +214,9 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
     public void showButtonsAndBackground(boolean show){
         if(layout_container != null) {
-            Log.d("myapp", "showButtonsAndBackground");
+            Log.d("myapp", "showButtonsAndBackground show: " + show + "hasVoted:"+ hasVoted);
             layout_container.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
+            layout_already_voted_original.setVisibility((!show && hasVoted) ? View.VISIBLE : View.INVISIBLE);
         }
         else
             Log.d("myapp", "layout_container null");
@@ -206,7 +237,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         }
         return color;
     }
-
 
     @Override
     public void onClick(View v) {
@@ -253,9 +283,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         }
 
-
-
-
         color_background.setBackgroundColor(getResources().getColor(getColor(currentVote)));
         color_background.setVisibility(View.VISIBLE);
         showSendExtras(true);
@@ -264,16 +291,14 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(editTextComment, InputMethodManager.SHOW_IMPLICIT);
 
-        //editTextComment.setVisibility(editTextComment.isShown() ? View.GONE : View.VISIBLE);
-
         return true;
     }
 
     private void showSendExtras(boolean show){
         editTextComment.setVisibility(show? View.VISIBLE : View.GONE);
-        layoutVoteText.setVisibility(show? View.VISIBLE : View.GONE);
+        layoutVoteText.setVisibility(show ? View.VISIBLE : View.GONE);
         painelvotacao.setVisibility(show? View.INVISIBLE : View.VISIBLE);
-        color_background.setVisibility(show? View.VISIBLE : View.GONE);
+        color_background.setVisibility(show ? View.VISIBLE : View.GONE);
         botaoAmarelo.setEnabled(!show);
         botaoVerde.setEnabled(!show);
         botaoVermelho.setEnabled(!show);
@@ -333,78 +358,119 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
     private void sendVote(final int vote){
 
+        showTemporary(vote);
+
+        final String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
+
+        List<ReceivedPhoto> tmp = new ModelCache<List<ReceivedPhoto>>().loadModel(getActivity(),new TypeToken<List<ReceivedPhoto>>(){}.getType(), Global.OFFLINE_INBOX);
+        if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof ReceivedPhoto) {
+            Log.d("inbox", "instanceof ReceivedPhoto");
+            ReceivedPhoto photo = ReceivedPhoto.getPhotoWithId(tmp, id);
+            if(photo != null) {
+                Log.d("inbox", "photo != null");
+                photo.setVote(vote);
+                photo.setComment(comment);
+                photo.setHasVoted(true);
+                photo.setIsVoteTemporary(true);
+                String now = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+                photo.setVotedDate(now);
+                new ModelCache<List<ReceivedPhoto>>().saveModel(getActivity(), tmp, Global.OFFLINE_INBOX);
+
+            }
+        }
+        //notifica o adapter
+        if(getActivity() != null && getParentFragment() != null) {
+            ((InBoxFragment)getParentFragment()).loadOffline();
+        }
+
+        FutureVote voteWork = new FutureVote(id, comment, vote);
+        BackgroundService.addVoteWork(voteWork);
+        //lançar o serviço
+        AppController.getAppContext().startService(new Intent(AppController.getAppContext(), BackgroundService.class));
+
+
+
+//        new SendVotePictureService(comment, id, vote, new CallbackMultiple<Boolean, String>() {
+//            @Override
+//            public void success(Boolean response) {
+//
+//                if(getActivity() != null && getParentFragment() != null){
+//                    Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
+//                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
+//                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
+//                    color_background.setVisibility(View.VISIBLE);
+//                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
+//
+//                    ReceivedPhoto newInbox = new ReceivedPhoto(id, comment, vote);
+//                    ((InBoxFragment)getParentFragment()).updateLocal(newInbox);
+//
+//                    //abriu a notificação e votou na picture vamso fechar a app
+//                    Log.d("teste", "activity:" + (getActivity() != null));
+//                    if(getActivity() != null && ((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id() == id){
+//                        //((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
+//                        getActivity().finish();
+//                        return;
+//                    }
+//
+//                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
+//                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
+//
+//                    if(nextPage > 0) {
+//                        animatePagerTransition(true, pager);
+//                        //pager.setCurrentItem(nextPage, true);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void failed(String error) {
+//                toggleButtons(true);
+//                if(getActivity() != null)
+//                    Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
+//                if(getActivity() != null && getParentFragment() != null){
+//                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
+//                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
+//                    color_background.setVisibility(View.VISIBLE);
+//                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
+//
+//                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
+//                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
+//
+//                    if(nextPage > 0) {
+//                        animatePagerTransition(true, pager);
+//                        //pager.setCurrentItem(nextPage, true);
+//                    }
+//                }
+//                botaoVermelho.setEnabled(true);
+//                botaoAmarelo.setEnabled(true);
+//                botaoVerde.setEnabled(true);
+//                botaoVermelho.setVisibility(View.VISIBLE);
+//                botaoAmarelo.setVisibility(View.VISIBLE);
+//                botaoVerde.setVisibility(View.VISIBLE);
+//            }
+//        }).execute();
+    }
+
+
+
+    public void showTemporary(int vote){
         botaoVermelho.setEnabled(false);
         botaoAmarelo.setEnabled(false);
         botaoVerde.setEnabled(false);
+        botaoVermelho.setVisibility(View.INVISIBLE);
+        botaoAmarelo.setVisibility(View.INVISIBLE);
+        botaoVerde.setVisibility(View.INVISIBLE);
+
+
         color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
         color_background.setVisibility(View.VISIBLE);
-        final String comment = editTextComment.isShown()? editTextComment.getText().toString() : "";
-        new SendVotePictureService(comment, id, vote, new CallbackMultiple<Boolean, String>() {
-            @Override
-            public void success(Boolean response) {
-
-                if(getActivity() != null && getParentFragment() != null){
-                    Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
-                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
-                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
-                    color_background.setVisibility(View.VISIBLE);
-                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
-
-                    //abriu a notificação e votou na picture vamso fechar a app
-                    if(((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id() == id){
-                        ((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
-                        getActivity().finish();
-                        return;
-                    }
-
-                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
-                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
-
-                    if(nextPage > 0) {
-                        animatePagerTransition(true, pager);
-                        //pager.setCurrentItem(nextPage, true);
-                    }
-
-                    ((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
-
-
-
-                }
-            }
-
-            @Override
-            public void failed(String error) {
-                toggleButtons(true);
-                if(getActivity() != null)
-                    Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
-                if(getActivity() != null && getParentFragment() != null){
-                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
-                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
-                    color_background.setVisibility(View.VISIBLE);
-                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
-
-                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
-                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
-
-                    if(nextPage > 0) {
-                        animatePagerTransition(true, pager);
-                        //pager.setCurrentItem(nextPage, true);
-
-                    }
-                }
-                botaoVermelho.setEnabled(true);
-                botaoAmarelo.setEnabled(true);
-                botaoVerde.setEnabled(true);
-            }
-        }).execute();
     }
+
 
     private void toggleButtons(boolean enable){
         botaoVerde.setEnabled(enable);
         botaoAmarelo.setEnabled(enable);
         botaoVermelho.setEnabled(enable);
     }
-
-
 
 }

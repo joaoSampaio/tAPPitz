@@ -32,7 +32,7 @@ import java.util.List;
 public class ContactAdapter extends BaseAdapter implements Filterable {
 
     private Activity activity;
-    private OnUpdate update; ;
+    private OnUpdate update;
     private ContactFilter contactFilter;
     private List<ListViewContactItem> contacts;
     private List<ListViewContactItem> originalContacts;
@@ -228,7 +228,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
                         contact = contacts.get(pos).getContact();
                         if(contact.isFriend()){
                             contact_back.setVisibility(View.VISIBLE);
-                        }else if(contact.isInvited()){
+                        }else if(contact.isFollower()){
                             //Ja convidado
                             contact_back_invite_undo.setVisibility(View.VISIBLE);
                         }else {

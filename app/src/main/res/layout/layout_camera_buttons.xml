@@ -8,7 +8,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/whiteBackground"
+        android:id="@+id/layout_after_photo"
         android:alpha="1"
         android:visibility="gone">
         <RelativeLayout
@@ -87,32 +87,40 @@
 
     </RelativeLayout>
 
-    <Button
-        android:id="@+id/btn_shutter"
-        android:text="Capture"
-        android:background="@drawable/photo_button"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        style="@style/SelectBar"
-        android:layout_alignParentBottom="false"
-        android:layout_centerInParent="true" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/layout_before_photo">
 
 
-    <Button
-        android:id="@+id/camera_options"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-        android:text="Camera"
-        style="@style/SelectBar"
-        android:background="#00000000"
-        android:textSize="20sp"/>
 
 
-    <!--<RelativeLayout-->
+        <Button
+            android:id="@+id/btn_shutter"
+            android:text="Capture"
+            android:background="@drawable/photo_button"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            style="@style/SelectBar"
+            android:layout_alignParentBottom="false"
+            android:layout_centerInParent="true" />
+
+
+        <Button
+            android:id="@+id/camera_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="10dp"
+            android:text="Camera"
+            style="@style/SelectBar"
+            android:background="#00000000"
+            android:textSize="20sp"/>
+
+
+        <!--<RelativeLayout-->
         <!--android:id="@+id/camera_options"-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
@@ -121,65 +129,65 @@
         <!--android:layout_marginRight="10dp"-->
         <!--android:layout_marginBottom="10dp">-->
         <!--<TextView-->
-            <!--style="@style/SelectBar"-->
-            <!--android:text="Camera"-->
-            <!--android:id="@+id/textViewOut"-->
-            <!--android:textSize="25sp" />-->
-    <!--</RelativeLayout>-->
+        <!--style="@style/SelectBar"-->
+        <!--android:text="Camera"-->
+        <!--android:id="@+id/textViewOut"-->
+        <!--android:textSize="25sp" />-->
+        <!--</RelativeLayout>-->
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/camera_options"
-        android:id="@+id/layout_camera"
-        android:visibility="gone"
-        android:layout_alignParentRight="true">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/camera_options"
+            android:id="@+id/layout_camera"
+            android:visibility="gone"
+            android:layout_alignParentRight="true">
 
-        <Button
-            android:id="@+id/btn_load"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:background="#00000000"
-            android:text="Load"
-            style="@style/SelectBar" />
+            <Button
+                android:id="@+id/btn_load"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:background="#00000000"
+                android:text="Load"
+                style="@style/SelectBar" />
 
-        <Button
-            android:id="@+id/btn_flash"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:background="#00000000"
-            android:text="@string/flash"
-            style="@style/SelectBar" />
+            <Button
+                android:id="@+id/btn_flash"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:background="#00000000"
+                android:text="@string/flash"
+                style="@style/SelectBar" />
 
-        <Button
-            android:id="@+id/btn_toggle_camera"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:background="#00000000"
-            android:text="Turn"
-            style="@style/SelectBar" />
+            <Button
+                android:id="@+id/btn_toggle_camera"
+                android:layout_width="fill_parent"
+                android:layout_height="match_parent"
+                android:background="#00000000"
+                android:text="Turn"
+                style="@style/SelectBar" />
 
-    </LinearLayout>
-
-
-    <Button
-        android:id="@+id/go_to"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="false"
-        android:layout_alignParentLeft="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="10dp"
-        android:visibility="visible"
-        android:text="Go To"
-        style="@style/SelectBar"
-        android:background="#00000000"
-        android:textSize="20sp"/>
+        </LinearLayout>
 
 
-    <!--<RelativeLayout-->
+        <!--<Button-->
+        <!--android:id="@+id/go_to"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_alignParentBottom="true"-->
+        <!--android:layout_alignParentRight="false"-->
+        <!--android:layout_alignParentLeft="true"-->
+        <!--android:layout_marginLeft="10dp"-->
+        <!--android:layout_marginBottom="10dp"-->
+        <!--android:visibility="visible"-->
+        <!--android:text="Go To"-->
+        <!--style="@style/SelectBar"-->
+        <!--android:background="#00000000"-->
+        <!--android:textSize="20sp"/>-->
+
+
+        <!--<RelativeLayout-->
         <!--android:id="@+id/go_to"-->
         <!--android:layout_width="wrap_content"-->
         <!--android:layout_height="wrap_content"-->
@@ -189,46 +197,104 @@
         <!--android:layout_margin="10dp"-->
         <!--android:visibility="visible">-->
         <!--<TextView-->
-            <!--style="@style/SelectBar"-->
-            <!--android:text="Go To"-->
-            <!--android:id="@+id/textViewgoto"-->
-            <!--android:textSize="25sp"-->
-            <!--/>-->
-    <!--</RelativeLayout>-->
+        <!--style="@style/SelectBar"-->
+        <!--android:text="Go To"-->
+        <!--android:id="@+id/textViewgoto"-->
+        <!--android:textSize="25sp"-->
+        <!--/>-->
+        <!--</RelativeLayout>-->
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/go_to"
-        android:id="@+id/layout_goto"
-        android:visibility="gone"
-        >
+        <!--<LinearLayout-->
+        <!--android:orientation="vertical"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_above="@+id/go_to"-->
+        <!--android:id="@+id/layout_goto"-->
+        <!--android:visibility="gone"-->
+        <!-->-->
 
-        <Button
-            android:id="@+id/btn_goto_in"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:text="Received"
-            style="@style/SelectBar"
-            android:background="#00000000" />
+        <!--<Button-->
+        <!--android:id="@+id/btn_goto_in"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="Received"-->
+        <!--style="@style/SelectBar"-->
+        <!--android:background="#00000000" />-->
 
-        <Button
-            android:id="@+id/btn_goto_out"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:text="Sent"
-            style="@style/SelectBar"
-            android:background="#00000000" />
+        <!--<Button-->
+        <!--android:id="@+id/btn_goto_out"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="Sent"-->
+        <!--style="@style/SelectBar"-->
+        <!--android:background="#00000000" />-->
 
-        <Button
-            android:id="@+id/btn_goto_friends"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent"
-            android:text="Friends"
-            style="@style/SelectBar"
-            android:background="#00000000" />
+        <!--<Button-->
+        <!--android:id="@+id/btn_goto_friends"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="Friends"-->
+        <!--style="@style/SelectBar"-->
+        <!--android:background="#00000000" />-->
 
-    </LinearLayout>
+        <!--</LinearLayout>-->
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView4"
+            android:src="@drawable/seta"
+            android:layout_marginTop="70dp"
+            android:layout_alignParentRight="true"
+            android:rotation="180"
+            android:layout_marginRight="10dp" />
+
+
+
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_marginTop="70dp"
+            android:layout_marginLeft="10dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_go_inbox"
+                android:src="@drawable/seta"
+                />
+
+            <TextView
+                android:id="@+id/inbox_circle"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:background="@drawable/circle"
+                android:text="10"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_alignParentLeft="false"
+                android:gravity="center_vertical|center_horizontal"
+                android:layout_toRightOf="@+id/btn_go_inbox"
+                android:layout_centerVertical="true" />
+
+        </RelativeLayout>
+
+
+
+
+
+
+
+
+
+
+    </RelativeLayout>
+
+
+
 
 </RelativeLayout>

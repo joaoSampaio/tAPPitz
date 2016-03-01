@@ -23,10 +23,10 @@ import java.util.List;
 
 public class BlankFragment extends Fragment  {
 
-    final static int[] CLICABLES = {R.id.logOut, R.id.camera_options, R.id.go_to, R.id.btn_goto_in, R.id.btn_goto_out, R.id.btn_goto_friends, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter};
+    final static int[] CLICABLES = {R.id.logOut, R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter};
     View rootView, camera_options;
     private Button btn_shutter;
-    RelativeLayout whiteBackground;
+    RelativeLayout layout_after_photo;
     private View textMsgWrapper;
     private EditText textMsg;
 
@@ -40,7 +40,7 @@ public class BlankFragment extends Fragment  {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_blank, container, false);
-
+        Log.d("myapp2", "onCreateView blanck");
 
         ((ScreenSlidePagerActivity)getActivity()).setButtonEnable(new ButtonEnable() {
             @Override
@@ -49,6 +49,7 @@ public class BlankFragment extends Fragment  {
                 rootView.findViewById(R.id.btn_toggle_camera).setEnabled(enable);
                 rootView.findViewById(R.id.btn_flash).setEnabled(enable);
                 rootView.findViewById(R.id.btn_load).setEnabled(enable);
+                rootView.findViewById(R.id.camera_options).setVisibility(View.VISIBLE);
             }
         });
 
@@ -56,19 +57,12 @@ public class BlankFragment extends Fragment  {
             @Override
             public void onClick(View v) {
                 View view;
+                Log.d("myapp", "click:" + v.getId());
                 switch (v.getId()) {
                     case R.id.camera_options:
                         v.setTag(null);
                         view = rootView.findViewById(R.id.layout_camera);
                         view.setVisibility(view.isShown() ? View.GONE : View.VISIBLE);
-
-                        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
-                        break;
-                    case R.id.go_to:
-                        view = rootView.findViewById(R.id.layout_goto);
-                        view.setVisibility(view.isShown() ? View.GONE : View.VISIBLE);
-
-                        rootView.findViewById(R.id.layout_camera).setVisibility(View.GONE);
                         break;
                     case R.id.logOut:
                         Intent intent = new Intent(getActivity(), LoginActivity.class);
@@ -83,17 +77,11 @@ public class BlankFragment extends Fragment  {
         camera_options = rootView.findViewById(R.id.camera_options);
         btn_shutter = (Button) rootView.findViewById(R.id.btn_shutter);
         textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
-        whiteBackground = (RelativeLayout)rootView.findViewById(R.id.whiteBackground);
+        layout_after_photo = (RelativeLayout)rootView.findViewById(R.id.layout_after_photo);
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
-
-
-
-
-
 
         for(int id : CLICABLES)
                 rootView.findViewById(id).setOnClickListener(click);
-
 
         return rootView;
     }
@@ -117,32 +105,24 @@ int FOCUS_AREA_SIZE = 100;
                 (int)(y + touchMinor/2));
 
         final Rect targetFocusRect = new Rect(
-                tfocusRect.left * 2000/whiteBackground.getWidth() - 1000,
-                tfocusRect.top * 2000/whiteBackground.getHeight() - 1000,
-                tfocusRect.right * 2000/whiteBackground.getWidth() - 1000,
-                tfocusRect.bottom * 2000/whiteBackground.getHeight() - 1000);
+                tfocusRect.left * 2000/layout_after_photo.getWidth() - 1000,
+                tfocusRect.top * 2000/layout_after_photo.getHeight() - 1000,
+                tfocusRect.right * 2000/layout_after_photo.getWidth() - 1000,
+                tfocusRect.bottom * 2000/layout_after_photo.getHeight() - 1000);
 
 
-//        int left = clamp(Float.valueOf((x / whiteBackground.getWidth()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
-//        int top = clamp(Float.valueOf((y / whiteBackground.getHeight()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+//        int left = clamp(Float.valueOf((x / layout_after_photo.getWidth()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
+//        int top = clamp(Float.valueOf((y / layout_after_photo.getHeight()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
 //
 //        return new Rect(left, top, left + FOCUS_AREA_SIZE, top + FOCUS_AREA_SIZE);
         return targetFocusRect;
-    }
-
-    private void enableCameraButtons(boolean enable){
-        rootView.findViewById(R.id.btn_toggle_camera).setEnabled(enable);
-        rootView.findViewById(R.id.btn_flash).setEnabled(enable);
-        rootView.findViewById(R.id.btn_load).setEnabled(enable);
     }
 
 
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("myapp", "onResume");
         setUP();
-
     }
 
     @Override
@@ -155,7 +135,7 @@ int FOCUS_AREA_SIZE = 100;
 
         Log.d("myapp", "setUP blank ");
         textMsgWrapper.setVisibility(View.INVISIBLE);
-        whiteBackground.setVisibility(View.VISIBLE);
+        layout_after_photo.setVisibility(View.VISIBLE);
 
         showBtnOptions(false);
         btn_shutter.setVisibility(View.GONE);
@@ -171,32 +151,20 @@ int FOCUS_AREA_SIZE = 100;
         });
 
         if(isCameraInUse()){
-            Log.d("myapp", "isCameraInUse blank ");
+
             btn_shutter.setVisibility(View.VISIBLE);
             showBtnOptions(true);
+            Log.d("myapp", "isCameraInUse blank " + rootView.findViewById(R.id.camera_options).isShown());
         }
     }
 
     public boolean isCameraInUse() {
-        Camera c = null;
-        try {
-            c = Camera.open();
-        } catch (RuntimeException e) {
-            return true;
-        } finally {
-            if (c != null) c.release();
-        }
-        return false;
+        return AppController.getInstance().mCameraReady;
     }
 
-//    private void onCameraAvailable(){
-//
-//        btn_shutter.setVisibility(View.VISIBLE);
-//        showBtnOptions(true);
-//    }
 
     private void enableFocus(){
-        whiteBackground.setOnTouchListener(new View.OnTouchListener() {
+        layout_after_photo.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d("myapp", "setOnTouchListener blank ");
@@ -272,8 +240,8 @@ int FOCUS_AREA_SIZE = 100;
     private void showBtnOptions(boolean show){
         rootView.findViewById(R.id.camera_options).setVisibility(!show ? View.GONE : View.VISIBLE);
         rootView.findViewById(R.id.layout_camera).setVisibility(View.GONE);
-        rootView.findViewById(R.id.go_to).setVisibility(!show ? View.GONE : View.VISIBLE);
-        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
+//        rootView.findViewById(R.id.go_to).setVisibility(!show ? View.GONE : View.VISIBLE);
+//        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
     }
 
     public interface ButtonEnable{

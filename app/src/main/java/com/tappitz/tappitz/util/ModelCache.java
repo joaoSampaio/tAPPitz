@@ -36,8 +36,6 @@ public class ModelCache<T> {
         if (contacts.equals("")) {
             return null;
         } else {
-            Log.d("myapp", "**--loadModel:" + contacts);
-            //Type type = new TypeToken<T>() {}.getType();
             T contactsList = new Gson().fromJson(contacts, type);
             return contactsList;
         }

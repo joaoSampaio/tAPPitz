@@ -6,14 +6,36 @@
     android:orientation="vertical" android:keepScreenOn="true">
 
 
-
     <FrameLayout
-        android:id="@+id/frame"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        />
+    <!--<TextureView-->
+        <!--android:id="@+id/textureView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
 
-    </FrameLayout>
+    <ImageView
+        android:id="@+id/temp_pic"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:visibility="visible"
+        />
+
+    <include
+        android:id="@+id/camera_buttons"
+        layout="@layout/layout_camera_buttons"
+        />
+
+    <!--<FrameLayout-->
+        <!--android:id="@+id/frame"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!-->-->
+
+    <!--</FrameLayout>-->
 
 
 
@@ -39,7 +61,8 @@
             android:id="@+id/imageView2"
             android:layout_centerVertical="true"
             android:layout_centerHorizontal="true"
-            android:src="@drawable/logo_tappitz" />
+            android:src="@drawable/logo_tappitz"
+            android:layout_margin="20dp" />
     </RelativeLayout>
 
 

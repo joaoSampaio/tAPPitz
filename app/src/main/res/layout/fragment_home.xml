@@ -7,27 +7,42 @@
     android:clickable="true"
     >
 
-    <SurfaceView
-        android:id="@+id/surfaceview"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-       />
+    <!--<SurfaceView-->
+        <!--android:id="@+id/surfaceview"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+       <!--/>-->
+
+    <!--<TextureView-->
+        <!--android:id="@+id/textureView"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent" />-->
+
+
+    <FrameLayout
+        android:id="@+id/camera_preview"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        />
 
     <ImageView
         android:id="@+id/temp_pic"
         android:layout_height="match_parent"
         android:layout_width="match_parent"
-        android:scaleType="fitXY"
-        android:visibility="visible" />
 
+        android:visibility="visible"
+        android:alpha="0.8"/>
+    <!--android:scaleType="fitXY"-->
 
     <include
         android:id="@+id/camera_buttons"
         layout="@layout/layout_camera_buttons"
         />
 
-
-
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></RelativeLayout>
 
 
 </RelativeLayout>

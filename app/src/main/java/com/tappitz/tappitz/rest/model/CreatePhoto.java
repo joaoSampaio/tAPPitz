@@ -7,14 +7,16 @@ import java.util.List;
  */
 public class CreatePhoto {
 
+    private boolean sendToFollowers;
     private String comment;
     private String picture;
     private List<Integer> friendIds;
 
-    public CreatePhoto(String comment, List<Integer> contacts, String picture) {
+    public CreatePhoto(String comment, List<Integer> contacts, String picture, boolean sendToFollowers) {
         this.comment = comment;
         this.friendIds = contacts;
         this.picture = picture;
+        this.sendToFollowers = false;
     }
 
     public String getComment() {
@@ -39,5 +41,21 @@ public class CreatePhoto {
 
     public void setPicture(String picture) {
         this.picture = picture;
+    }
+
+    public List<Integer> getFriendIds() {
+        return friendIds;
+    }
+
+    public void setFriendIds(List<Integer> friendIds) {
+        this.friendIds = friendIds;
+    }
+
+    public boolean isSendToFollowers() {
+        return sendToFollowers;
+    }
+
+    public void setSendToFollowers(boolean sendToFollowers) {
+        this.sendToFollowers = sendToFollowers;
     }
 }

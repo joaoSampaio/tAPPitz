@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+   android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+
+    <GridLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/gridView"
+        android:columnCount="2"
+        android:rowCount="3"
+        android:orientation="horizontal"
+        android:layout_margin="10dp"
+        android:layout_centerInParent="true">
+
+        <ImageView
+            android:src="@drawable/my_contacts" />
+
+        <Button
+            android:id="@+id/action_contacts"
+            android:background="@color/bg_transparent"
+            android:layout_margin="10dp"
+            android:text="Os Meus Contactos" />
+
+        <ImageView
+            android:src="@drawable/subscribers" />
+
+        <Button
+            android:id="@+id/action_followers"
+            android:background="@color/bg_transparent"
+            android:layout_margin="10dp"
+            android:text="Os Meus Seguidores" />
+
+
+        <ImageView
+            android:src="@drawable/subscribers" />
+
+        <Button
+            android:id="@+id/action_following"
+            android:background="@color/bg_transparent"
+            android:layout_margin="10dp"
+            android:text="Quem Eu Sigo" />
+
+
+    </GridLayout>
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/action_back2"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        android:layout_alignParentBottom="true"
+        android:src="@drawable/arrow_down" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/action_qr_code"
+            android:src="@drawable/qr_code"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/action_settings"
+            android:src="@drawable/settings"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/action_back"
+            android:src="@drawable/arrow_down"
+            android:layout_alignParentRight="false"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
+    <!--<FrameLayout-->
+        <!--android:id="@+id/frame"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:layout_below="@+id/top_menu"-->
+        <!-->-->
+
+    <!--</FrameLayout>-->
+
+
+
+
+</RelativeLayout>

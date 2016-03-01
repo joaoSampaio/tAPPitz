@@ -4,13 +4,29 @@ package com.tappitz.tappitz.model;
 public class Contact {
 
     private String name;
+    private String username;
     private String email;
     private int id;
-//    private String phone;
     private boolean isFriend;
-    private boolean isInvited;
+    private boolean isFollower;
+    private boolean amIFollowing;
 
     private boolean isInviteRequest;
+
+    public Contact(String name, String username, String email, int id) {
+        this.name = name;
+        this.username = username;
+        this.email = email;
+        this.id = id;
+    }
+
+    public Contact(String name, String username, String email, int id, boolean isFriend) {
+        this.name = name;
+        this.username = username;
+        this.email = email;
+        this.id = id;
+        this.isFriend = isFriend;
+    }
 
     public Contact(String name, String email, int id, boolean isFriend) {
         this.name = name;
@@ -18,20 +34,23 @@ public class Contact {
 //        this.phone = phone;
         this.isFriend = isFriend;
         this.id = id;
+        this.username = email;
     }
 
-    public Contact(String name, String email, int id, boolean isFriend, boolean isInvited) {
+    public Contact(String name, String email, int id, boolean isFriend, boolean isFollower) {
         this.name = name;
         this.email = email;
         this.isFriend = isFriend;
-        this.isInvited = isInvited;
+        this.isFollower = isFollower;
         this.id = id;
+        this.username = email;
     }
 
     public Contact(String name, String email, int id) {
         this.name = name;
         this.email = email;
         this.id = id;
+        this.username = email;
     }
 
     public boolean isInviteRequest() {
@@ -58,14 +77,6 @@ public class Contact {
         this.email = email;
     }
 
-//    public String getPhone() {
-//        return phone;
-//    }
-//
-//    public void setPhone(String phone) {
-//        this.phone = phone;
-//    }
-
     public boolean isFriend() {
         return isFriend;
     }
@@ -74,12 +85,12 @@ public class Contact {
         this.isFriend = isFriend;
     }
 
-    public boolean isInvited() {
-        return isInvited;
+    public boolean isFollower() {
+        return isFollower;
     }
 
-    public void setIsInvited(boolean isInvited) {
-        this.isInvited = isInvited;
+    public void setIsFollower(boolean isInvited) {
+        this.isFollower = isInvited;
     }
 
     public int getId() {
@@ -88,5 +99,21 @@ public class Contact {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public boolean isAmIFollowing() {
+        return amIFollowing;
+    }
+
+    public void setAmIFollowing(boolean amIFollowing) {
+        this.amIFollowing = amIFollowing;
     }
 }
