@@ -23,13 +23,15 @@ import java.util.List;
 
 public class BlankFragment extends Fragment  {
 
-    final static int[] CLICABLES = {R.id.logOut, R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter};
+    final static int[] CLICABLES = {R.id.logOut, R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter,
+            R.id.action_goto_sent, R.id.action_goto_received, R.id.action_goto_qrcode, R.id.action_goto_contacts};
+
     View rootView, camera_options;
     private Button btn_shutter;
     RelativeLayout layout_after_photo;
     private View textMsgWrapper;
     private EditText textMsg;
-
+    private View.OnClickListener click;
 
     public BlankFragment() {
         // Required empty public constructor
@@ -37,7 +39,7 @@ public class BlankFragment extends Fragment  {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_blank, container, false);
         Log.d("myapp2", "onCreateView blanck");
@@ -45,15 +47,21 @@ public class BlankFragment extends Fragment  {
         ((ScreenSlidePagerActivity)getActivity()).setButtonEnable(new ButtonEnable() {
             @Override
             public void enableCameraButtons(boolean enable) {
-                Log.d("myapp", "enableCameraButtons:" + enable);
+                Log.d("myapp", "enableCameraButtons2222:" + enable);
+//                enable =  true;
+//                showBtnOptions(enable);
                 rootView.findViewById(R.id.btn_toggle_camera).setEnabled(enable);
                 rootView.findViewById(R.id.btn_flash).setEnabled(enable);
                 rootView.findViewById(R.id.btn_load).setEnabled(enable);
                 rootView.findViewById(R.id.camera_options).setVisibility(View.VISIBLE);
+
+//                for (int id : CLICABLES)
+//                    rootView.findViewById(id).setOnClickListener(enable? click : null);
+
             }
         });
 
-        View.OnClickListener click = new View.OnClickListener() {
+        click = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 View view;

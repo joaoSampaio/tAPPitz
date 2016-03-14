@@ -1,5 +1,7 @@
 package com.tappitz.tappitz.model;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +19,7 @@ public class FutureWorkList {
     }
 
     public boolean hasWork(){
+        Log.d("worklist", "uploads.size():"+uploads.size() );
         return uploads.size() > 0 || votes.size() > 0;
     }
 

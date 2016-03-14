@@ -90,7 +90,21 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         isTemporary = getArguments().getBoolean(Global.IS_TEMPORARY_RESOURCE);
 
 
-        rootView.findViewById(R.id.textViewTemp).setVisibility(isTemporary? View.VISIBLE: View.GONE);
+
+        if(isTemporary && !BackgroundService.isWifiAvailable()){
+            rootView.findViewById(R.id.textViewTemp).setVisibility(View.VISIBLE);
+            rootView.findViewById(R.id.textViewTemp).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(BackgroundService.isWifiAvailable()) {
+                        AppController.getAppContext().startService(new Intent(AppController.getAppContext(), BackgroundService.class));
+                    }else{
+                        Toast.makeText(AppController.getAppContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+//        rootView.findViewById(R.id.textViewTemp).setVisibility(isTemporary? View.VISIBLE: View.GONE);
 
 
         String dateVoteTimeAgo = "";
@@ -136,11 +150,12 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         layout_vote = rootView.findViewById(R.id.layout_vote);
         layout_container = rootView.findViewById(R.id.container);
         yourComment = (TextView)rootView.findViewById(R.id.yourComment);
-        yourComment.setText("\""+myComment);
+        yourComment.setText( ((myComment!= null && myComment.length() > 0)? ("\"" + myComment) : ""));
+
         TextView textview = (TextView) rootView.findViewById(R.id.photo_description);
-        textview.setText("\""+text);
+        textview.setText( ((text!= null && text.length() > 0)? ("\"" + text) : ""));
         TextView textViewVoted = (TextView) rootView.findViewById(R.id.photo_description_voted);
-        textViewVoted.setText("\""+text);
+        textViewVoted.setText( ((text!= null && text.length() > 0)? ("\"" + text) : ""));
         textViewOwner = (TextView) rootView.findViewById(R.id.textViewOwner);
 
         textViewOwner.setText(owner + " - " + dateSentTimeAgo);
@@ -388,67 +403,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         //lançar o serviço
         AppController.getAppContext().startService(new Intent(AppController.getAppContext(), BackgroundService.class));
 
-
-
-//        new SendVotePictureService(comment, id, vote, new CallbackMultiple<Boolean, String>() {
-//            @Override
-//            public void success(Boolean response) {
-//
-//                if(getActivity() != null && getParentFragment() != null){
-//                    Toast.makeText(getActivity(), "Vote sent!", Toast.LENGTH_SHORT).show();
-//                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
-//                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
-//                    color_background.setVisibility(View.VISIBLE);
-//                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
-//
-//                    ReceivedPhoto newInbox = new ReceivedPhoto(id, comment, vote);
-//                    ((InBoxFragment)getParentFragment()).updateLocal(newInbox);
-//
-//                    //abriu a notificação e votou na picture vamso fechar a app
-//                    Log.d("teste", "activity:" + (getActivity() != null));
-//                    if(getActivity() != null && ((ScreenSlidePagerActivity)getActivity()).getInbox_vote_id() == id){
-//                        //((InBoxFragment)getParentFragment()).updateLocal(new PhotoInbox(id,comment,vote));
-//                        getActivity().finish();
-//                        return;
-//                    }
-//
-//                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
-//                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
-//
-//                    if(nextPage > 0) {
-//                        animatePagerTransition(true, pager);
-//                        //pager.setCurrentItem(nextPage, true);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void failed(String error) {
-//                toggleButtons(true);
-//                if(getActivity() != null)
-//                    Toast.makeText(getActivity(), error, Toast.LENGTH_SHORT).show();
-//                if(getActivity() != null && getParentFragment() != null){
-//                    rootView.findViewById(R.id.layout_vote).setVisibility(View.GONE);
-//                    rootView.findViewById(R.id.layout_already_voted).setVisibility(View.VISIBLE);
-//                    color_background.setVisibility(View.VISIBLE);
-//                    color_background.setBackgroundColor(getResources().getColor(getColor(vote)));
-//
-//                    VerticalViewPager pager = ((InBoxFragment) getParentFragment()).getViewPager();
-//                    int nextPage = (pager.getCurrentItem() + 1) < pager.getAdapter().getCount()?  (pager.getCurrentItem() + 1) :  0;
-//
-//                    if(nextPage > 0) {
-//                        animatePagerTransition(true, pager);
-//                        //pager.setCurrentItem(nextPage, true);
-//                    }
-//                }
-//                botaoVermelho.setEnabled(true);
-//                botaoAmarelo.setEnabled(true);
-//                botaoVerde.setEnabled(true);
-//                botaoVermelho.setVisibility(View.VISIBLE);
-//                botaoAmarelo.setVisibility(View.VISIBLE);
-//                botaoVerde.setVisibility(View.VISIBLE);
-//            }
-//        }).execute();
     }
 
 

@@ -3,23 +3,16 @@ package com.tappitz.tappitz.ui.secondary;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.Filter;
-import android.widget.Toast;
 
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactManagerAdapter;
-import com.tappitz.tappitz.adapter.SelectSendPhotoAdapter;
-import com.tappitz.tappitz.ui.CustomDialogFragment;
 import com.tappitz.tappitz.util.ContactFilter;
-
-import java.util.List;
 
 
 public class MyFollowersFragment extends CustomDialogFragment implements CustomDialogFragment.AdapterWithFilter {
@@ -44,7 +37,7 @@ public class MyFollowersFragment extends CustomDialogFragment implements CustomD
         rootView = inflater.inflate(R.layout.contacts_fragment, container, false);
 
 
-        adapter = new ContactManagerAdapter(loadContactsOffline(), new ContactFilter.OnUpdate() {
+        adapter = new ContactManagerAdapter(loadContactsOffline(getContactType()), new ContactFilter.OnUpdate() {
             @Override
             public void onNoContactsFound(int size) {
                 checkIfHasContacts(size);
@@ -59,7 +52,7 @@ public class MyFollowersFragment extends CustomDialogFragment implements CustomD
             public void addContact(String eMail, int id, String name) {
 
             }
-        });
+        }, getActivity());
 
 
         loadUI(rootView);

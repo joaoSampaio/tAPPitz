@@ -19,6 +19,14 @@ import java.util.concurrent.TimeUnit;
 //import retrofit.RestAdapter;
 //import retrofit.client.OkClient;
 //import retrofit.converter.GsonConverter;
+//import okhttp3.ConnectionPool;
+//import okhttp3.Dispatcher;
+//import okhttp3.Interceptor;
+//import okhttp3.OkHttpClient;
+//import okhttp3.Request;
+//import okhttp3.Response;
+//import okhttp3.logging.HttpLoggingInterceptor;
+//import retrofit.client.OkClient;
 import okhttp3.ConnectionPool;
 import okhttp3.Dispatcher;
 import okhttp3.Interceptor;
@@ -26,7 +34,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit.client.OkClient;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -56,35 +63,57 @@ public class RestClientV2 {
     /**
      * Injects cookies to every request
      */
-    private static final Interceptor COOKIES_REQUEST_INTERCEPTOR = new Interceptor() {
+//    private static final Interceptor COOKIES_REQUEST_INTERCEPTOR = new Interceptor() {
+//
+//        @Override
+//        public Response intercept(Chain chain) throws IOException {
+////            Response response = chain.proceed(chain.request());
+//            Request request = chain.request();
+//            Request.Builder newRequest;
+//
+//            newRequest = request.newBuilder()
+//                    .addHeader("Content-type", "application/json;charset=UTF-8")
+//                    .addHeader("Accept", "application/json");
+//
+//            if (null != sessionId && sessionId.length() > 0) {
+//                newRequest.addHeader("Session-Id", sessionId);
+//            }
+//            Log.d("servico", "COOKIES_REQUEST_INTERCEPTOR");
+//            return chain.proceed(newRequest.build());
+//        }
+//    };
 
-        @Override
-        public Response intercept(Chain chain) throws IOException {
-//            Response response = chain.proceed(chain.request());
-            Request request = chain.request();
-            Request.Builder newRequest;
 
-            newRequest = request.newBuilder()
-                    .addHeader("Content-type", "application/json;charset=UTF-8")
-                    .addHeader("Accept", "application/json");
-
-            if (null != sessionId && sessionId.length() > 0) {
-                newRequest.addHeader("Session-Id", sessionId);
-            }
-            Log.d("servico", "COOKIES_REQUEST_INTERCEPTOR");
-            return chain.proceed(newRequest.build());
-        }
-    };
 
     public static final OkHttpClient getOk() {
         if (okHttpClient == null) {
 
+            Interceptor COOKIES_REQUEST_INTERCEPTOR = new Interceptor() {
+
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+//            Response response = chain.proceed(chain.request());
+                    Request request = chain.request();
+                    Request.Builder newRequest;
+
+                    newRequest = request.newBuilder()
+                            .addHeader("Content-type", "application/json;charset=UTF-8")
+                            .addHeader("Accept", "application/json");
+
+                    if (null != sessionId && sessionId.length() > 0) {
+                        newRequest.addHeader("Session-Id", sessionId);
+                    }
+                    Log.d("servico", "COOKIES_REQUEST_INTERCEPTOR");
+                    return chain.proceed(newRequest.build());
+                }
+            };
+
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
             interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient.Builder client = new OkHttpClient.Builder();
-            client.readTimeout(20, TimeUnit.SECONDS)
+            client.readTimeout(60, TimeUnit.SECONDS)
                     .writeTimeout(120, TimeUnit.SECONDS)
-                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .connectTimeout(60, TimeUnit.SECONDS)
                     .interceptors().add(COOKIES_REQUEST_INTERCEPTOR);
             client.interceptors().add(interceptor);
 
@@ -98,6 +127,33 @@ public class RestClientV2 {
 
     public static final ApiV2 getService() {
         if (RestClientV2.getApi() == null) {
+
+
+
+            Interceptor COOKIES_REQUEST_INTERCEPTOR = new Interceptor() {
+
+                @Override
+                public Response intercept(Chain chain) throws IOException {
+//            Response response = chain.proceed(chain.request());
+                    Request request = chain.request();
+                    Request.Builder newRequest;
+
+                    newRequest = request.newBuilder()
+                            .addHeader("Content-type", "application/json;charset=UTF-8")
+                            .addHeader("Accept", "application/json");
+
+                    if (null != sessionId && sessionId.length() > 0) {
+                        newRequest.addHeader("Session-Id", sessionId);
+                    }
+                    Log.d("servico", "COOKIES_REQUEST_INTERCEPTOR");
+                    return chain.proceed(newRequest.build());
+                }
+            };
+
+
+
+
+
             Dispatcher dispatcher=new Dispatcher();
             dispatcher.setMaxRequests(10);
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();

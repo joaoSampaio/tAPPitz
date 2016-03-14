@@ -40,6 +40,7 @@ import com.tappitz.tappitz.model.FutureVote;
 import com.tappitz.tappitz.model.FutureWorkList;
 import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.model.SentPicture;
+import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.RestClientV2;
 import com.tappitz.tappitz.rest.model.CreatePhoto;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
@@ -53,6 +54,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -156,11 +158,40 @@ public class BackgroundService extends Service {
 
 
     public static boolean isWifiAvailable(){
-        ConnectivityManager connManager = (ConnectivityManager) AppController.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return mWifi.isConnected();
 
+        ConnectivityManager cm =
+                (ConnectivityManager) AppController.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnected();
+
+//        ConnectivityManager connManager = (ConnectivityManager) AppController.getAppContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+//        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+//        return mWifi.isConnected();
     }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnected();
+    }
+
+    public boolean isConnectingToInternet(){
+        ConnectivityManager connectivity = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null)
+        {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null)
+                for (int i = 0; i < info.length; i++)
+                    if (info[i].getState() == NetworkInfo.State.CONNECTED)
+                    {
+                        return true;
+                    }
+
+        }
+        return false;
+    }
+
 
     private void saveFutureWork(FutureWorkList work){
         new ModelCache<FutureWorkList>().saveModel(ctx, work, Global.OFFLINE_WORK);
@@ -202,13 +233,7 @@ public class BackgroundService extends Service {
         }
     }
 
-    private PhotoInbox getIboxWithId(int id, List<PhotoInbox> photos){
-        for(PhotoInbox p: photos){
-            if(p.getPictureId() == id)
-                return p;
-        }
-        return null;
-    }
+
 
     private SentPicture getSentWithId(int id, List<SentPicture> photos){
         for(SentPicture p: photos){
@@ -285,51 +310,71 @@ public class BackgroundService extends Service {
     private boolean checkSession(){
         SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String sessionId = sp.getString("sessionId", "");
-        RestClientV2.setSessionId(sessionId);
-        Call<JsonElement> call = RestClientV2.getService().isLogin();
-        try {
-            JsonElement json = call.execute().body();
-            if (json != null) {
-                JsonObject obj = json.getAsJsonObject();
-                boolean status = obj.get("status").getAsBoolean();
-                if (status) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
 
-    private boolean loginClient(){
-        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-        final String email = sp.getString(Global.KEY_USER, "");
-        final String password  = sp.getString(Global.KEY_PASS, "");
-        if(email.length() > 0 && password.length() > 0){
-            Call<JsonElement> call = RestClientV2.getService().login(new UserLogin(email, password));
+
+        if(Global.VERSION_V2) {
+            RestClientV2.setSessionId(sessionId);
+            Call<JsonElement> call = RestClientV2.getService().isLogin();
             try {
                 JsonElement json = call.execute().body();
                 if (json != null) {
                     JsonObject obj = json.getAsJsonObject();
                     boolean status = obj.get("status").getAsBoolean();
                     if (status) {
-                        String sessionId = json.getAsJsonObject().get("sessionId").getAsString();
-                        SharedPreferences.Editor editor = sp.edit();
-                        editor.putString("sessionId", sessionId);
-                        editor.commit();
-                        RestClientV2.setSessionId(sessionId);
                         return true;
+                    } else {
+                        return false;
                     }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }else{
+            try {
+            JsonElement json = RestClient.getService().isLoginBlock();
+                if (json != null) {
+                    JsonObject obj = json.getAsJsonObject();
+                    boolean status = obj.get("status").getAsBoolean();
+                    if (status) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
+
         return false;
     }
+
+//    private boolean loginClient(){
+//        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+//        final String email = sp.getString(Global.KEY_USER, "");
+//        final String password  = sp.getString(Global.KEY_PASS, "");
+//        if(email.length() > 0 && password.length() > 0){
+//            Call<JsonElement> call = RestClientV2.getService().login(new UserLogin(email, password));
+//            try {
+//                JsonElement json = call.execute().body();
+//                if (json != null) {
+//                    JsonObject obj = json.getAsJsonObject();
+//                    boolean status = obj.get("status").getAsBoolean();
+//                    if (status) {
+//                        String sessionId = json.getAsJsonObject().get("sessionId").getAsString();
+//                        SharedPreferences.Editor editor = sp.edit();
+//                        editor.putString("sessionId", sessionId);
+//                        editor.commit();
+//                        RestClientV2.setSessionId(sessionId);
+//                        return true;
+//                    }
+//                }
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//        return false;
+//    }
 
     private void doWork(){
         List<FutureVote> votes;
@@ -344,32 +389,65 @@ public class BackgroundService extends Service {
         uploads = work.getUploads();
         if(votes.size() > 0){
             FutureVote vote = votes.get(0);
-            call = RestClientV2.getService().sendVotePicture(new VoteInbox(vote.getVote(), vote.getPictureId(), vote.getComment()));
-            try {
-                json = call.execute().body();
-                if (json != null) {
-                    JsonObject obj = json.getAsJsonObject();
-                    boolean status = obj.get("status").getAsBoolean();
-                    if (status) {
-                        updateInbox(vote.getPictureId(), vote);
-                    } else {
-                        //o servidor diz que nao pode aceitar vamos assumir que no caso do voto ele ja foi aceite e apagamos
+            if(Global.VERSION_V2) {
+                call = RestClientV2.getService().sendVotePicture(new VoteInbox(vote.getVote(), vote.getPictureId(), vote.getComment()));
+                try {
+                    json = call.execute().body();
+                    if (json != null) {
+                        JsonObject obj = json.getAsJsonObject();
+                        boolean status = obj.get("status").getAsBoolean();
+                        if (status) {
+                            updateInbox(vote.getPictureId(), vote);
+                        } else {
+                            //o servidor diz que nao pode aceitar vamos assumir que no caso do voto ele ja foi aceite e apagamos
+                        }
+                        //volto a ir buscar o FutureWorkList porque pode ter passado vários segundos desde o inicio e pode haver mais trabalho
+                        work = new ModelCache<FutureWorkList>().loadModel(ctx, new TypeToken<FutureWorkList>() {
+                        }.getType(), Global.OFFLINE_WORK);
+                        work.removeVote(vote.getPictureId());
+                        saveFutureWork(work);
+                        consecutiveErrors = 0;
                     }
-                    //volto a ir buscar o FutureWorkList porque pode ter passado vários segundos desde o inicio e pode haver mais trabalho
-                    work = new ModelCache<FutureWorkList>().loadModel(ctx,new TypeToken<FutureWorkList>(){}.getType(), Global.OFFLINE_WORK);
-                    work.removeVote(vote.getPictureId());
-                    saveFutureWork(work);
-                    consecutiveErrors = 0;
-                }
 
-            } catch (IOException e) {
-                //houve um problema a contactar o servidor
-                consecutiveErrors++;
-                e.printStackTrace();
-                //paro o serviço houve demasiados problemas
-                if(consecutiveErrors >= 2) {
-                    stopSelf();
-                    return;
+                } catch (IOException e) {
+                    //houve um problema a contactar o servidor
+                    consecutiveErrors++;
+                    e.printStackTrace();
+                    //paro o serviço houve demasiados problemas
+                    if (consecutiveErrors >= 2) {
+                        stopSelf();
+                        return;
+                    }
+                }
+            }else{
+
+                try {
+                    json = RestClient.getService().sendVotePictureBlock(new VoteInbox(vote.getVote(), vote.getPictureId(), vote.getComment()));
+                    if (json != null) {
+                        JsonObject obj = json.getAsJsonObject();
+                        boolean status = obj.get("status").getAsBoolean();
+                        if (status) {
+                            updateInbox(vote.getPictureId(), vote);
+                        } else {
+                            //o servidor diz que nao pode aceitar vamos assumir que no caso do voto ele ja foi aceite e apagamos
+                        }
+                        //volto a ir buscar o FutureWorkList porque pode ter passado vários segundos desde o inicio e pode haver mais trabalho
+                        work = new ModelCache<FutureWorkList>().loadModel(ctx, new TypeToken<FutureWorkList>() {
+                        }.getType(), Global.OFFLINE_WORK);
+                        work.removeVote(vote.getPictureId());
+                        saveFutureWork(work);
+                        consecutiveErrors = 0;
+                    }
+
+                } catch (Exception e) {
+                    //houve um problema a contactar o servidor
+                    consecutiveErrors++;
+                    e.printStackTrace();
+                    //paro o serviço houve demasiados problemas
+                    if (consecutiveErrors >= 2) {
+                        stopSelf();
+                        return;
+                    }
                 }
             }
         }
@@ -422,6 +500,7 @@ public class BackgroundService extends Service {
                 }
             }
         }
+        Log.d("worklist", "end do work:"+uploads.size() );
     }
 
 
@@ -446,8 +525,12 @@ public class BackgroundService extends Service {
     private void cleanSentPictures(){
         work = new ModelCache<FutureWorkList>().loadModel(ctx, new TypeToken<FutureWorkList>() {
         }.getType(), Global.OFFLINE_WORK);
+        if(work == null)
+            work = new FutureWorkList();
         List<SentPicture> fullList = new ModelCache<List<SentPicture>>().loadModel(ctx, new TypeToken<List<SentPicture>>() {
         }.getType(), Global.OFFLINE_OUTBOX);
+        if(fullList == null)
+            fullList = new ArrayList<>();
         int beforeSize = fullList.size();
         List<SentPicture> changedList = work.removeFailed(fullList);
         if(changedList.size() != beforeSize){
@@ -526,9 +609,9 @@ public class BackgroundService extends Service {
                 isLoggedIn = checkSession();
 
                 Log.d("servico", "Tenho sessao:" + isLoggedIn);
-                if (!isLoggedIn) {
-                    isLoggedIn = loginClient();
-                }
+//                if (!isLoggedIn) {
+//                    isLoggedIn = loginClient();
+//                }
 
                 Log.d("servico", "Tenho sessao2:" + isLoggedIn);
                 if (!isLoggedIn) {

@@ -128,14 +128,6 @@ public class BitmapWorkerTask extends AsyncTask<Integer, Void, Bitmap> {
                         .centerCrop()
                         .into(imageView);
             }
-
-
-
-
-
-
-
-
         }
         //        if(listener != null && isRotated){
 

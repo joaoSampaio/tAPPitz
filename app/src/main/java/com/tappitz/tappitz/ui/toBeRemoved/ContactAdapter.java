@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.adapter;
+package com.tappitz.tappitz.ui.toBeRemoved;
 
 import android.app.Activity;
 import android.util.Log;

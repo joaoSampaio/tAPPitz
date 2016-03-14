@@ -3,6 +3,8 @@ package com.tappitz.tappitz.background;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.wifi.WifiManager;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -20,25 +22,44 @@ public class WifiReceiver extends BroadcastReceiver{
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
         Log.d("wifi", "action:"+action);
-        if (action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
-            if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
-                //do stuff
-                Log.d("wifi", "comecar o serviço");
-                //iniciar o serviço se houver pedidos
-//                time = 20000;
-//
-//                Runnable r = new TimerThread(20000);
-//                new Thread(r).start();
+        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-                Intent background = new Intent(AppController.getAppContext(), BackgroundService.class);
-                background.putExtra("origin","receiver");
-                AppController.getAppContext().startService(background);
-
-
-            } else {
-                // wifi connection was lost
-            }
+        boolean isConnected = wifi != null && wifi.isConnectedOrConnecting() ||
+                mobile != null && mobile.isConnectedOrConnecting();
+        if (isConnected) {
+            Log.d("Network Available ", "YES");
+//            Intent background = new Intent(AppController.getAppContext(), BackgroundService.class);
+//            background.putExtra("origin","receiver");
+//            AppController.getAppContext().startService(background);
+        } else {
+            Log.d("Network Available ", "NO");
         }
+        Intent background = new Intent(AppController.getAppContext(), BackgroundService.class);
+        background.putExtra("origin","receiver");
+        AppController.getAppContext().startService(background);
+
+
+//        if (action.equals(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION)) {
+//            if (intent.getBooleanExtra(WifiManager.EXTRA_SUPPLICANT_CONNECTED, false)) {
+//                //do stuff
+//                Log.d("wifi", "comecar o serviço");
+//                //iniciar o serviço se houver pedidos
+////                time = 20000;
+////
+////                Runnable r = new TimerThread(20000);
+////                new Thread(r).start();
+//
+//                Intent background = new Intent(AppController.getAppContext(), BackgroundService.class);
+//                background.putExtra("origin","receiver");
+//                AppController.getAppContext().startService(background);
+//
+//
+//            } else {
+//                // wifi connection was lost
+//            }
+//        }
     }
 
     private class TimerThread implements Runnable{

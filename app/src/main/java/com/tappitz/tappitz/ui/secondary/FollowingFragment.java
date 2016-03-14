@@ -12,7 +12,6 @@ import android.widget.Filter;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactManagerAdapter;
-import com.tappitz.tappitz.ui.CustomDialogFragment;
 import com.tappitz.tappitz.util.ContactFilter;
 
 
@@ -38,7 +37,7 @@ public class FollowingFragment extends CustomDialogFragment implements CustomDia
         rootView = inflater.inflate(R.layout.contacts_fragment, container, false);
 
 
-        adapter = new ContactManagerAdapter(loadContactsOffline(), new ContactFilter.OnUpdate() {
+        adapter = new ContactManagerAdapter(loadContactsOffline(getContactType()), new ContactFilter.OnUpdate() {
             @Override
             public void onNoContactsFound(int size) {
                 checkIfHasContacts(size);
@@ -53,7 +52,7 @@ public class FollowingFragment extends CustomDialogFragment implements CustomDia
             public void addContact(String eMail, int id, String name) {
 
             }
-        });
+        }, getActivity());
 
 
         loadUI(rootView);

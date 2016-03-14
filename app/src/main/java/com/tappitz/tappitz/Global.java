@@ -27,6 +27,11 @@ public class Global {
     public final static int OUTBOX = 3;
     public final static int OUTBOX_OP = 4;
 
+
+    public final static int MIDDLE_QRCODE = 0;
+    public final static int MIDDLE_BLANK = 1;
+    public final static int MIDDLE_CONTACTS = 2;
+
     //public final static int FRIENDS = 3;
 
     public static final int 	BROWSE_REQUEST = 2010;

@@ -6,6 +6,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by sampaio on 06-10-2015.
@@ -80,5 +81,13 @@ public class Comment {
 
     public String getTimeAgo(){
         return DateHelper.getTimeAgo(getTimeMilliseconds());
+    }
+
+    public static boolean alreadyExistsAuthor(List<Comment> comments, String authorName){
+        for (Comment c: comments) {
+            if(c.getName().equals(authorName))
+                return true;
+        }
+        return false;
     }
 }

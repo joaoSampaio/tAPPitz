@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
@@ -102,6 +103,7 @@ public class InBoxFragment extends Fragment {
         ((ScreenSlidePagerActivity)getActivity()).setReloadInbox(new ReloadInbox() {
             @Override
             public void updateAfterVote() {
+                Log.d("myapp", "**--inbox updateAfterVote  ");
                 loadOffline();
             }
 
@@ -192,6 +194,7 @@ public class InBoxFragment extends Fragment {
     }
 
     public void loadOffline(){
+        Log.d("myapp", "**--inbox loadOffline  ");
         int showPage = 0;
         if(viewPager != null){
             showPage = viewPager.getCurrentItem();
@@ -205,8 +208,14 @@ public class InBoxFragment extends Fragment {
             photos.clear();
             photos.addAll(tmp);
             Log.d("myapp", "**--inbox has  " + photos.size());
+            Gson gson = new Gson();
+            Log.d("myapp", "**--inbox:   " + gson.toJson(tmp));
             adapter.notifyDataSetChanged();
             showPage(showPage);
+        }
+
+        if(photos.size() == 0){
+            refreshInbox();
         }
 
     }

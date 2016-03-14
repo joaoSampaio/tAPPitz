@@ -76,6 +76,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:maxLines="4"
+                android:maxLength="140"
                 android:scrollHorizontally="false"
                 android:imeOptions="actionDone"
                 android:hint="Message"/>
@@ -171,87 +172,36 @@
         </LinearLayout>
 
 
-        <!--<Button-->
-        <!--android:id="@+id/go_to"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_alignParentRight="false"-->
-        <!--android:layout_alignParentLeft="true"-->
-        <!--android:layout_marginLeft="10dp"-->
-        <!--android:layout_marginBottom="10dp"-->
-        <!--android:visibility="visible"-->
-        <!--android:text="Go To"-->
-        <!--style="@style/SelectBar"-->
-        <!--android:background="#00000000"-->
-        <!--android:textSize="20sp"/>-->
 
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/action_goto_sent"
+            android:src="@drawable/seta"
+            android:rotation="180"
+            android:layout_marginTop="70dp"
+            android:layout_alignParentRight="true"
 
-        <!--<RelativeLayout-->
-        <!--android:id="@+id/go_to"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_alignParentBottom="true"-->
-        <!--android:layout_alignParentRight="false"-->
-        <!--android:layout_alignParentLeft="true"-->
-        <!--android:layout_margin="10dp"-->
-        <!--android:visibility="visible">-->
-        <!--<TextView-->
-        <!--style="@style/SelectBar"-->
-        <!--android:text="Go To"-->
-        <!--android:id="@+id/textViewgoto"-->
-        <!--android:textSize="25sp"-->
-        <!--/>-->
-        <!--</RelativeLayout>-->
-
-        <!--<LinearLayout-->
-        <!--android:orientation="vertical"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_above="@+id/go_to"-->
-        <!--android:id="@+id/layout_goto"-->
-        <!--android:visibility="gone"-->
-        <!-->-->
-
-        <!--<Button-->
-        <!--android:id="@+id/btn_goto_in"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:text="Received"-->
-        <!--style="@style/SelectBar"-->
-        <!--android:background="#00000000" />-->
-
-        <!--<Button-->
-        <!--android:id="@+id/btn_goto_out"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:text="Sent"-->
-        <!--style="@style/SelectBar"-->
-        <!--android:background="#00000000" />-->
-
-        <!--<Button-->
-        <!--android:id="@+id/btn_goto_friends"-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:text="Friends"-->
-        <!--style="@style/SelectBar"-->
-        <!--android:background="#00000000" />-->
-
-        <!--</LinearLayout>-->
+            android:layout_marginRight="10dp" />
 
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/imageView4"
-            android:src="@drawable/seta"
-            android:layout_marginTop="70dp"
-            android:layout_alignParentRight="true"
-            android:rotation="180"
-            android:layout_marginRight="10dp" />
+            android:id="@+id/action_goto_qrcode"
+            android:src="@drawable/qr_code"
+            android:layout_alignParentRight="false"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp" />
 
-
-
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/contacts"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="40dp"
+            android:id="@+id/action_goto_contacts" />
 
         <RelativeLayout
             android:layout_width="wrap_content"
@@ -260,10 +210,13 @@
             android:layout_marginTop="70dp"
             android:layout_marginLeft="10dp">
 
+
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/btn_go_inbox"
+                android:id="@+id/action_goto_received"
+
                 android:src="@drawable/seta"
                 />
 
@@ -279,7 +232,8 @@
                 android:layout_alignParentLeft="false"
                 android:gravity="center_vertical|center_horizontal"
                 android:layout_toRightOf="@+id/btn_go_inbox"
-                android:layout_centerVertical="true" />
+                android:layout_centerVertical="true"
+                android:visibility="gone" />
 
         </RelativeLayout>
 

@@ -1,8 +1,10 @@
 package com.tappitz.tappitz.camera;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -14,6 +16,7 @@ import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -37,13 +40,21 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.background.BackgroundService;
 import com.tappitz.tappitz.model.FutureUpload;
+import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.model.SentPicture;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CreatePhotoService;
 import com.tappitz.tappitz.ui.BlankFragment;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
+import com.tappitz.tappitz.ui.secondary.QRCodeDialogFragment;
 import com.tappitz.tappitz.ui.secondary.SelectContactFragment;
+
+import net.sourceforge.zbar.Config;
+import net.sourceforge.zbar.Image;
+import net.sourceforge.zbar.ImageScanner;
+import net.sourceforge.zbar.Symbol;
+import net.sourceforge.zbar.SymbolSet;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
@@ -51,13 +62,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
+import me.dm7.barcodescanner.zbar.BarcodeFormat;
+
 /**
  * Created by joaosampaio on 21-02-2016.
  */
 public class CameraHelper implements View.OnClickListener {
 
     private ScreenSlidePagerActivity activity;
-    private Button btn_shutter;
+    private Button btn_shutter, btn_back;
     private String photoPath;
     private ImageView temp_pic;
     private boolean turnLightOn = false;
@@ -66,13 +79,23 @@ public class CameraHelper implements View.OnClickListener {
     RelativeLayout layout_after_photo, layout_before_photo;
     private EditText textMsg;
     private byte[] photoData;
-    private String pictureBase64;
+    private int previewCount = 0;
+    private int qrCodeSampleTime = 5;
+    private ImageScanner scanner;
+    private boolean barcodeScanned = false;
 
     final static int[] CLICABLES = {R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
+
+    static {
+        System.loadLibrary("iconv");
+    }
 
 
     public CameraHelper(ScreenSlidePagerActivity act) {
         this.activity = act;
+
+
+        btn_back  = (Button) activity.findViewById(R.id.btnPhotoDelete);
 
         btn_shutter = (Button) activity.findViewById(R.id.btn_shutter);
         photoPath = "";
@@ -127,7 +150,7 @@ public class CameraHelper implements View.OnClickListener {
         SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         int width = sp.getInt(Global.SCREEN_WIDTH, 0);
         int height = sp.getInt(Global.SCREEN_HEIGHT, 0);
-        if(width == 0) {
+        if(true || width == 0) {
 
             Display d = ((WindowManager)activity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
             width = d.getWidth();
@@ -273,6 +296,8 @@ public class CameraHelper implements View.OnClickListener {
                 Log.d("myapp", "onSaveToFileRotated ");
                 photoPath = photoPathNew;
                 activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+                Log.d("myapp", "2 setEnabled(true)");
+                btn_back.setEnabled(true);
             }
         });
         task.execute();
@@ -283,6 +308,7 @@ public class CameraHelper implements View.OnClickListener {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             //decode the data obtained by the camera into a Bitmap
+
             Log.d("myapp", "PictureCallback");
             photoData = data;
             stop_camera();
@@ -295,6 +321,7 @@ public class CameraHelper implements View.OnClickListener {
                     if(uri == null ){
                         if(activity != null){
                             Toast.makeText(activity, "There was a problem with the picture try again.", Toast.LENGTH_LONG);
+                            btn_back.setEnabled(true);
                         }
                     }else{
 
@@ -302,8 +329,11 @@ public class CameraHelper implements View.OnClickListener {
                         loadBitmapFile(temp_pic, photoPath, AppController.getInstance().width, AppController.getInstance().height);
                         activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
                         photoData = null;
+                        Log.d("myapp", "1 setEnabled(true)");
+//                        btn_back.setEnabled(true);
 
                     }
+
                 }
             }).execute();
 
@@ -314,7 +344,6 @@ public class CameraHelper implements View.OnClickListener {
         //recomeça a camera caso fosse foto da galeria
 
         textMsg.setText("");
-        pictureBase64 = "";
         photoPath = "";
         photoData = null;
         start_camera();
@@ -367,8 +396,8 @@ public class CameraHelper implements View.OnClickListener {
 
     public void showBtnOptions(boolean show){
         Log.d("myapp", "showBtnOptions:"+show);
-//        activity.findViewById(R.id.camera_options).setVisibility(!show ? View.GONE : View.VISIBLE);
-//        activity.findViewById(R.id.layout_camera).setVisibility(View.GONE);
+        activity.findViewById(R.id.camera_options).setVisibility(!show ? View.GONE : View.VISIBLE);
+        activity.findViewById(R.id.layout_camera).setVisibility(View.GONE);
 //        rootView.findViewById(R.id.go_to).setVisibility(!show ? View.GONE : View.VISIBLE);
 //        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
     }
@@ -409,6 +438,8 @@ public class CameraHelper implements View.OnClickListener {
                 Log.d("myapp", "btn_shutter");
 
                 if(getActivity().getmCamera() != null) {
+                    Log.d("myapp", "1 setEnabled(false)");
+                    btn_back.setEnabled(false);
                     Log.d("myapp", "btn_shutter2**");
                     getActivity().getmCamera().takePicture(null, null, mPicture);
                     Log.d("myapp", "btn_shutter2");
@@ -513,6 +544,7 @@ public class CameraHelper implements View.OnClickListener {
                 else {
                     AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
                 }
+
                 stop_camera(new ControlCameraTask.CallbackCamera() {
                     @Override
                     public void onDone() {
@@ -541,6 +573,7 @@ public class CameraHelper implements View.OnClickListener {
         if(listener != null){
             listener.enableCameraButtons(enable);
         }
+//        showBtnOptions(enable);
     }
 
     void showDialog() {
@@ -551,33 +584,6 @@ public class CameraHelper implements View.OnClickListener {
             ft.remove(prev);
         }
         ft.addToBackStack(null);
-//        if(pictureBase64 == null || pictureBase64.equals("")){
-//            try {
-//                InputStream inputStream = null;//You can get an inputStream using any IO API
-//                inputStream = new FileInputStream(photoPath);
-//                byte[] buffer = new byte[8192];
-//                int bytesRead;
-//
-//                ByteArrayOutputStream output = new ByteArrayOutputStream();
-//                Base64OutputStream output64 = new Base64OutputStream(output, Base64.DEFAULT);
-//                try {
-//                    while ((bytesRead = inputStream.read(buffer)) != -1) {
-//                        output64.write(buffer, 0, bytesRead);
-//                    }
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//                output64.close();
-//
-//                pictureBase64 = output.toString();
-//                pictureBase64 = pictureBase64.replace("\n","");
-//                Log.d("myapp", "pictureBase64:" + pictureBase64);
-//
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }
-
 
         final String comment = textMsgWrapper.isShown()? textMsg.getText().toString() : "";
         final SelectContactFragment newFragment = new SelectContactFragment();
@@ -643,5 +649,99 @@ public class CameraHelper implements View.OnClickListener {
             ( getActivity()).enableSwipe(true);
         }
     }
+
+
+    public void enableQRCodeScan(boolean enable){
+
+        if(enable) {
+            scanner = new ImageScanner();
+            scanner.setConfig(0, Config.X_DENSITY, 3);
+            scanner.setConfig(0, Config.Y_DENSITY, 3);
+
+            scanner.setConfig(Symbol.NONE, Config.ENABLE, 0);
+            scanner.setConfig(BarcodeFormat.QRCODE.getId(), Config.ENABLE, 1);
+
+            barcodeScanned = false;
+            if (getActivity() != null)
+                getActivity().getmCamera().setPreviewCallback(previewCb);
+        }else{
+            if (getActivity() != null)
+                getActivity().getmCamera().setPreviewCallback(null);
+            barcodeScanned = true;
+            scanner = null;
+        }
+    }
+
+
+
+    Camera.PreviewCallback previewCb = new Camera.PreviewCallback()
+    {
+        public void onPreviewFrame(byte[] data, Camera camera)
+        {
+
+            try {
+
+
+                previewCount++;
+                //so verifica qr code X em X vezes
+                if((previewCount % qrCodeSampleTime) != 0)
+                    return;
+                previewCount = 0;
+                Camera.Parameters parameters = camera.getParameters();
+                Camera.Size size = parameters.getPreviewSize();
+
+                Image barcode = new Image(size.width, size.height, "Y800");
+                barcode.setData(data);
+
+                int result = scanner.scanImage(barcode);
+                //Log.d("myapp", "*************************onPreviewFrame: " + result);
+                if (result != 0 && !barcodeScanned)
+                {
+                    barcodeScanned = true;
+                    //stop_camera();
+                    SymbolSet syms = scanner.getResults();
+                    Log.d("myapp", "*************************syms: " + syms.size());
+                    for (Symbol sym : syms)
+                    {
+
+
+
+                        Bundle args = new Bundle();
+                        args.putString(Global.IMAGE_RESOURCE_URL, "url");
+                        args.putString(Global.TEXT_RESOURCE, "O que pensas do serviço prestado?");
+                        args.putInt(Global.ID_RESOURCE, 5000);
+                        args.putString(Global.OWNER_RESOURCE, "Empresa X");
+                        args.putString(Global.DATE_RESOURCE, ReceivedPhoto.getTimeAgo("2016-02-20 14:30"));
+//                        if(photos.get(position).isHasVoted())
+//                            args.putString(Global.VOTE_DATE_RESOURCE, photos.get(position).getTimeAgo(photos.get(position).getVotedDate()));
+                        args.putString(Global.MYCOMMENT_RESOURCE, "");
+
+                        args.putBoolean(Global.HAS_VOTED_RESOURCE, false);
+                        args.putInt(Global.CHOICE_RESOURCE, 0);
+                        args.putBoolean(Global.IS_TEMPORARY_RESOURCE, false);
+
+
+                        QRCodeDialogFragment newFragment = QRCodeDialogFragment.newInstance(args);
+                        FragmentTransaction ft = getActivity().getSupportFragmentManager().beginTransaction();
+                        Fragment prev = getActivity().getSupportFragmentManager().findFragmentByTag("qr_code");
+                        if (prev != null) {
+                            ft.remove(prev);
+                        }
+                        ft.addToBackStack(null);
+                        newFragment.show(ft, "qr_code");
+
+
+
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+    };
+
+
 
 }

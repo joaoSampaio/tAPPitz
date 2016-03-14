@@ -26,6 +26,8 @@ import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.model.FutureWorkList;
+import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.GetColor;
@@ -60,32 +62,36 @@ public class GcmService extends GcmListenerService {
         Log.d("updateMyActivity", "From: " + from);
         Log.d("updateMyActivity", "Message: " + message);
 
+        for (String key : data.keySet()) {
+            Log.d("notification", " " + key + " => " + data.get(key) + ";");
+        }
 
-        saveVotesOffline(data);
+//        authorName => João Sampaio;
+//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  action => NEW_PICTURE_RECEIVED;
+//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  pictureId => 13;
+//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  date => Sun Mar 13 21:56:26 UTC 2016;
+//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  comment => ;
+//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  authorId => 2;
 
-        sendNotification( data);
+
+        String action = "";
+
+        action = data.getString("action", "");
+        if(action != null) {
+            switch (action) {
+                case Global.NEW_PICTURE_RECEIVED:
+                    saveReceivedPictureOffline(data);
+                    break;
+                case Global.NEW_PICTURE_VOTE:
+                    saveVotesOffline(data);
+
+                    break;
+            }
+        }
         updateMyActivity(data);
+        sendNotification( data);
+
     }
-
-//    @Override
-//    public void onDeletedMessages() {
-//        sendNotification("Deleted messages on server");
-//    }
-//
-//    @Override
-//    public void onMessageSent(String msgId) {
-//        sendNotification("Upstream message sent. Id=" + msgId);
-//    }
-//
-//    @Override
-//    public void onSendError(String msgId, String error) {
-//        sendNotification("Upstream message send error. Id=" + msgId + ", error" + error);
-//    }
-
-    // Put the message into a notification and post it.
-    // This is just one simple example of what you might choose to do with
-    // a GCM message.
-
 
     private void sendNotification( Bundle extras) {
         Log.d("sendNotification", "**sendNotification**** ");
@@ -347,12 +353,53 @@ public class GcmService extends GcmListenerService {
             }else{
                 comments = new ArrayList<>();
             }
-        comments.add(0, new Comment(voteInt, comment, votedDate, voteAuthorName));
-        new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
+        boolean exists = Comment.alreadyExistsAuthor(comments, voteAuthorName);
+        if(!exists) {
+            comments.add(0, new Comment(voteInt, comment, votedDate, voteAuthorName));
+            new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
+        }
         extras.putString("date", votedDate);
     }
 
 
+    private void saveReceivedPictureOffline(Bundle extras){
+        Log.d("myapp", "**--saveReceivedPictureOffline ");
+//        date => Sun Mar 13 21:56:26 UTC 2016;
+        String sentDate = extras.getString("date", "");;
+        String myComment = "", votedDate = "";
+        String pictureId = extras.getString("pictureId", "-1");
+        String pictureSentence = extras.getString("pictureSentence", "");
+        String authorName = extras.getString("authorName", "");
+        int pictureIdInt = Integer.parseInt(pictureId);
+        boolean isHasVoted = false;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("EE MMM dd HH:mm:ss z yyyy",
+                Locale.ENGLISH);
+        Date date = null;
+        try {
+            date = sdf.parse(sentDate);
+
+            DateFormat dfmt = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            sentDate = dfmt.format(date);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        ReceivedPhoto tmp = new ReceivedPhoto(pictureIdInt, pictureSentence,
+                authorName, sentDate, isHasVoted,
+                votedDate, myComment, 0);
+        tmp.setIsVoteTemporary(false);
+        Log.d("myapp", "**--sentDate "+sentDate);
+        List<ReceivedPhoto> inbox = new ModelCache<List<ReceivedPhoto>>().loadModel(AppController.getAppContext(), new TypeToken<List<ReceivedPhoto>>() {
+        }.getType(), Global.OFFLINE_INBOX);
+
+        if(!ReceivedPhoto.hasId(inbox, pictureIdInt)){
+            Log.d("myapp", "**--ReceivedPhoto  !hasId "+pictureIdInt);
+            inbox.add(0, tmp);
+            new ModelCache<List<ReceivedPhoto>>().saveModel(AppController.getAppContext(), inbox, Global.OFFLINE_INBOX);
+        }
+
+    }
 
 
 

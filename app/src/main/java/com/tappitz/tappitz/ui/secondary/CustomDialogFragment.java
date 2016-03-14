@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.ui;
+package com.tappitz.tappitz.ui.secondary;
 
 import android.app.Activity;
 import android.app.Dialog;
@@ -91,7 +91,7 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.contacts_fragment, container, false);
-
+        allContactsList = new ArrayList<>();
         //loadUI();
         //refresh();
         return rootView;
@@ -116,7 +116,7 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
             }
         });
 
-        allContactsList = new ArrayList<>();
+
         RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.rv); // layout reference
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
@@ -197,32 +197,18 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
     }
 
 
-    public List<Contact> loadContactsOffline(){
-        String contacts = "";
-        try {
-            SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-            contacts = sp.getString(getAdapter().getContactType(), "");
-        }catch (Exception e){
-            Log.d("myapp", "error:" + e.getMessage());
-        }
-        List<Contact> contactsList = new ArrayList<Contact>();
-        if (contacts.equals("")) {
-            return contactsList;
-        } else {
-            try {
-                Type type = new TypeToken<List<Contact>>() {
-                }.getType();
-                contactsList = new Gson().fromJson(contacts, type);
+    public List<Contact> loadContactsOffline(String saveName){
 
-                //check if is the intended type
-                if(contactsList.get(0).getName() == null)
-                    contactsList = new ArrayList<Contact>();
-            } catch (Exception e) {
-                e.printStackTrace();
-                contactsList = new ArrayList<Contact>();
-            }
-            return contactsList;
-        }
+        List<Contact> contactsList = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(),new TypeToken<List<Contact>>(){}.getType(), saveName);
+        if(contactsList == null)
+            contactsList = new ArrayList<>();
+
+        if(allContactsList == null)
+            allContactsList = new ArrayList<>();
+
+        allContactsList.clear();
+        allContactsList.addAll(contactsList);
+        return allContactsList;
 
     }
 
@@ -255,8 +241,8 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
     }
 
     private void loadContacts(){
-        allContactsList.clear();
-        allContactsList.addAll(loadContactsOffline());
+//        allContactsList.clear();
+//        allContactsList.addAll(loadContactsOffline(getAdapter().getContactType()));
 //        allContactsList = loadContactsOffline();
         notifyAdapter();
 
@@ -264,11 +250,14 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
             @Override
             public void success(List<Contact> response) {
 
-                sortContacts(response);
-                allContactsList.clear();
-                allContactsList.addAll(response);
-                saveContactsOffline(allContactsList, getAdapter().getContactType());
-                notifyAdapter();
+                Log.d("custom", "CallbackMultiple success");
+                if(getActivity() != null) {
+                    sortContacts(response);
+                    allContactsList.clear();
+                    allContactsList.addAll(response);
+                    saveContactsOffline(allContactsList, getAdapter().getContactType());
+                    notifyAdapter();
+                }
             }
 
             @Override
@@ -289,6 +278,7 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
     }
 
     private void notifyAdapter(){
+        Log.d("custom", "notifyAdapter");
         getAdapter().notifyDataSetChanged();
         //adapter.notifyDataSetChanged();
         checkIfHasContacts(allContactsList.size());
@@ -301,56 +291,10 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
 
     public abstract void searchContact();
 
-//    private void searchContact(){
-//        String searchParam = mSearchEdt.getText().toString();
-//
-//        boolean alreadyExists = false;
-//        for (Contact c: allContactsList) {
-//            if(c.getEmail().equals(searchParam) || c.getUsername().equals(searchParam))
-//                alreadyExists = true;
-//        }
-//        if(!alreadyExists){
-//            new SearchContactService(searchParam, new CallbackMultiple<Contact, String>() {
-//                @Override
-//                public void success(Contact response) {
-//
-//                    List<Contact> tmp = new ArrayList<Contact>();
-//                    if(response != null) {
-//
-//                        response.setIsFollower(false);
-//                        response.setIsFriend(false);
-//                        tmp.add(response);
-//                    }
-//
-//                    adapter.setContacts(tmp);
-//                    adapter.notifyDataSetChanged();
-//                    checkIfHasContacts(tmp.size());
-//                }
-//
-//                @Override
-//                public void failed(String error) {
-//                    //showToast(error);
-//                }
-//            }).execute();
-//        }
-//
-//
-//
-//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-//
-//    }
-
     private void saveContactsOffline(List<Contact> contacts, String contactType){
 
         Context ctx = AppController.getAppContext();
         new ModelCache<List<Contact>>().saveModel(ctx, contacts, contactType);
-
-//        String json = new Gson().toJson(contacts);
-//        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sp.edit();
-//        editor.putString(contactType, json);
-//        editor.commit();
 
     }
 

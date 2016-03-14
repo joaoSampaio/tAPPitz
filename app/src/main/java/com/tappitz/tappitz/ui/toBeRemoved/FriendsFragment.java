@@ -24,7 +24,6 @@ import android.widget.Toast;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.adapter.ContactAdapter;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.model.ListViewContactItem;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;

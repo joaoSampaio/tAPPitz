@@ -33,7 +33,7 @@ public class ListFollowingService extends ServerCommunicationService {
 
 
         if(Global.VERSION_V2) {
-            Call<JsonElement> call = RestClientV2.getService().listMyFollowers();
+            Call<JsonElement> call = RestClientV2.getService().listFollowing();
             call.enqueue(new retrofit2.Callback<JsonElement>() {
                 @Override
                 public void onResponse(Call<JsonElement> call, retrofit2.Response<JsonElement> response) {

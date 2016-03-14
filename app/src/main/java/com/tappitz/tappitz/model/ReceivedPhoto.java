@@ -1,5 +1,7 @@
 package com.tappitz.tappitz.model;
 
+import android.util.Log;
+
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.app.AppController;
@@ -118,8 +120,9 @@ public class ReceivedPhoto {
         this.vote = vote;
     }
 
-    public long getTimeMilliseconds(String dateTime){
+    public static long getTimeMilliseconds(String dateTime){
         long time = 0;
+        Log.d("myapp", "**--Received getTimeMilliseconds  ");
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
             Date date = null;
@@ -128,11 +131,13 @@ public class ReceivedPhoto {
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        Log.d("myapp", "**--Received getTimeMilliseconds  " + time);
         return time;
     }
 
-    public String getTimeAgo(String dateTime){
+    public static String getTimeAgo(String dateTime){
         String tmp =DateHelper.getTimeAgo(getTimeMilliseconds(dateTime));
+        Log.d("myapp", "**--Received getTimeAgo  " + tmp);
         return tmp;
     }
 
@@ -153,6 +158,10 @@ public class ReceivedPhoto {
         return null;
     }
 
+    public static boolean hasId(List<ReceivedPhoto> received, int id){
+        ReceivedPhoto r = getPhotoWithId(received, id);
+        return r != null;
+    }
 
     //mantem inbox com votos finais, remove temporarios caso nao haja work relacionado com eles, se
     // houver um inbox por votar e existir um work com esse id manter o nosso temporario

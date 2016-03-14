@@ -1,5 +1,7 @@
 package com.tappitz.tappitz.ui;
 
+import android.accounts.Account;
+import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
@@ -38,6 +40,7 @@ import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.rest.service.RegisterService;
 import com.tappitz.tappitz.ui.secondary.DatePickerFragment;
+import com.tappitz.tappitz.util.HashUtil;
 import com.tappitz.tappitz.util.ProgressGenerator;
 import com.tappitz.tappitz.validators.EmailValidator;
 import com.tappitz.tappitz.validators.NameValidator;
@@ -97,9 +100,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
         SharedPreferences prefs = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String user = prefs.getString(Global.KEY_USER, "");
-        String pass = prefs.getString(Global.KEY_PASS, "");
+//        String pass = prefs.getString(Global.KEY_PASS, "");
         editEmail.setText(user);
-        editPassword.setText(pass);
+//        editPassword.setText(pass);
 
         handler = new Handler();
         runnable = new Runnable() {
@@ -186,9 +189,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 screens.add(R.id.screen_login);
                 showScreen(R.id.screen_reg1);
 
-
-                registerEmail.setText(editEmail.getText().toString());
-                registerPassword.setText(editPassword.getText().toString());
+                String email = getPhoneEmail();
+                registerEmail.setText(email);
+//                registerPassword.setText(editPassword.getText().toString());
 
                 break;
             case R.id.backToPrevious:
@@ -212,7 +215,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 break;
             case R.id.btn_login:
                 Log.d("myapp", "****loginBtn**");
-                login(editEmail.getText().toString(), editPassword.getText().toString());
+                if (validators()) {
+                    login(editEmail.getText().toString(), HashUtil.computeSHAHash(editPassword.getText().toString()));
+                }
                 break;
             case R.id.date_picker:
                 launchCalendar();
@@ -228,7 +233,6 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
     private void login(String email, String password){
 
-        if (validators()) {
             Log.d("myapp", "****validators**");
 
             login.setEnabled(false);
@@ -274,13 +278,13 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                     //onSuccessLogin();
                 }
             }).execute();
-        }
+
     }
 
 
     private void registerUser(){
 
-        String firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password, username;
+        final String firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password, username;
 
         firstName = firstname.getText().toString().trim();
         lastName = lastname.getText().toString().trim();
@@ -292,7 +296,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         country = paisesSpinner.getSelectedItemPosition() + "";
         gpsCoordinates = "1234";
         email = registerEmail.getText().toString().toLowerCase().trim();
-        password = registerPassword.getText().toString();
+        password = HashUtil.computeSHAHash(registerPassword.getText().toString());
         username = registerUsername.getText().toString();
         UserRegister user = new UserRegister(firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password, username);
 
@@ -308,11 +312,11 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                 if(status.equals("true")){
                     Log.d("myapp", "***get(status)**true*");
                     editEmail.setText(registerEmail.getText().toString());
-                    editPassword.setText(registerPassword.getText().toString());
+//                    editPassword.setText(registerPassword.getText().toString());
                     screens.add(R.id.screen_reg2);
                     showScreen(R.id.screen_login);
 
-                    login(editEmail.getText().toString(), editPassword.getText().toString());
+                    login(email, password);
                 }else{
                     Log.d("myapp", "***get(status)**false*");
                     String error = json.getAsJsonObject().get("error").toString();
@@ -392,7 +396,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(Global.KEY_USER, editEmail.getText().toString());
-        editor.putString(Global.KEY_PASS, editPassword.getText().toString());
+//        editor.putString(Global.KEY_PASS, editPassword.getText().toString());
         editor.apply();
 
         //abre o fragmento HOME
@@ -553,5 +557,14 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         this.day = dayOfMonth;
         this.month = monthOfYear;
         this.year = year;
+    }
+
+    private String getPhoneEmail(){
+        Account[] accountList = AccountManager.get(this).getAccountsByType("com.google");
+        String email = "" ;
+        if(accountList != null && accountList.length > 0)
+            email = accountList[0].name;
+        Log.d("Play store account:" , email);
+        return email;
     }
 }

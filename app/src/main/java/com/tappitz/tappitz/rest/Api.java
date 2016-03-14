@@ -55,7 +55,8 @@ public interface Api {
     @POST("/pictures_votes")
     void sendVotePicture(@Body VoteInbox vote, Callback<JsonElement> response);
 
-
+    @POST("/pictures_votes")
+    JsonElement sendVotePictureBlock(@Body VoteInbox vote);
 
 
 
@@ -93,6 +94,8 @@ public interface Api {
     @GET("/users/me")
     void isLogin(Callback<JsonElement> callback);
 
+    @GET("/users/me")
+    JsonElement isLoginBlock();
 
 
     /*Contacto - aceitar*/

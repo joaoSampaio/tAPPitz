@@ -21,6 +21,9 @@ public class CheckLoggedStateService extends ServerCommunicationService {
         this.callback = callback;
     }
 
+    public CheckLoggedStateService(){
+
+    }
     @Override
     public void execute() {
 

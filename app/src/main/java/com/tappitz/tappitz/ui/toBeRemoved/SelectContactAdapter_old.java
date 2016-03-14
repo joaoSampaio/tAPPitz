@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.adapter;
+package com.tappitz.tappitz.ui.toBeRemoved;
 
 import android.app.Activity;
 import android.util.Log;
@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.model.ListViewContactItem;
+import com.tappitz.tappitz.ui.toBeRemoved.ContactAdapter;
 
 import java.util.ArrayList;
 import java.util.List;

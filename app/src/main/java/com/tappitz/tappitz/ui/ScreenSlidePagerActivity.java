@@ -1,30 +1,24 @@
 package com.tappitz.tappitz.ui;
 
-import android.animation.ArgbEvaluator;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
-import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.StrictMode;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -33,7 +27,6 @@ import android.view.Display;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 
 import com.bumptech.glide.Glide;
@@ -46,7 +39,6 @@ import com.tappitz.tappitz.adapter.ScreenSlidePagerAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.background.BackgroundService;
 import com.tappitz.tappitz.camera.CameraHelper;
-import com.tappitz.tappitz.camera.UriPath;
 import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.notification.RegistrationIntentService;
 import com.tappitz.tappitz.rest.RestClient;
@@ -70,10 +62,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private boolean cameraReady;
     private boolean signIn;
 //    View frame;
+    View camera_buttons;
     private String sessionId;
     private HomeToBlankListener listenerCamera;
     private CameraBackPressed cameraBackPressed;
     private OutBoxFragment.UpdateAfterPicture updateAfterPicture;
+    private MiddleContainerFragment.MiddleShowPage middleShowPage;
     private InBoxFragment.ReloadInbox reloadInboxListener;
     private BlankFragment.ButtonEnable buttonEnable;
     private int afterLoginAction = -1;
@@ -85,9 +79,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private int outbox_id = -1;
 
 
-    private int totalPages = 3;
-    ArgbEvaluator argbEvaluator = new ArgbEvaluator();
-    Integer[] colors = null;
 
     private Bundle extras;
 
@@ -102,6 +93,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     BackgroundService mService;
     boolean mBound = false;
 
+
+    private View.OnClickListener goTolistener;
 
     /**
      * The number of pages (wizard steps) to show.
@@ -123,11 +116,41 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_slide);
+        findViewById(R.id.splashScreen).bringToFront();
+        findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
         Log.d("myapp_new", "****onCreate ");
+
+
+        goTolistener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Log.d("myapp_new", "****goTolistener ");
+                switch (v.getId()){
+                    case R.id.action_goto_sent:
+                        showPage(Global.OUTBOX);
+                        break;
+                    case R.id.action_goto_received:
+                        showPage(Global.INBOX);
+                        break;
+                    case R.id.action_goto_qrcode:
+                        if(getMiddleShowPage() != null){
+                            getMiddleShowPage().showPage(Global.MIDDLE_QRCODE);
+                        }
+                        break;
+                    case R.id.action_goto_contacts:
+                        if(getMiddleShowPage() != null){
+                            getMiddleShowPage().showPage(Global.MIDDLE_CONTACTS);
+                        }
+                        break;
+                }
+            }
+        };
+
 
 //        frame = findViewById(R.id.frame);
         extras = getIntent().getExtras();
-
+        camera_buttons = findViewById(R.id.camera_buttons);
         camera_preview = (FrameLayout)findViewById(R.id.camera_preview);
 //        mTextureView = (TextureView)findViewById(R.id.textureView);
 //        mTextureView.setSurfaceTextureListener(this);
@@ -145,6 +168,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     public void onResume(){
         super.onResume();
         Log.d("myapp_new", "****onResume onResume onResume: ");
+        findViewById(R.id.splashScreen).bringToFront();
+        findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
+        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        String email = sp.getString(Global.KEY_USER, "");
+        AppController.getInstance().email = email;
 
         NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(Global.NOTIFICATION_ID);
@@ -156,11 +184,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
 
 
-        //LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
         signIn = false;
         cameraReady = false;
         afterLoginAction = -1;
-        findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
+
 
         //closeSplashScreen();
         runLogin = new Runnable() {
@@ -190,15 +218,35 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             Log.d("myapp_new", "onReceive mMessageReceiver");
             //do other stuff here
 
-            String action = null;
+            String action = "", pictureId;
 
             if(intent.hasExtra("action"))
-                action = intent.getExtras().getString("action");
+                action = intent.getExtras().getString("action", "");
             if(action != null){
                 Log.d("myapp", "****action: " + action);
 //                switch (action){
 //
 //                }
+                switch (action){
+                    case Global.NEW_PICTURE_RECEIVED:
+                        Log.d("myapp", "****NEW_PICTURE_RECEIVED: antes ");
+                        if(getReloadInboxListener() != null) {
+                            getReloadInboxListener().updateAfterVote();
+                            Log.d("myapp", "****NEW_PICTURE_RECEIVED: depois ");
+                        }
+
+                        break;
+                    case Global.NEW_PICTURE_VOTE:
+                        Log.d("myapp", "****NEW_PICTURE_VOTE: antes ");
+
+                        if(getUpdateAfterPicture() != null) {
+                            getUpdateAfterPicture().refreshOfflineOutbox();
+                            Log.d("myapp", "****NEW_PICTURE_VOTE: depois ");
+                        }
+                        break;
+                }
+
+
             }
         }
     };
@@ -225,7 +273,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
         destroyView();
         enableSwipe(true);
-        //LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
 
     @Override
@@ -246,9 +294,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             mBound = false;
         }
     }
-
-
-
 
     //determina o que acontece quando clica na notificação
     @Override
@@ -288,35 +333,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                     //houve erro ou não está autenticado, Mostrar Login Activity
                     //Se tiver o email e password tento fazer sign in.
                     Log.d("myapp", "**CheckLoggedStateService**** not signed in, email:" + email);
-                    if (email.length() > 0 && password.length() > 0) {
-                        new LoginService(email, password, new CallbackMultiple<String, String>() {
-                            @Override
-                            public void success(String session) {
-                                if (session.length() > 0) {
-                                    SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-                                    SharedPreferences.Editor editor = sp.edit();
-                                    editor.putString("sessionId", session);
-                                    editor.commit();
-//                                RestClient.setSessionId(session);
-                                    if (Global.VERSION_V2) {
-                                        RestClientV2.setSessionId(session);
-                                    } else {
-                                        RestClient.setSessionId(session);
-                                    }
-                                    sessionId = session;
-                                    onSuccessSignIn();
-                                }
-                            }
-
-                            @Override
-                            public void failed(String error) {
-                                goToLoginActivity();
-                            }
-                        }).execute();
-
-                    } else {
-                        goToLoginActivity();
-                    }
+                    goToLoginActivity();
                 }
             }).execute();
         }else{
@@ -374,8 +391,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         mPager.setClipChildren(false);
         mPager.setClipToPadding(false);
 
-        mPager.setPageTransformer(true, new CustomPageTransformer());
-        setUpColors();
+//        mPager.setPageTransformer(true, new CustomPageTransformer());
         mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -469,15 +485,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
 
 
-    private void setUpColors(){
 
-        Integer color1 = getResources().getColor(R.color.bg_transparent);
-        Integer color2 = getResources().getColor(R.color.bg_middle);
-
-        Integer[] colors_temp = {color2, color1, color2, color1, color2};
-        colors = colors_temp;
-
-    }
 
     private void goToLoginActivity(){
         Intent intent = new Intent(this, LoginActivity.class);
@@ -486,10 +494,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     }
 
     public void pass(View v){
-
+        Log.d("HOME", "pass:" + v.getId());
         if(mHelper != null){
             mHelper.onClick(v);
         }
+        if(goTolistener != null)
+            goTolistener.onClick(v);
+
     }
 
     public void showPage(int page){
@@ -512,8 +523,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         try {
             //se não houver um listener, ou seja, o fragmento da camera não tiver registado, ou se não tiver o menu após ter tirado a foto aberta
             if(getCameraBackPressed() == null || getCameraBackPressed().onBackPressed()) {
-                if (mPager.getCurrentItem() != 1)
-                    mPager.setCurrentItem(1);
+                if (mPager.getCurrentItem() != Global.HOME)
+                    mPager.setCurrentItem(Global.HOME);
                 else {
                     finish();
                 }
@@ -571,10 +582,17 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     }
 
     private void closeSplashScreen(){
-        Log.d("myapp", "****closeSplashScreen " );
-        findViewById(R.id.splashScreen).setVisibility(View.GONE);
-        signIn = false;
-        cameraReady = false;
+        Log.d("myapp", "****closeSplashScreen ");
+
+
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                findViewById(R.id.splashScreen).setVisibility(View.GONE);
+                signIn = false;
+                cameraReady = false;
+            }
+        }, 1000);
     }
 
 
@@ -692,6 +710,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     public void stop_camera(){
         if(mCamera != null) {
+            mCamera.setPreviewCallback(null);
             mCamera.stopPreview();
             mCamera.release();
             mCamera = null;
@@ -833,6 +852,24 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
     }
 
+    public void fadeCameraBts(float alpha){
+//        Log.d("myapp2", "**--main activity alpha:"+(alpha-1));
+        camera_buttons.setAlpha(alpha-1);
+    }
 
+    public void enableQRCodeCapture(boolean enable){
+        Log.d("myapp2", "**--qr code enabled:"+enable);
 
+        if(mHelper != null){
+            mHelper.enableQRCodeScan(enable);
+        }
+    }
+
+    public MiddleContainerFragment.MiddleShowPage getMiddleShowPage() {
+        return middleShowPage;
+    }
+
+    public void setMiddleShowPage(MiddleContainerFragment.MiddleShowPage middleShowPage) {
+        this.middleShowPage = middleShowPage;
+    }
 }

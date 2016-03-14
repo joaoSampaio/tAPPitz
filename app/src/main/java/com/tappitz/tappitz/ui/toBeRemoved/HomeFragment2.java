@@ -125,7 +125,7 @@ public class HomeFragment2 extends Fragment implements View.OnClickListener, Tex
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
         isPhotoMenuOpen = false;
 
-        textureView = (TextureView)rootView.findViewById(R.id.textureView);
+//        textureView = (TextureView)rootView.findViewById(R.id.textureView);
         textureView.setSurfaceTextureListener(this);
 
         layout_after_photo.setOnTouchListener(new View.OnTouchListener() {

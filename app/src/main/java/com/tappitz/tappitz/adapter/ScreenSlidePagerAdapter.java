@@ -7,7 +7,7 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.ui.InBoxFragment;
-import com.tappitz.tappitz.ui.InOutBoxOptionsFragment;
+import com.tappitz.tappitz.ui.secondary.InOutBoxOptionsFragment;
 import com.tappitz.tappitz.ui.MiddleContainerFragment;
 import com.tappitz.tappitz.ui.OutBoxFragment;
 

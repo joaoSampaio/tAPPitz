@@ -6,11 +6,36 @@
     >
     <!--android:background="#f5f5f5"-->
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/linearLayout6"
+        android:id="@+id/option_container"
+        android:layout_margin="10dp">
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send to 12 Followers"
+            android:id="@+id/checkBox_send_followers"
+            android:layout_alignParentLeft="true" />
+
+        <CheckBox
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Select All"
+            android:id="@+id/checkBox_send_all"
+            android:layout_alignParentRight="true" />
+
+    </RelativeLayout>
+
     <include
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         layout="@layout/contacts_fragment"
-        android:layout_above="@+id/linearLayout6" />
+        android:layout_above="@+id/option_container" />
+
+
 
     <LinearLayout
         android:orientation="horizontal"

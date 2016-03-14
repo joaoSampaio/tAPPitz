@@ -1,13 +1,11 @@
-package com.tappitz.tappitz.ui;
+package com.tappitz.tappitz.ui.secondary;
 
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -30,8 +28,8 @@ import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactManagerAdapter;
 import com.tappitz.tappitz.app.AppController;
-import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.model.Contact;
+import com.tappitz.tappitz.model.FutureWorkList;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListFriendsService;
 import com.tappitz.tappitz.rest.service.SearchContactService;
@@ -137,18 +135,18 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
             public void addContact(String eMail, int id, String name) {
 
             }
-        });
+        }, getActivity());
 
         rv.setAdapter(adapter); // the data manager is assigner to the RV
-        rv.addOnItemTouchListener( // and the click is handled
-                new RecyclerClickListener(getActivity(), new RecyclerClickListener.OnItemClickListener() {
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        // STUB:
-                        // The click on the item must be handled
-                        Toast.makeText(getActivity(), "Clicked in " + position, Toast.LENGTH_SHORT).show();
-                    }
-                }));
+//        rv.addOnItemTouchListener( // and the click is handled
+//                new RecyclerClickListener(getActivity(), new RecyclerClickListener.OnItemClickListener() {
+//                    @Override
+//                    public void onItemClick(View view, int position) {
+//                        // STUB:
+//                        // The click on the item must be handled
+////                        Toast.makeText(getActivity(), "Clicked in " + position, Toast.LENGTH_SHORT).show();
+//                    }
+//                }));
 
         mSearchEdt = (EditText)rootView.findViewById(R.id.mSearchEdt);
 
@@ -210,32 +208,10 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
 
 
     private List<Contact> loadContactsOffline(){
-        String contacts = "";
-        try {
-            SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-            contacts = sp.getString("contacts", "");
-        }catch (Exception e){
-            Log.d("myapp", "error:" + e.getMessage());
-        }
-        List<Contact> contactsList = new ArrayList<Contact>();
-        if (contacts.equals("")) {
-            return contactsList;
-        } else {
-            try {
-                Type type = new TypeToken<List<Contact>>() {
-                }.getType();
-                contactsList = new Gson().fromJson(contacts, type);
-
-                //check if is the intended type
-                if(contactsList.get(0).getName() == null)
-                    contactsList = new ArrayList<Contact>();
-            } catch (Exception e) {
-                e.printStackTrace();
-                contactsList = new ArrayList<Contact>();
-            }
-            return contactsList;
-        }
-
+        List<Contact> contactsList = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(),new TypeToken<List<Contact>>(){}.getType(), Global.FRIENDS);
+        if(contactsList == null)
+            contactsList = new ArrayList<>();
+        return contactsList;
     }
 
 

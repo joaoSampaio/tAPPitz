@@ -79,32 +79,6 @@ public class OutBoxFragment extends Fragment {
         });
 
         loadOffline();
-        //refreshOutbox();
-//        if(((ScreenSlidePagerActivity)getActivity()).getOutbox_id() >= 0){
-//            showPage(((ScreenSlidePagerActivity)getActivity()).getOutbox_id());
-//        }else {
-//
-//        }
-//        ((Button)rootView.findViewById(R.id.action_back)).setText("Sent");
-//        rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.HOME);
-//            }
-//        });
-//        rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getActivity(), "Refreshing", Toast.LENGTH_SHORT).show();
-//                refreshOutbox();
-//            }
-//        });
-//        rootView.findViewById(R.id.btn_delete).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Toast.makeText(getActivity(), "Not implemented", Toast.LENGTH_SHORT).show();
-//            }
-//        });
 
         ((ScreenSlidePagerActivity)getActivity()).setUpdateAfterPicture(new UpdateAfterPicture() {
             @Override
@@ -130,18 +104,18 @@ public class OutBoxFragment extends Fragment {
 
                     List<SentPicture> tmp = new ModelCache<List<SentPicture>>().loadModel(getActivity(), new TypeToken<List<SentPicture>>() {
                     }.getType(), Global.OFFLINE_OUTBOX);
-                    int currentPage = viewPager.getCurrentItem();
+                    if(tmp != null) {
+                        int currentPage = viewPager.getCurrentItem();
 
-                    photos.clear();
-                    photos.addAll(tmp);
-                    adapter.notifyDataSetChanged();
-                    currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
-                    viewPager.setCurrentItem(currentPage);
-                    adapter.notifyDataSetChanged();
+                        photos.clear();
+                        photos.addAll(tmp);
+                        adapter.notifyDataSetChanged();
+                        currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
+                        viewPager.setCurrentItem(currentPage);
+                        adapter.notifyDataSetChanged();
+                    }
                 }
             }
-
-
         });
         return rootView;
     }
@@ -161,7 +135,6 @@ public class OutBoxFragment extends Fragment {
     }
 
     private void refreshOutbox(){
-//        rootView.findViewById(R.id.action_refresh).setEnabled(false);
         new ListOutboxService(new CallbackMultiple<List<SentPicture>, String>() {
             @Override
             public void success(List<SentPicture> serverPictures) {
@@ -177,15 +150,11 @@ public class OutBoxFragment extends Fragment {
                         SentPicture.join(serverPictures, offlinePictures);
                     }
 
-
                     photos.clear();
                     photos.addAll(serverPictures);
                     adapter.notifyDataSetChanged();
                     showPage(showPage);
-//                    currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
-//                    viewPager.setCurrentItem(currentPage);
                     new ModelCache<List<SentPicture>>().saveModel(getActivity(), photos, Global.OFFLINE_OUTBOX);
-//                    rootView.findViewById(R.id.action_refresh).setEnabled(true);
                 }
             }
 
@@ -201,7 +170,6 @@ public class OutBoxFragment extends Fragment {
         if(photos.size() == 0) {
             List<SentPicture> tmp = new ModelCache<List<SentPicture>>().loadModel(getActivity(),new TypeToken<List<SentPicture>>(){}.getType(), Global.OFFLINE_OUTBOX);
             if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof SentPicture) {
-                Log.d("myapp", "**--loadOffline: inside ");
                 photos.addAll(tmp);
                 adapter.notifyDataSetChanged();
             }
@@ -233,10 +201,6 @@ public class OutBoxFragment extends Fragment {
         }
 
     }
-    private void OnDoneLoading(){
-
-//        adapter.notifyDataSetChanged();
-    }
 
     public List<ListenerPagerStateChange> getStateChange() {
         return stateChange;
@@ -252,7 +216,6 @@ public class OutBoxFragment extends Fragment {
             this.stateChange.remove(stateChange);
         }
     }
-
 
     public interface UpdateAfterPicture{
         void updateTemporaryOutbox(SentPicture outbox);

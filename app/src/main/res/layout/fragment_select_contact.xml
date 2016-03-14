@@ -32,11 +32,14 @@
             android:id="@+id/nextTo" />
     </LinearLayout>
 
+
+
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/bottom_actions">
+        android:layout_above="@+id/bottom_actions"
+        >
 
         <ListView
             android:layout_width="match_parent"

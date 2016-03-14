@@ -40,26 +40,76 @@
 
     </FrameLayout>
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:textSize="@dimen/text_size_normal"
-        android:id="@+id/photo_description"
-        android:inputType="textMultiLine"
-        android:gravity="left"
-        style="@style/text_normal"
-        android:layout_gravity="right|top"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_centerInParent="true"
-        android:layout_alignParentBottom="false"
-        android:layout_marginBottom="50dp" />
+        android:layout_height="match_parent"
+        android:id="@+id/gridLayout"
+        android:orientation="vertical"
+        android:visibility="visible"
+        android:weightSum="6
+        ">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            android:visibility="visible" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/text_size_normal"
+                android:id="@+id/photo_description"
+                android:inputType="textMultiLine"
+                android:gravity="left"
+                style="@style/text_normal"
+                android:layout_gravity="right|top"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:layout_centerInParent="true"
+                android:layout_alignParentBottom="false"
+                android:layout_marginBottom="50dp"
+                android:maxHeight="200dp"
+                android:layout_alignParentTop="true" />
+        </RelativeLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+
+            />
+
+
+    </LinearLayout>
+
+
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="200dp"-->
+        <!--android:textSize="@dimen/text_size_normal"-->
+        <!--android:id="@+id/photo_description"-->
+        <!--android:inputType="textMultiLine"-->
+        <!--android:gravity="left"-->
+        <!--style="@style/text_normal"-->
+        <!--android:layout_gravity="right|top"-->
+        <!--android:layout_marginLeft="15dp"-->
+        <!--android:layout_marginRight="15dp"-->
+        <!--android:layout_centerInParent="true"-->
+        <!--android:layout_alignParentBottom="false"-->
+        <!--android:layout_marginBottom="50dp"-->
+        <!--android:maxHeight="200dp"/>-->
 
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/color_background"
+        android:scaleType="fitCenter"
         android:visibility="gone"
         />
 
@@ -129,8 +179,7 @@
             android:layout_alignParentTop="true"
             android:layout_alignParentRight="true"
             android:textColor="@color/white"
-            android:textStyle="bold|italic"
-            android:textSize="20pt"
+            android:textSize="30dp"
             android:background="@null" />
 
         <ScrollView
@@ -234,7 +283,7 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Temporary"
+        android:text=" ! "
         android:id="@+id/textViewTemp"
         android:background="#eb0909"
         android:textColor="#ffffff"

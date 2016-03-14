@@ -71,10 +71,20 @@ public interface ApiV2 {
     @GET("/followers")
     Call<JsonElement> listMyFollowers();
 
+    @GET("/following")
+    Call<JsonElement> listFollowing();
+
+
 
     /*Contactos - Procura*/
     @GET("/contacts/{user_id}")
     Call<JsonElement> searchContact(@Path("user_id") String user_id);
+
+    /*Contactos - Convidar*/
+    @POST("/contacts")
+    Call<JsonElement> operationContact(@Body ContactSendId id);
+
+
 
     /*Contactos - Convidar*/
     @POST("/contacts")

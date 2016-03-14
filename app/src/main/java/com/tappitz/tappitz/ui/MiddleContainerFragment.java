@@ -13,22 +13,27 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.ui.secondary.Contact_Settings_ContainerFragment;
+import com.tappitz.tappitz.ui.secondary.QRCodeFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
 import java.util.List;
 
 
-public class MiddleContainerFragment extends Fragment {
+public class MiddleContainerFragment extends Fragment implements ViewPager.OnPageChangeListener {
 
     View rootView;
     private MiddlePagerAdapter adapter;
     private VerticalViewPager viewPager;
     private List<ListenerPagerStateChange> stateChange;
-    private int totalPages = 2;
+    private int totalPages = 3;
     ArgbEvaluator argbEvaluator = new ArgbEvaluator();
     Integer[] colors = null;
+
+    private int positionTab = 0;
     public MiddleContainerFragment() {
         // Required empty public constructor
     }
@@ -46,37 +51,57 @@ public class MiddleContainerFragment extends Fragment {
         /** Important: Must use the child FragmentManager or you will see side effects. */
         viewPager.setAdapter(adapter);
 //        viewPager.setPageTransformer(false, new FadePageTransformer());
-
+        viewPager.setCurrentItem(1);
+        viewPager.setPageTransformer(true, new CustomPageTransformer());
         setUpColors();
 
+        viewPager.setOnPageChangeListener(this);
 
-        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener () {
+
+//        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener () {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//                if(position < (totalPages -1) && position < (colors.length - 1)) {
+//
+//                    viewPager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, colors[position], colors[position + 1]));
+//
+//                } else {
+//
+//                    // the last page color
+//                    viewPager.setBackgroundColor(colors[colors.length - 1]);
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//            }
+//
+//        });
+
+        ((ScreenSlidePagerActivity)getActivity()).setMiddleShowPage(new MiddleShowPage() {
             @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if(position < (totalPages -1) && position < (colors.length - 1)) {
+            public void showPage(int page) {
+                Log.d("MIddle", "showPage:" + page);
 
-                    viewPager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, colors[position], colors[position + 1]));
-
-                } else {
-
-                    // the last page color
-                    viewPager.setBackgroundColor(colors[colors.length - 1]);
-
-                }
+                viewPager.setPageTransformer(true, null);
+                viewPager.setOnPageChangeListener(null);
+                showPageMiddle(page);
+                viewPager.setPageTransformer(true, new CustomPageTransformer());
+                setPageChangeListener();
             }
-
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-
         });
 
 
         return rootView;
+    }
+
+    private void setPageChangeListener(){
+        viewPager.setOnPageChangeListener(this);
     }
 
     @Override
@@ -91,12 +116,40 @@ public class MiddleContainerFragment extends Fragment {
     }
 
 
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+        //Log.d("ss", "positionTab:" + position);
+        positionTab = position;
+        if(position >= 1 && position < (totalPages -1) && position < (colors.length - 1)) {
+
+            viewPager.setBackgroundColor((Integer) argbEvaluator.evaluate(positionOffset, colors[position], colors[position + 1]));
+
+        }
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        Log.d("ss", "onPageSelected:" + position);
+        if(getActivity() != null){
+            ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture((position==0));
+        }
+
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+    }
+
+
+
     private void setUpColors(){
 
         Integer color1 = getResources().getColor(R.color.bg_transparent);
+
         Integer color2 = getResources().getColor(R.color.bg_middle);
 
-        Integer[] colors_temp = {color1, color2};
+        Integer[] colors_temp = {color1, color1, color2};
         colors = colors_temp;
 
     }
@@ -126,10 +179,14 @@ public class MiddleContainerFragment extends Fragment {
             Fragment fragment = null;
             switch (position){
 
-                case 0:
+                case Global.MIDDLE_QRCODE:
+                    fragment = new QRCodeFragment();
+                    break;
+
+                case Global.MIDDLE_BLANK:
                     fragment = new BlankFragment();
                     break;
-                case 1:
+                case Global.MIDDLE_CONTACTS:
 //                    fragment = new ContactsFragment();
                     fragment = new Contact_Settings_ContainerFragment();
                     break;
@@ -144,6 +201,44 @@ public class MiddleContainerFragment extends Fragment {
             return totalPages;
         }
 
+    }
+
+    public class CustomPageTransformer implements ViewPager.PageTransformer {
+        public void transformPage(View view, float position) {
+            int pageWidth = view.getWidth();
+            if (positionTab < 2 && positionTab >= 0) {
+                View container = view.findViewById(R.id.container);
+
+                if (position < -1) { // [-Infinity,-1)
+                    // This page is way off-screen to the left
+                } else if (position <= 0) { // [-1,0]
+                    // This page is moving out to the left
+
+                    // Counteract the default swipe
+                    //view.setTranslationX(pageWidth * -position);
+
+                    if (container != null) {
+//                        Log.d("myapp2", "**--Fade the image in:");
+                        // Fade the image in
+                        container.setAlpha(1 + position);
+                        if(getActivity() != null)
+                            ((ScreenSlidePagerActivity)getActivity()).fadeCameraBts(1 - position);
+                    }
+
+                } else if (position <= 1) { // (0,1]
+                    // This page is moving in from the right
+                    if (container != null) {
+                        // Fade the image out
+//                        Log.d("myapp2", "**--Fade the image out:");
+                        container.setAlpha(1 - position);
+                        if(getActivity() != null)
+                            ((ScreenSlidePagerActivity)getActivity()).fadeCameraBts(1 + position);
+                    }
+                } else { // (1,+Infinity]
+                    // This page is way off-screen to the right
+                }
+            }
+        }
     }
 
     public class FadePageTransformer implements ViewPager.PageTransformer {
@@ -161,6 +256,16 @@ public class MiddleContainerFragment extends Fragment {
                 view.setAlpha(1.0F - Math.abs(position));
             }
         }
+    }
+
+    public void showPageMiddle(int page){
+        if(adapter != null && page >= 0 && page < 3){
+            viewPager.setCurrentItem(page);
+        }
+    }
+
+    interface MiddleShowPage{
+        void showPage(int page);
     }
 
 }

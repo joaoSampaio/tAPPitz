@@ -1,15 +1,9 @@
-package com.tappitz.tappitz.ui;
+package com.tappitz.tappitz.ui.secondary;
 
-import android.animation.ArgbEvaluator;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,18 +11,12 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.ui.secondary.FollowingFragment;
-import com.tappitz.tappitz.ui.secondary.MyFollowersFragment;
-import com.tappitz.tappitz.util.ListenerPagerStateChange;
-import com.tappitz.tappitz.util.VerticalViewPager;
-
-import java.util.List;
 
 
 public class Contact_Settings_ContainerFragment extends Fragment implements View.OnClickListener {
 
     View rootView;
-    final static int[] CLICKABLES = {R.id.action_followers, R.id.action_contacts,  R.id.action_following};
+    final static int[] CLICKABLES = {R.id.action_followers, R.id.action_contacts,  R.id.action_following, R.id.action_add_contact};
 
 
     private final static int CONTACTS = 0;
@@ -107,6 +95,10 @@ public class Contact_Settings_ContainerFragment extends Fragment implements View
             case R.id.action_following:
                 newFragment = FollowingFragment.newInstance();
                 tag = "following";
+                break;
+            case R.id.action_add_contact:
+                newFragment = AddContactsDialogFragment.newInstance();
+                tag = "add_contact";
                 break;
 
         }

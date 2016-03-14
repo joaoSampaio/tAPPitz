@@ -1,6 +1,8 @@
 package com.tappitz.tappitz.model;
 
 
+import java.util.List;
+
 public class Contact {
 
     private String name;
@@ -116,4 +118,29 @@ public class Contact {
     public void setAmIFollowing(boolean amIFollowing) {
         this.amIFollowing = amIFollowing;
     }
+
+    public String getLetters(){
+        String letter = "";
+        String[] names = getName().split(" ");
+        for (String name: names) {
+            if(name.length()> 1)
+                letter+= name.substring(0,1);
+            else if(name.length() == 1)
+                letter+= name;
+        }
+        return letter.toUpperCase();
+    }
+
+    public static void removeContact(List<Contact> contacts, int id){
+        Contact contact = null;
+        for (Contact c: contacts) {
+            if(c.getId() == id){
+                contact = c;
+            }
+        }
+        if (contact != null)
+            contacts.remove(contact);
+    }
+
+
 }

@@ -1,4 +1,4 @@
-package com.tappitz.tappitz.ui;
+package com.tappitz.tappitz.ui.secondary;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -26,6 +26,7 @@ import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListInboxService;
+import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.VerticalViewPager;
@@ -62,6 +63,10 @@ public class InOutBoxOptionsFragment extends Fragment implements View.OnClickLis
             TYPE = getArguments().getInt(Global.OPTIONS_TYPE);
         }
 
+        if(TYPE == Global.OPTIONS_TYPE_INBOX){
+            Button share = (Button)rootView.findViewById(R.id.action_delete);
+            share.setText("Share");
+        }
         TextView option_title = (TextView)rootView.findViewById(R.id.option_title);
         option_title.setText(title);
 
@@ -105,7 +110,7 @@ public class InOutBoxOptionsFragment extends Fragment implements View.OnClickLis
 
                 break;
             case R.id.action_see_all:
-
+                Toast.makeText(getActivity(), "future work ...", Toast.LENGTH_SHORT).show();
                 break;
         }
     }

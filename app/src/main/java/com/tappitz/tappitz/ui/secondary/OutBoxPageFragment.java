@@ -1,6 +1,7 @@
 package com.tappitz.tappitz.ui.secondary;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -13,6 +14,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
@@ -24,7 +26,10 @@ import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.background.BackgroundService;
 import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.ListVotesService;
 import com.tappitz.tappitz.ui.OutBoxFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
@@ -67,9 +72,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         String dateSentTimeAgo = getArguments().getString(Global.DATE_RESOURCE);
         id = getArguments().getInt(Global.ID_RESOURCE);
 
-
-        Log.d("myapp", "outbox page onCreateView :" + text);
-
         for(int idBtn: CLICKABLE) {
             rootView.findViewById(idBtn).setOnClickListener(this);
         }
@@ -87,7 +89,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
         buttonsContainer = (LinearLayout)rootView.findViewById(R.id.painelvotacao);
         descriptionText = (TextView) rootView.findViewById(R.id.photo_description);
-        descriptionText.setText("You - " + dateSentTimeAgo + "\n" + "\"" + text);
+        descriptionText.setText("You - " + dateSentTimeAgo + "\n" + ((text.length() > 0)? ("\"" + text) : ""));
 
         commentText = (TextView) rootView.findViewById(R.id.photo_comment);
 
@@ -100,31 +102,8 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         image = (ImageView) rootView.findViewById(R.id.picture);
         Log.d("myapp", "out isTemporary:"+isTemporary);
         if(!isTemporary) {
-            //temos o path do ficheiro antigo vamso colocar a imagem do ficheiro
-//            if(imagePath != null && imagePath.length() > 1){
-//                Glide.with(this)
-//                        .load(imagePath)
-//                        .centerCrop()
-//                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                        .into((ImageView) rootView.findViewById(R.id.picture));
-//            }
 
             loadVotesOffline();
-//            new ListVotesService(id, new CallbackMultiple<List<Comment>, String>() {
-//                @Override
-//                public void success(List<Comment> comments) {
-//                    Context ctx = AppController.getInstance().getApplicationContext();
-//                    new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
-//                    if(getActivity()!= null) {
-//                        sortVotes(comments);
-//                    }
-//                }
-//                @Override
-//                public void failed(String error) {
-//
-//                }
-//            }).execute();
-
 
             Glide.with($this)
                     .load(url)
@@ -148,7 +127,20 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
         }else {
 
-            rootView.findViewById(R.id.textViewTemp).setVisibility(View.VISIBLE);
+            if(!BackgroundService.isWifiAvailable()){
+                rootView.findViewById(R.id.textViewTemp).setVisibility(View.VISIBLE);
+                rootView.findViewById(R.id.textViewTemp).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(BackgroundService.isWifiAvailable()) {
+                            AppController.getAppContext().startService(new Intent(AppController.getAppContext(), BackgroundService.class));
+                        }else{
+                            Toast.makeText(AppController.getAppContext(), "Please check your internet connection.", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+
             Glide.with($this)
                     .load(imagePath)
                     .centerCrop()
@@ -176,12 +168,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                         return true;
 
                     case MotionEvent.ACTION_UP:
-                        Log.d("myapp", "inbox ACTION_UP");
-
-
-//                        if (color_background.isShown()) {
-//                            resetComments();
-//                        }
                         showButtonsAndBackground(true);
                 }
                 return false;
@@ -197,6 +183,24 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             List<Comment> comments = new ModelCache<List<Comment>>().loadModel(ctx,new TypeToken<List<Comment>>(){}.getType(), Global.OFFLINE_VOTE+id);
             if(comments != null && comments.size() > 0 && comments.get(0) instanceof Comment) {
                 sortVotes(comments);
+            }
+            if(comments == null)
+                comments = new ArrayList<>();
+            if(comments.size() == 0){
+                new ListVotesService(id, new CallbackMultiple<List<Comment>, String>() {
+                    @Override
+                    public void success(List<Comment> comments) {
+                        Context ctx = AppController.getInstance().getApplicationContext();
+                        new ModelCache<List<Comment>>().saveModel(ctx, comments, Global.OFFLINE_VOTE + id);
+                        if(getActivity()!= null) {
+                            sortVotes(comments);
+                        }
+                    }
+                    @Override
+                    public void failed(String error) {
+
+                    }
+                }).execute();
             }
         }
     }
@@ -274,15 +278,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         botaoAmarelo.setText(listYellow.size() + "");
     }
 
-//    private void resetComments(){
-//        botaoVermelho.setText(listRed.size()+"");
-//        botaoVerde.setText(listGreen.size() + "");
-//        botaoAmarelo.setText(listYellow.size() + "");
-//        selectdList = -1;
-//        selectedPos = -1;
-//    }
-
-
 //    private void openComment(String author, String date, int vote){
 //        Comment comment = null;
 //        List<Comment> comments = new ArrayList<>();
@@ -324,43 +319,16 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
 
 
-//    private void getNext(int list){
-//        Log.d("myapp", "getNext:" + list);
-//        if(list != selectdList){
-//            resetComments();
-//            Log.d("myapp", "list != selectdList:");
-//            selectdList = list;
-//            selectedPos = -1;
-//
-//        }
-//        selectedPos++;
-//
-//        //dar a volta à lista
-//        if(getList(list).size() <= selectedPos)
-//            selectedPos = 0;
-//        Log.d("myapp", "getNext start");
-//
-//        if(getList(list).size() == 0)
-//            return;
-//
-//        List<Comment> commentList = getList(list);
-//        Comment comment = commentList.get(selectedPos);
-//        commentText.setText(comment.getComment());
-////        comment_user.setText(comment.getName() + " - " + comment.getDateSent());
-//        getButton(list).setText((selectedPos + 1) + "/" + commentList.size());
-//        color_background.setBackgroundColor(getResources().getColor(getColor(list)));
-//        Log.d("myapp", "getNext end");
-//        color_background.setVisibility(View.VISIBLE);
-//        comment_layout.setVisibility(View.VISIBLE);
-//    }
-
     private void showVoteList(int list){
+        List<Comment> commentList = getList(list);
+        if(commentList.size() == 0)
+            return;
         if(list == selectdList){
             closeListVote();
             return;
         }
         selectdList = list;
-        List<Comment> commentList = getList(list);
+
 
         String allComments = "";
         for (Comment c: commentList) {
@@ -401,22 +369,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         return color;
     }
 
-//    private Button getButton(int order){
-//        Button button = null;
-//        switch (order){
-//            case Global.RED:
-//                button =  botaoVermelho;
-//                break;
-//            case Global.YELLOW:
-//                button = botaoAmarelo;
-//                break;
-//            case Global.GREEN:
-//                button = botaoVerde;
-//                break;
-//
-//        }
-//        return button;
-//    }
+
 
     private List<Comment> getList(int order){
         List<Comment> list = null;

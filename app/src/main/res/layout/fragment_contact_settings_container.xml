@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-   android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:id="@+id/container">
 
 
     <GridLayout
@@ -13,64 +15,67 @@
         android:rowCount="3"
         android:orientation="horizontal"
         android:layout_margin="10dp"
-        android:layout_centerInParent="true">
+        android:layout_centerInParent="true"
+        android:visibility="visible">
 
         <ImageView
-            android:src="@drawable/my_contacts" />
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/green_round_button"
+            android:src="@drawable/contacts"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:padding="10dp"
+            android:tint="@android:color/white" />
 
         <Button
             android:id="@+id/action_contacts"
             android:background="@color/bg_transparent"
             android:layout_margin="10dp"
-            android:text="Os Meus Contactos" />
+            android:text="MY Contacts" />
 
         <ImageView
-            android:src="@drawable/subscribers" />
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/yellow_round_button"
+            android:src="@drawable/contacts"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:padding="10dp"
+            android:tint="@android:color/white" />
 
         <Button
             android:id="@+id/action_followers"
             android:background="@color/bg_transparent"
             android:layout_margin="10dp"
-            android:text="Os Meus Seguidores" />
+            android:text="My Followers" />
 
 
         <ImageView
-            android:src="@drawable/subscribers" />
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:background="@drawable/red_round_button"
+            android:src="@drawable/contacts"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:padding="10dp"
+            android:tint="@android:color/white" />
+
 
         <Button
             android:id="@+id/action_following"
             android:background="@color/bg_transparent"
             android:layout_margin="10dp"
-            android:text="Quem Eu Sigo" />
+            android:text="Following" />
 
 
     </GridLayout>
 
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/action_back2"
-        android:layout_gravity="center_horizontal"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:src="@drawable/arrow_down" />
-
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-
-
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/action_qr_code"
-            android:src="@drawable/qr_code"
-            android:layout_alignParentRight="false"
-            android:layout_alignParentLeft="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp" />
 
         <ImageView
             android:layout_width="wrap_content"
@@ -81,13 +86,17 @@
             android:layout_marginTop="10dp"
             android:layout_marginRight="20dp" />
 
+
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/action_back"
-            android:src="@drawable/arrow_down"
+            android:src="@drawable/seta"
+            android:rotation="-90"
             android:layout_alignParentRight="false"
-            android:layout_centerHorizontal="true" />
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="-10dp" />
+
     </RelativeLayout>
 
     <!--<FrameLayout-->
@@ -100,6 +109,17 @@
     <!--</FrameLayout>-->
 
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/action_add_contact"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:src="@android:drawable/ic_input_add"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:tint="@android:color/white"
+        app:backgroundTint="@color/green" />
 
 
 </RelativeLayout>

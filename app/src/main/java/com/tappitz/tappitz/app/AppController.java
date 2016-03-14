@@ -13,6 +13,7 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.model.ErrorLogEntry;
 
+import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 
@@ -45,7 +46,7 @@ public class AppController extends Application {
     public boolean turnLightOn;
 
     public boolean mCameraReady;
-
+    public String email;
 
     private static AppController mInstance;
 
@@ -54,7 +55,7 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
 
-        //ACRA.init(this);
+//        ACRA.init(this);
         mInstance = this;
         AppController.context = getApplicationContext();
 
