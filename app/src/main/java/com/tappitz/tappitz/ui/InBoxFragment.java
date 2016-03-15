@@ -1,5 +1,9 @@
 package com.tappitz.tappitz.ui;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -16,6 +20,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.model.GlideUrl;
+import com.bumptech.glide.load.model.LazyHeaders;
+import com.bumptech.glide.request.FutureTarget;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
@@ -24,16 +32,18 @@ import com.tappitz.tappitz.adapter.InBoxPagerAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.DownloadPhotoService;
 import com.tappitz.tappitz.rest.service.ListInboxService;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
+import java.util.concurrent.ExecutionException;
 
 
 public class InBoxFragment extends Fragment {
@@ -43,7 +53,7 @@ public class InBoxFragment extends Fragment {
     private List<ReceivedPhoto> photos;
     private VerticalViewPager viewPager;
     private List<ListenerPagerStateChange> stateChange;
-
+    private ListenerPagerStateChange stateOut;
     public InBoxFragment() {
         // Required empty public constructor
     }
@@ -97,9 +107,35 @@ public class InBoxFragment extends Fragment {
         return rootView;
     }
 
+
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        ((ScreenSlidePagerActivity)getActivity()).removeStateChange(stateOut);
+    }
+
+
     @Override
     public void onResume(){
         super.onResume();
+
+        stateOut = new ListenerPagerStateChange() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    //voltamos a mostrar as opções
+                    Log.d("myapp2", "**--outboxpage  :" + state);
+                    if (stateChange != null) {
+                        for (ListenerPagerStateChange s : stateChange) {
+                            s.onPageScrollStateChanged(state);
+                        }
+                    }
+                }
+            }
+        };
+        ((ScreenSlidePagerActivity)getActivity()).addStateChange(stateOut);
+
         ((ScreenSlidePagerActivity)getActivity()).setReloadInbox(new ReloadInbox() {
             @Override
             public void updateAfterVote() {
@@ -110,6 +146,16 @@ public class InBoxFragment extends Fragment {
             @Override
             public void updateNewReceivedPhoto(ReceivedPhoto photo) {
                 refreshInbox();
+            }
+
+            @Override
+            public void sharePicture() {
+                share();
+            }
+
+            @Override
+            public void openPageId(int id) {
+                showPage(id);
             }
 
             @Override
@@ -220,21 +266,33 @@ public class InBoxFragment extends Fragment {
 
     }
 
-//    public void updateTemporaryLocal(ReceivedPhoto newPhoto){
-//        ReceivedPhoto old = getItemWithId(newPhoto.getPictureId());
-//        if(old != null){
-//
-//            old.setVote(newPhoto.getVote());
-//            old.setComment(newPhoto.getComment());
-//            old.setHasVoted(true);
-//            old.setIsVoteTemporary(false);
-//            String now = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
-//            old.setVotedDate(now);
-//            adapter.notifyDataSetChanged();
-//            new ModelCache<List<ReceivedPhoto>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
-//        }
-//
-//    }
+    public void share(){
+        if(viewPager != null){
+            int showPage = viewPager.getCurrentItem(), id;
+            if(photos.size() > showPage) {
+                id = photos.get(showPage).getPictureId();
+
+                new DownloadPhotoService(id, new CallbackMultiple<Intent, String>() {
+                    @Override
+                    public void success(Intent data) {
+                        if(getActivity() != null){
+                            ScreenSlidePagerActivity activity = (ScreenSlidePagerActivity)getActivity();
+                            activity.showPage(Global.HOME);
+                            activity.onActivityResult(Global.BROWSE_REQUEST, Activity.RESULT_OK, data);
+                        }
+                    }
+
+                    @Override
+                    public void failed(String error) {
+
+                    }
+                }).execute();
+
+            }
+        }
+    }
+
+
 
 
     @Override
@@ -269,6 +327,10 @@ public class InBoxFragment extends Fragment {
         void updateAfterVote();
 
         void updateNewReceivedPhoto(ReceivedPhoto photo);
+
+        void sharePicture();
+
+        void openPageId(int id);
 
         void refreshOnline();
     }

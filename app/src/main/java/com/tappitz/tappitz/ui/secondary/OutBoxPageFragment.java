@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -25,6 +27,7 @@ import com.bumptech.glide.request.target.Target;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.adapter.OutBoxCommentAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.background.BackgroundService;
 import com.tappitz.tappitz.model.Comment;
@@ -33,6 +36,7 @@ import com.tappitz.tappitz.rest.service.ListVotesService;
 import com.tappitz.tappitz.ui.OutBoxFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
+import com.tappitz.tappitz.util.SimpleDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,6 +55,10 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     private ListenerPagerStateChange state;
     private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
     private OutBoxPageFragment $this = this;
+    private RecyclerView commentList;
+    private OutBoxCommentAdapter adapter;
+    private List<String> comments;
+    private View.OnTouchListener touch;
 
     ImageView image;
     public static OutBoxPageFragment newInstance(Bundle args) {
@@ -86,12 +94,13 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         listYellow = new ArrayList<>();
         selectdList = -1;
         selectedPos = -1;
-
+        commentList = (RecyclerView)rootView.findViewById(R.id.commentList);
         buttonsContainer = (LinearLayout)rootView.findViewById(R.id.painelvotacao);
         descriptionText = (TextView) rootView.findViewById(R.id.photo_description);
-        descriptionText.setText("You - " + dateSentTimeAgo + "\n" + ((text.length() > 0)? ("\"" + text) : ""));
+        Log.d("myapp", "out dateSentTimeAgo:" + dateSentTimeAgo);
+        descriptionText.setText("You - " + dateSentTimeAgo + "\n" + ((text.length() > 0) ? ("\"" + text) : ""));
 
-        commentText = (TextView) rootView.findViewById(R.id.photo_comment);
+//        commentText = (TextView) rootView.findViewById(R.id.photo_comment);
 
         rootView.findViewById(R.id.action_close).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -100,7 +109,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             }
         });
         image = (ImageView) rootView.findViewById(R.id.picture);
-        Log.d("myapp", "out isTemporary:"+isTemporary);
+        Log.d("myapp", "out isTemporary:" + isTemporary);
         if(!isTemporary) {
 
             loadVotesOffline();
@@ -150,12 +159,14 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                     .into((ImageView) rootView.findViewById(R.id.picture));
 
         }
-
-        rootView.findViewById(R.id.picture).setOnTouchListener(new View.OnTouchListener() {
+        touch = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
-
+                    case MotionEvent.ACTION_CANCEL:
+                        Log.d("myapp", "inbox ACTION_CANCEL");
+                        //showButtonsAndBackground(true);
+                        break;
                     case MotionEvent.ACTION_DOWN:
                         Log.d("myapp", "inbox ACTION_DOWN");
                     case MotionEvent.ACTION_POINTER_DOWN:
@@ -172,7 +183,16 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                 }
                 return false;
             }
-        });
+        };
+        rootView.findViewById(R.id.picture).setOnTouchListener(touch);
+
+        comments = new ArrayList<>();
+        adapter = new OutBoxCommentAdapter(getActivity(), comments);
+        final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        commentList.setLayoutManager(layoutManager);
+        commentList.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        commentList.setAdapter(adapter);
 
         return rootView;
     }
@@ -246,7 +266,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
                     //voltamos a mostrar as opções
-                    Log.d("myapp2", "**--inboxpage  :" + state);
+                    Log.d("myapp2", "**--outboxpage  :" + state);
                     showButtonsAndBackground(true);
                     showNumVotes();
                 }
@@ -278,69 +298,43 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         botaoAmarelo.setText(listYellow.size() + "");
     }
 
-//    private void openComment(String author, String date, int vote){
-//        Comment comment = null;
-//        List<Comment> comments = new ArrayList<>();
-//        switch (vote){
-//            case Global.RED:
-//                comments =  listRed;
-//                break;
-//            case Global.YELLOW:
-//                comments = listYellow;
-//                break;
-//            case Global.GREEN:
-//                comments = listGreen;
-//                break;
-//        }
-//        selectdList = vote;
-//        int pos = -1;
-//        for (Comment c: comments) {
-//            pos++;
-//            if(c.getDateSent().equals(date) && c.getName().equals(author)){
-//                selectedPos = pos;
-//                comment = c;
-//                break;
-//            }
-//        }
-//
-//        if(comment != null && selectdList >= 0){
-//            commentText.setText(comment.getComment());
-////            comment_user.setText(comment.getName() + " - " + comment.getDateSent());
-//            getButton(selectdList).setText((selectedPos + 1) + "/" + comments.size());
-//            color_background.setBackgroundColor(getResources().getColor(getColor(selectdList)));
-//            Log.d("myapp", "getNext end");
-//            color_background.setVisibility(View.VISIBLE);
-//            comment_layout.setVisibility(View.VISIBLE);
-//        }
-//
-//
-//
-//    }
 
 
 
     private void showVoteList(int list){
         List<Comment> commentList = getList(list);
+//        commentList.add(new Comment(0, "coment", "10-04-2015 12:20", "Joao"));
+//        commentList.add(new Comment(0, "coment1", "10-04-2015 12:20", "Joao"));
+//        commentList.add(new Comment(0, "coment2", "10-04-2015 12:20", "Joao"));
+//        commentList.add(new Comment(0, "coment3", "10-04-2015 12:20", "Joao"));
+//        commentList.add(new Comment(0, "coment4", "10-04-2015 12:20", "Joao"));
+//        commentList.add(new Comment(0, "coment5", "10-04-2015 12:20", "Joao"));
+//        commentList.add(new Comment(0, "coment6", "10-04-2015 12:20", "Joao"));
         if(commentList.size() == 0)
             return;
         if(list == selectdList){
             closeListVote();
             return;
         }
+        rootView.findViewById(R.id.picture).setOnTouchListener(null);
         selectdList = list;
 
-
+        comments.clear();
         String allComments = "";
-        for (Comment c: commentList) {
 
+
+        for (Comment c: commentList) {
+            allComments = "";
             allComments += c.getName() + " - " + c.getTimeAgo() + "\n";
             if(c.getComment().length() > 0){
                 allComments += "\"" + c.getComment() + "\n";
             }
             allComments +=  "\n";
+            comments.add(allComments);
+            adapter.notifyDataSetChanged();
         }
 
-        commentText.setText(allComments);
+//        commentText.setText(allComments);
         color_background.setBackgroundColor(getResources().getColor(getColor(list)));
         color_background.setVisibility(View.VISIBLE);
         comment_layout.setVisibility(View.VISIBLE);
@@ -348,6 +342,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     }
 
     private void closeListVote(){
+        rootView.findViewById(R.id.picture).setOnTouchListener(touch);
         showButtonsAndBackground(true);
         selectdList = -1;
     }

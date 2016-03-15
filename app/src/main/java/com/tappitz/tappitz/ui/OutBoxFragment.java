@@ -1,6 +1,8 @@
 package com.tappitz.tappitz.ui;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -11,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -24,6 +27,7 @@ import com.tappitz.tappitz.model.SentPicture;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.model.PhotoOutbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.DeletePhotoService;
 import com.tappitz.tappitz.rest.service.ListInboxService;
 import com.tappitz.tappitz.rest.service.ListOutboxService;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
@@ -42,6 +46,7 @@ public class OutBoxFragment extends Fragment {
     private List<SentPicture> photos;
     private List<ListenerPagerStateChange> stateChange;
     private VerticalViewPager viewPager;
+    private ListenerPagerStateChange stateOut;
     public OutBoxFragment() {
         // Required empty public constructor
     }
@@ -99,6 +104,38 @@ public class OutBoxFragment extends Fragment {
             }
 
             @Override
+            public void deletePhoto() {
+                final int showPage = viewPager.getCurrentItem();
+
+                if (photos.size() > showPage) {
+                    String date = photos.get(showPage).getTimeAgo();
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setMessage("Do you want to delete the photo created " + date + " ?")
+                            .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    delete();
+                                }
+                            })
+                            .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int id) {
+                                    // User cancelled the dialog
+
+                                }
+                            });
+                    builder.setTitle("Delete Photo");
+                    builder.create();
+                    builder.show();
+                }
+            }
+
+            @Override
+            public void openPageId(int id) {
+                Log.d("app", "showPage outbox:");
+                showPage(id);
+            }
+
+            @Override
             public void refreshOfflineOutbox() {
                 if(photos != null){
 
@@ -119,15 +156,6 @@ public class OutBoxFragment extends Fragment {
         });
         return rootView;
     }
-
-    private boolean hasPhoto(int id){
-        for (SentPicture out: photos) {
-           if(out.getId() == id)
-               return true;
-        }
-        return false;
-    }
-
 
     @Override
     public void onDestroy() {
@@ -174,12 +202,31 @@ public class OutBoxFragment extends Fragment {
                 adapter.notifyDataSetChanged();
             }
         }
-//        refreshOutbox();
         if(photos.size() == 0) {
             refreshOutbox();
         }
     }
 
+    private void delete(){
+        if(viewPager != null) {
+            final int showPage = viewPager.getCurrentItem(), id;
+            if (photos.size() > showPage) {
+                id = photos.get(showPage).getId();
+                new DeletePhotoService(id, new CallbackMultiple() {
+                    @Override
+                    public void success(Object response) {
+                        SentPicture.removeId(photos, id);
+                        adapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void failed(Object error) {
+
+                    }
+                }).execute();
+            }
+        }
+    }
 
     private void showPage(int id){
         int position = -1;
@@ -193,6 +240,7 @@ public class OutBoxFragment extends Fragment {
             }
             current++;
         }
+        Log.d("myapp", "**--showPage id"+id+" page:" + position);
 
         //foi encontrada a imagem vamos mostra-la
         if(position >= 0){
@@ -217,10 +265,42 @@ public class OutBoxFragment extends Fragment {
         }
     }
 
+    @Override
+    public void onResume(){
+        super.onResume();
+        stateOut = new ListenerPagerStateChange() {
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    //voltamos a mostrar as opções
+                    Log.d("myapp2", "**--outboxpage  :" + state);
+                    if (stateChange != null) {
+                        for (ListenerPagerStateChange s : stateChange) {
+                            s.onPageScrollStateChanged(state);
+                        }
+                    }
+                }
+            }
+        };
+
+        ((ScreenSlidePagerActivity)getActivity()).addStateChange(stateOut);
+    }
+
+    @Override
+    public void onPause(){
+        super.onPause();
+        ((ScreenSlidePagerActivity)getActivity()).removeStateChange(stateOut);
+    }
+
+
     public interface UpdateAfterPicture{
         void updateTemporaryOutbox(SentPicture outbox);
 
         void refreshOnline();
+
+        void deletePhoto();
+
+        void openPageId(int id);
 
         void refreshOfflineOutbox();
     }

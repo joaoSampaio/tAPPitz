@@ -3,18 +3,26 @@ package com.tappitz.tappitz.ui.secondary;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.SelectSendPhotoAdapter;
+import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.model.Contact;
+import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.util.ContactFilter;
+import com.tappitz.tappitz.util.ModelCache;
 
 import java.util.List;
 
@@ -24,7 +32,7 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
     View rootView;
     private SelectSendPhotoAdapter adapter;
     OnSelectedContacts listener;
-
+    private CheckBox select_all, checkBox_send_followers;
 
     public SelectContactFragment() {
         // Required empty public constructor
@@ -56,7 +64,28 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
             }
         });
 
+        checkBox_send_followers = (CheckBox)rootView.findViewById(R.id.checkBox_send_followers);
 
+        int count = 0;
+        List<Contact> followers = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(), new TypeToken<List<Contact>>() {
+        }.getType(), Global.MYFOLLOWERS);
+        Gson gson = new Gson();
+        Log.d("sendPhoto", "+++++++++++++++++++++++++++++++++++++followers: ->" + gson.toJson(followers));
+        if(followers != null && followers.size() > 0 && followers.get(0) instanceof Contact) {
+            checkBox_send_followers.setText("Send to " + followers.size() + " Followers");
+        }else{
+            checkBox_send_followers.setVisibility(View.GONE);
+        }
+
+
+        select_all = (CheckBox)rootView.findViewById(R.id.checkBox_select_all);
+        select_all.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean all = ((CheckBox) v).isChecked();
+                adapter.sellectAll(all);
+            }
+        });
         rootView.findViewById(R.id.nextTo).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -65,7 +94,10 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
                 if (selected.size() > 0) {
                     if (listener != null) {
                         ((Button) v).setEnabled(false);
-                        listener.sendPhoto(selected);
+                        boolean sendFollowers = (checkBox_send_followers).isChecked();
+                        Log.d("sendPhoto", "+++++++++++++++++++++++++++++++++++++sendFollowers: ->" + sendFollowers);
+
+                        listener.sendPhoto(selected, sendFollowers);
                         //dismiss();
                     }
                 } else {
@@ -125,7 +157,7 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
     }
 
     public interface OnSelectedContacts{
-        public void sendPhoto(List<Integer> contacts);
+        public void sendPhoto(List<Integer> contacts, boolean sendToFollowers);
     }
 
 

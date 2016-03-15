@@ -179,21 +179,36 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             public boolean onTouch(View v, MotionEvent event) {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
-
+                    case MotionEvent.ACTION_HOVER_EXIT:
+                        Log.d("myapp", "inbox ACTION_HOVER_EXIT");
+                        break;
+                    case MotionEvent.ACTION_CANCEL:
+                        Log.d("myapp", "inbox ACTION_CANCEL");
+                        //showButtonsAndBackground(true);
+                        break;
+                    case MotionEvent.ACTION_HOVER_MOVE:
+                        Log.d("myapp", "inbox ACTION_HOVER_MOVE");
+                        break;
                     case MotionEvent.ACTION_DOWN:
                         Log.d("myapp", "inbox ACTION_DOWN");
+                        showButtonsAndBackground(false);
+                        //imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+                        return true;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         Log.d("myapp", "inbox ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
                         showButtonsAndBackground(false);
-                        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+                        //imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
                         return true;
 
                     case MotionEvent.ACTION_UP:
                         Log.d("myapp", "inbox ACTION_UP");
                         showButtonsAndBackground(true);
+                        break;
                     case MotionEvent.ACTION_POINTER_UP:
+                        Log.d("myapp", "inbox ACTION_POINTER_UP");
                         //=====Write down you code Finger Released code here
+                        break;
 
 
                 }
@@ -212,6 +227,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
+                    Log.d("myapp", "inbox ViewPager.SCROLL_STATE_IDLE");
                     //voltamos a mostrar as opções
                     showButtonsAndBackground(true);
                 }
@@ -228,6 +244,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
     }
 
     public void showButtonsAndBackground(boolean show){
+        Log.d("myapp", "showButtonsAndBackground show: " + show);
         if(layout_container != null) {
             Log.d("myapp", "showButtonsAndBackground show: " + show + "hasVoted:"+ hasVoted);
             layout_container.setVisibility(show ? View.VISIBLE : View.INVISIBLE);

@@ -62,6 +62,17 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
         };
     }
 
+    public void sellectAll(boolean all){
+        if(all){
+            for (Contact c: contacts) {
+                selectedContacts.put(c.getId(), c.getId());
+            }
+        }else {
+            selectedContacts.clear();
+        }
+
+        notifyDataSetChanged();
+    }
 
     public static class SelectSendPhotoViewHolder extends RecyclerView.ViewHolder {
         TextView mName, mUsername, mCircle;

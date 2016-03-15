@@ -16,7 +16,7 @@ public class CreatePhoto {
         this.comment = comment;
         this.friendIds = contacts;
         this.picture = picture;
-        this.sendToFollowers = false;
+        this.sendToFollowers = sendToFollowers;
     }
 
     public String getComment() {

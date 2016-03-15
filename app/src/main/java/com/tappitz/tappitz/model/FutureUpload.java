@@ -15,16 +15,18 @@ import java.util.List;
  */
 public class FutureUpload {
 
+    private boolean sendToFollowers;
     private int tmpId;
     private String path;
     private List<Integer> friendIds;
     private String comment;
 
-    public FutureUpload(int tmpId, String path, List<Integer> friendIds, String comment) {
+    public FutureUpload(int tmpId, String path, List<Integer> friendIds, String comment, boolean sendToFollowers) {
         this.tmpId = tmpId;
         this.path = path;
         this.friendIds = friendIds;
         this.comment = comment;
+        this.sendToFollowers = sendToFollowers;
     }
 
     public int getTmpId() {
@@ -88,4 +90,11 @@ public class FutureUpload {
         return pictureBase64;
     }
 
+    public boolean isSendToFollowers() {
+        return sendToFollowers;
+    }
+
+    public void setSendToFollowers(boolean sendToFollowers) {
+        this.sendToFollowers = sendToFollowers;
+    }
 }

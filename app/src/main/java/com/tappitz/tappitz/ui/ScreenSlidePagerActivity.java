@@ -47,12 +47,14 @@ import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CheckLoggedStateService;
 import com.tappitz.tappitz.rest.service.LoginService;
+import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.MainViewPager;
 import com.tappitz.tappitz.util.NotificationCount;
 
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -74,9 +76,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     //indica qual a picture a ser mostrada no inbox
     private int inbox_vote_id = -1;
-    private PhotoInbox newPhoto;
-    private Comment commentVote;
-    private int outbox_id = -1;
+//    private PhotoInbox newPhoto;
+//    private Comment commentVote;
+//    private int outbox_id = -1;
 
 
 
@@ -92,7 +94,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     BackgroundService mService;
     boolean mBound = false;
-
+    private List<ListenerPagerStateChange> stateChange;
+    boolean isRunning;
 
     private View.OnClickListener goTolistener;
 
@@ -147,15 +150,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             }
         };
 
-
-//        frame = findViewById(R.id.frame);
         extras = getIntent().getExtras();
         camera_buttons = findViewById(R.id.camera_buttons);
         camera_preview = (FrameLayout)findViewById(R.id.camera_preview);
-//        mTextureView = (TextureView)findViewById(R.id.textureView);
-//        mTextureView.setSurfaceTextureListener(this);
-
-        // Instantiate a ViewPager and a PagerAdapter.
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -163,6 +160,57 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
 
     }
+
+
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        // Bind to LocalService
+        Intent intent = new Intent(this, BackgroundService.class);
+        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Unbind from the service
+        if (mBound) {
+            mService.registerClient(null);
+            unbindService(mConnection);
+            mBound = false;
+        }
+        isRunning = false;
+    }
+
+    //determina o que acontece quando clica na notificação
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        extras = intent.getExtras();
+        if(isRunning) {
+            String action = intent.getExtras().getString("action", "");
+            Log.d("myapp", "****onNewIntent action: " + action);
+
+            switch (action){
+                case Global.NEW_PICTURE_RECEIVED:
+                    Log.d("myapp", "****onNewIntent NEW_PICTURE_RECEIVED: antes ");
+                    showPage(Global.INBOX);
+                    break;
+                case Global.NEW_PICTURE_VOTE:
+                    Log.d("myapp", "**** onNewIntent NEW_PICTURE_VOTE: antes ");
+                    showPage(Global.OUTBOX);
+
+                    break;
+                default:
+                    Log.d("myapp", "**** onNewIntent HOME: antes ");
+                    showPage(Global.HOME);
+            }
+        }else {
+            checkIsSignedIn();
+        }
+    }
+
 
     @Override
     public void onResume(){
@@ -217,22 +265,21 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             //Isto é chamado quando a app está aberta e chega uma notificação, o utilizador não clicou ainda na notificação
             Log.d("myapp_new", "onReceive mMessageReceiver");
             //do other stuff here
-
+            NotificationCount.resetCount(getApplicationContext());
             String action = "", pictureId;
 
             if(intent.hasExtra("action"))
                 action = intent.getExtras().getString("action", "");
             if(action != null){
                 Log.d("myapp", "****action: " + action);
-//                switch (action){
-//
-//                }
+
                 switch (action){
                     case Global.NEW_PICTURE_RECEIVED:
                         Log.d("myapp", "****NEW_PICTURE_RECEIVED: antes ");
                         if(getReloadInboxListener() != null) {
                             getReloadInboxListener().updateAfterVote();
                             Log.d("myapp", "****NEW_PICTURE_RECEIVED: depois ");
+                            //showPage(Global.INBOX);
                         }
 
                         break;
@@ -242,9 +289,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                         if(getUpdateAfterPicture() != null) {
                             getUpdateAfterPicture().refreshOfflineOutbox();
                             Log.d("myapp", "****NEW_PICTURE_VOTE: depois ");
+                            //showPage(Global.OUTBOX);
                         }
                         break;
+                    default:
+//                        showPage(Global.HOME);
                 }
+
 
 
             }
@@ -276,35 +327,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Bind to LocalService
-        Intent intent = new Intent(this, BackgroundService.class);
-        bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // Unbind from the service
-        if (mBound) {
-            mService.registerClient(null);
-            unbindService(mConnection);
-            mBound = false;
-        }
-    }
-
-    //determina o que acontece quando clica na notificação
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        extras = intent.getExtras();
-        checkIsSignedIn();
-    }
 
     private void checkIsSignedIn(){
-
 
         if(BackgroundService.isWifiAvailable()) {
             Log.d("checkIsSignedIn", "**checkIsSignedIn**** ");
@@ -354,24 +379,24 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
         switch (action){
             case Global.NEW_PICTURE_RECEIVED:
-                pictureId = extras.getString("pictureId", "-1");
-                String pictureSentence = extras.getString("pictureSentence", "");
-                String authorName = extras.getString("authorName", "");
-                inbox_vote_id = Integer.parseInt(pictureId);
-                newPhoto = new PhotoInbox(inbox_vote_id, pictureSentence, authorName);
+//                pictureId = extras.getString("pictureId", "-1");
+//                String pictureSentence = extras.getString("pictureSentence", "");
+//                String authorName = extras.getString("authorName", "");
+//                inbox_vote_id = Integer.parseInt(pictureId);
+//                newPhoto = new PhotoInbox(inbox_vote_id, pictureSentence, authorName);
 
                 break;
             case Global.NEW_PICTURE_VOTE:
 
-                pictureId = extras.getString("pictureId", "-1");
-                String voteAuthorName = extras.getString("authorName", "");
-                String comment = extras.getString("comment", "");
-                String vote = extras.getString("vote", "-1");
-                String votedDate = extras.getString("date", "");
-                outbox_id = Integer.parseInt(pictureId);
-                int voteInt = Integer.parseInt(vote);
-
-                commentVote = new Comment(voteInt, voteAuthorName, votedDate);
+//                pictureId = extras.getString("pictureId", "-1");
+//                String voteAuthorName = extras.getString("authorName", "");
+//                String comment = extras.getString("comment", "");
+//                String vote = extras.getString("vote", "-1");
+//                String votedDate = extras.getString("date", "");
+//                outbox_id = Integer.parseInt(pictureId);
+//                int voteInt = Integer.parseInt(vote);
+//
+//                commentVote = new Comment(voteInt, voteAuthorName, votedDate);
                 break;
         }
 
@@ -407,7 +432,25 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             }
 
         });
+        mPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+            @Override
+            public void onPageSelected(int position) {
+                Log.d("myapp2", "**--seletcted Screen:" + position);
 
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
+                if (stateChange != null) {
+                    for (ListenerPagerStateChange s : stateChange) {
+                        s.onPageScrollStateChanged(state);
+                    }
+                } else
+                    Log.d("myapp2", "**--stateChange is null:");
+            }
+
+        });
         switch (action){
             case Global.NEW_PICTURE_RECEIVED:
                 showPage(Global.INBOX);
@@ -425,6 +468,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
         Intent intentRegister = new Intent(this, RegistrationIntentService.class);
         startService(intentRegister);
+        isRunning = true;
     }
 
     int positionTab = 0;
@@ -871,5 +915,16 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     public void setMiddleShowPage(MiddleContainerFragment.MiddleShowPage middleShowPage) {
         this.middleShowPage = middleShowPage;
+    }
+
+    public void addStateChange(ListenerPagerStateChange stateChange) {
+        if(this.stateChange == null)
+            this.stateChange = new ArrayList<ListenerPagerStateChange>();
+        this.stateChange.add(stateChange);
+    }
+    public void removeStateChange(ListenerPagerStateChange stateChange) {
+        if(this.stateChange != null) {
+            this.stateChange.remove(stateChange);
+        }
     }
 }

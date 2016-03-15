@@ -35,6 +35,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
@@ -589,7 +590,9 @@ public class CameraHelper implements View.OnClickListener {
         final SelectContactFragment newFragment = new SelectContactFragment();
         newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
             @Override
-            public void sendPhoto(final List<Integer> contacts) {
+            public void sendPhoto(final List<Integer> contacts, boolean sendFollowers) {
+
+
 
                 SentPicture out = new SentPicture(comment, photoPath);
                 //actualiza e guarda offline
@@ -597,7 +600,7 @@ public class CameraHelper implements View.OnClickListener {
                     getActivity().getUpdateAfterPicture().updateTemporaryOutbox(out);
                 }
                 //adiciona work futuro
-                FutureUpload upload = out.generateFutureWork(contacts);
+                FutureUpload upload = out.generateFutureWork(contacts, sendFollowers);
                 BackgroundService.addPhotoUploadWork(upload);
 
 

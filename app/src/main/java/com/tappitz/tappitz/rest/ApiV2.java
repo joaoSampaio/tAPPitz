@@ -49,7 +49,6 @@ public interface ApiV2 {
     /*********InBox************/
     //Pede a lista de inbox
     @GET("/inbox")
-//    @GET("/inbox.json")
     Call<JsonElement> requestInbox();
 
 
@@ -58,7 +57,8 @@ public interface ApiV2 {
     Call<JsonElement> sendVotePicture(@Body VoteInbox vote);
 
 
-
+    @GET("/pictures/delete/{picture_id} ")
+    Call<JsonElement> deletePhoto(@Path("picture_id") int picture_id);
 
 
     /*********Contactos************/

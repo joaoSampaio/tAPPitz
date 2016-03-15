@@ -8,6 +8,7 @@ import com.tappitz.tappitz.util.ModelCache;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
@@ -81,6 +82,10 @@ public class SentPicture {
 
     }
 
+    public void setCreatedDate(String createdDate) {
+        this.createdDate = createdDate;
+    }
+
     public boolean isTemporary() {
         return isTemporary;
     }
@@ -114,8 +119,8 @@ public class SentPicture {
         return getPicFromList(pictures, getId()) != null;
     }
 
-    public FutureUpload generateFutureWork(List<Integer> friendIds){
-        return new FutureUpload(this.getId(), this.getPathPictureTemporary(), friendIds, this.getText());
+    public FutureUpload generateFutureWork(List<Integer> friendIds, boolean sendToFollowers){
+        return new FutureUpload(this.getId(), this.getPathPictureTemporary(), friendIds, this.getText(), sendToFollowers);
     }
 
     //este metodo adiciona às fotos vindas do servidor aquelas que ainda estao temporarias e nao foram enviadas
@@ -134,6 +139,27 @@ public class SentPicture {
             }
         }
         return serverPictures;
+    }
+
+    public static void removeId(List<SentPicture> serverPictures, int id){
+        SentPicture old = null;
+        for (SentPicture sent: serverPictures){
+            if(sent.getId() == id){
+                old = sent;
+                break;
+            }
+        }
+        if(old != null)
+            serverPictures.remove(old);
+    }
+
+    public static List<ImageModel> generateImageGallery(List<SentPicture> sentPhotos){
+
+        List<ImageModel> images = new ArrayList<>();
+        for (SentPicture photo: sentPhotos) {
+            images.add(new ImageModel(photo.getUrl(), ImageModel.TYPE_INBOX, photo.getId()));
+        }
+        return  images;
     }
 
 }

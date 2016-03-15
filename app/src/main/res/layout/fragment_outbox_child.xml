@@ -6,14 +6,6 @@
     android:id="@+id/container_child"
      >
 
-    <!--<TextView-->
-        <!--android:id="@+id/textViewPosition"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:gravity="center"-->
-        <!--android:text="This is a test"-->
-        <!--android:textSize="50sp" />-->
-
 
     <FrameLayout
         android:layout_width="match_parent"
@@ -167,8 +159,10 @@
         android:layout_centerInParent="true"
         android:id="@+id/comment_layout"
         android:visibility="gone"
-        android:layout_margin="15dp"
-        android:layout_above="@+id/painelvotacao">
+        android:layout_above="@+id/painelvotacao"
+        android:layout_marginBottom="15dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginLeft="15dp">
 
 
         <Button
@@ -180,103 +174,44 @@
             android:layout_alignParentRight="true"
             android:textColor="@color/white"
             android:textSize="30dp"
-            android:background="@null" />
+            android:background="@null"
+            android:layout_marginRight="-15dp" />
 
-        <ScrollView
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/commentList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/scrollView3"
+            android:layout_marginTop="15dp"
             android:layout_below="@+id/action_close"
-            android:layout_marginTop="10dp">
+            />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/white"
-                    android:id="@+id/bar1"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginBottom="10dp">
-
-                </View>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textSize="@dimen/text_size_normal"
-                    android:id="@+id/photo_comment"
-                    android:gravity="left"
-                    android:inputType="textMultiLine"
-                    style="@style/text_normal"
-                    android:layout_gravity="right|top"
-                    android:layout_margin="10dp"
-                    android:layout_below="@+id/bar1" />
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/white"
-                    android:id="@+id/bar2"
-                    android:layout_below="@+id/photo_comment"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginTop="5dp">
-
-                </View>
-
-            </RelativeLayout>
-
-        </ScrollView>
-        <!--<TextView-->
+        <!--<ScrollView-->
             <!--android:layout_width="match_parent"-->
             <!--android:layout_height="wrap_content"-->
-            <!--android:textSize="@dimen/text_size_normal"-->
-            <!--android:id="@+id/comment_user"-->
-            <!--android:gravity="left"-->
-            <!--style="@style/SelectBar"-->
-            <!--android:layout_gravity="right|top"-->
-            <!--android:layout_margin="10dp" />-->
+            <!--android:id="@+id/scrollView3"-->
+            <!--android:layout_below="@+id/action_close"-->
+            <!--android:layout_marginTop="10dp">-->
 
+            <!--<RelativeLayout-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent">-->
+                <!-- -->
+                <!--<TextView-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:textSize="@dimen/text_size_normal"-->
+                    <!--android:id="@+id/photo_comment"-->
+                    <!--android:gravity="left"-->
+                    <!--android:inputType="textMultiLine"-->
+                    <!--style="@style/text_normal"-->
+                    <!--android:layout_gravity="right|top"-->
+                    <!--android:layout_margin="10dp"-->
+                    <!--android:layout_below="@+id/bar1" />-->
+                <!-- -->
+            <!--</RelativeLayout>-->
 
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:text="user"-->
-            <!--android:id="@+id/comment_user"-->
-            <!--android:gravity="left"-->
-            <!--android:background="@color/sblue"-->
-            <!--android:textColor="@color/brown"-->
-            <!--/>-->
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:text="data"-->
-            <!--android:id="@+id/comment_date"-->
-            <!--android:gravity="left"-->
-            <!--android:background="@color/sblue"-->
-            <!--android:textColor="@color/brown"-->
-            <!--/>-->
+        <!--</ScrollView>-->
 
-
-
-        <!--<TextView-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:text="@string/descricaoFoto"-->
-            <!--android:id="@+id/photo_comment"-->
-            <!--android:inputType="textMultiLine"-->
-            <!--android:gravity="left"-->
-            <!--android:background="@color/sblue"-->
-            <!--android:textColor="@color/brown"-->
-            <!--/>-->
 
     </RelativeLayout>
 

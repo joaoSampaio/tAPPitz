@@ -16,7 +16,7 @@
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send to 12 Followers"
+            android:text="Send to Followers"
             android:id="@+id/checkBox_send_followers"
             android:layout_alignParentLeft="true" />
 
@@ -24,7 +24,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Select All"
-            android:id="@+id/checkBox_send_all"
+            android:id="@+id/checkBox_select_all"
             android:layout_alignParentRight="true" />
 
     </RelativeLayout>

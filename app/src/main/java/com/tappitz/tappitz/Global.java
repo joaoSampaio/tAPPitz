@@ -34,6 +34,8 @@ public class Global {
 
     //public final static int FRIENDS = 3;
 
+
+
     public static final int 	BROWSE_REQUEST = 2010;
 
     public static final String KEY_USER = "KEY_USER";

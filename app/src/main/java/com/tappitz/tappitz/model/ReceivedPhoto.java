@@ -10,6 +10,7 @@ import com.tappitz.tappitz.util.ModelCache;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -183,6 +184,19 @@ public class ReceivedPhoto {
             }
         }
         return serverPictures;
+    }
+
+    public static List<ImageModel> generateImageGallery(List<ReceivedPhoto> receivedPhotos){
+
+        List<ImageModel> images = new ArrayList<>();
+        ImageModel img;
+        for (ReceivedPhoto photo: receivedPhotos) {
+            img = new ImageModel(photo.getUrl(), ImageModel.TYPE_INBOX, photo.getPictureId());
+            img.setVote(photo.getVote());
+            img.setHasVoted(photo.isHasVoted());
+            images.add(img);
+        }
+        return  images;
     }
 
 }

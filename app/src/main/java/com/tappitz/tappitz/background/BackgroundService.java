@@ -30,6 +30,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.FutureTarget;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
+import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -288,6 +289,8 @@ public class BackgroundService extends Service {
             if (old != null){
                 old.setIsTemporary(false);
                 old.setId(newId);
+                String now = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
+                old.setCreatedDate(now);
                 new ModelCache<List<SentPicture>>().saveModel(ctx, tmp, Global.OFFLINE_OUTBOX);
                 if(activity != null && activity.getUpdateAfterPicture() != null){
                     // Get a handler that can be used to post to the main thread
@@ -462,8 +465,11 @@ public class BackgroundService extends Service {
                 saveFutureWork(work);
                 consecutiveErrors = 0;
             }else {
-
-                call = RestClientV2.getService().sendphoto(new CreatePhoto(upload.getComment(), upload.getFriendIds(), imageBase64, true));
+                Log.d("sendPhoto", "getComment: ->"+ upload.getComment());
+                Gson gson = new Gson();
+                Log.d("sendPhoto", "getFriendIds: ->"+ gson.toJson(upload.getFriendIds()));
+                Log.d("sendPhoto", "isSendToFollowers: ->"+ upload.isSendToFollowers());
+                call = RestClientV2.getService().sendphoto(new CreatePhoto(upload.getComment(), upload.getFriendIds(), imageBase64, upload.isSendToFollowers()));
                 try {
                     json = call.execute().body();
                     final int oldId = upload.getTmpId();

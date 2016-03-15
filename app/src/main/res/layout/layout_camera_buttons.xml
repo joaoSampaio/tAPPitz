@@ -34,9 +34,9 @@
 
 
             <Button
-                android:text="back"
+                android:text="cancel"
                 android:textColor="@color/white"
-                android:layout_width="75dp"
+                android:layout_width="80dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="20dp"
                 android:id="@+id/btnPhotoDelete" />
