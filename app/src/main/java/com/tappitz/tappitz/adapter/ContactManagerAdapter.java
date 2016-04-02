@@ -120,7 +120,7 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
                                     removeFriend(viewHolder, contact);
                                 }
                             })
-                            .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                            .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int id) {
                                     // User cancelled the dialog
 
