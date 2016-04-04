@@ -31,6 +31,7 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -71,11 +72,11 @@ import me.dm7.barcodescanner.zbar.BarcodeFormat;
 public class CameraHelper implements View.OnClickListener {
 
     private ScreenSlidePagerActivity activity;
-    private Button btn_shutter, btn_back;
+    private Button btn_shutter;
+    private ImageButton btn_back;
     private String photoPath;
     private ImageView temp_pic;
     private boolean turnLightOn = false;
-    private View textMsgWrapper;
     public boolean requestedFile = false;
     RelativeLayout layout_after_photo, layout_before_photo;
     private EditText textMsg;
@@ -85,7 +86,7 @@ public class CameraHelper implements View.OnClickListener {
     private ImageScanner scanner;
     private boolean barcodeScanned = false;
 
-    final static int[] CLICABLES = {R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept, R.id.btnText};
+    final static int[] CLICABLES = {R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept};
 
     static {
         System.loadLibrary("iconv");
@@ -96,13 +97,12 @@ public class CameraHelper implements View.OnClickListener {
         this.activity = act;
 
 
-        btn_back  = (Button) activity.findViewById(R.id.btnPhotoDelete);
+        btn_back  = (ImageButton) activity.findViewById(R.id.btnPhotoDelete);
 
         btn_shutter = (Button) activity.findViewById(R.id.btn_shutter);
         photoPath = "";
         temp_pic = (ImageView) activity.findViewById(R.id.temp_pic);
 
-        textMsgWrapper = activity.findViewById(R.id.textMsgWrapper);
         layout_after_photo = (RelativeLayout)activity.findViewById(R.id.layout_after_photo);
         layout_before_photo = (RelativeLayout)activity.findViewById(R.id.layout_before_photo);
 
@@ -167,7 +167,7 @@ public class CameraHelper implements View.OnClickListener {
 
     public void setUP(){
         Log.d("MyCameraApp", "setUP home");
-        textMsgWrapper.setVisibility(View.INVISIBLE);
+//        textMsgWrapper.setVisibility(View.INVISIBLE);
 
 //        temp_pic.setVisibility(View.VISIBLE);
         setUpSize();
@@ -349,13 +349,13 @@ public class CameraHelper implements View.OnClickListener {
         photoData = null;
         start_camera();
         ( activity).enableSwipe(true);
-        textMsgWrapper.setVisibility(View.INVISIBLE);
 
         recycleImagesFromView(temp_pic);
         onTakePick(false);
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.hideSoftInputFromWindow(btn_shutter.getWindowToken(), 0);
-
+        if(!getActivity().screenHistory.isEmpty())
+            getActivity().screenHistory.remove(0);
     }
 
     public static void recycleImagesFromView(ImageView view) {
@@ -403,22 +403,22 @@ public class CameraHelper implements View.OnClickListener {
 //        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
     }
 
-    private void showEditText(){
-        Log.d("myapp", "showEditText");
-        final boolean isVisible = textMsgWrapper.isShown();
-        activity.findViewById( R.id.btnText).setEnabled(false);
-        textMsgWrapper.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
-        activity.findViewById(R.id.btnText).setEnabled(true);
-
-        if(!isVisible){
-            textMsg.requestFocus();
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
-        }else {
-            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(btn_shutter.getWindowToken(), 0);
-        }
-    }
+//    private void showEditText(){
+//        Log.d("myapp", "showEditText");
+//        final boolean isVisible = textMsgWrapper.isShown();
+//        activity.findViewById( R.id.btnText).setEnabled(false);
+//        textMsgWrapper.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
+//        activity.findViewById(R.id.btnText).setEnabled(true);
+//
+//        if(!isVisible){
+//            textMsg.requestFocus();
+//            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+//            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
+//        }else {
+//            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
+//            imm.hideSoftInputFromWindow(btn_shutter.getWindowToken(), 0);
+//        }
+//    }
 
 
     @Override
@@ -446,6 +446,7 @@ public class CameraHelper implements View.OnClickListener {
                     Log.d("myapp", "btn_shutter2");
                     (activity).enableSwipe(false);
                     onTakePick(true);
+                    getActivity().screenHistory.add(0, 0);
                 }
                 break;
 
@@ -455,10 +456,10 @@ public class CameraHelper implements View.OnClickListener {
                 deletePrevious();
 
                 break;
-            case R.id.btnText:
-                showEditText();
-                Log.d("MyCameraApp", "layout_after_photo4:" + layout_after_photo.isShown());
-                break;
+//            case R.id.btnText:
+////                showEditText();
+//                Log.d("MyCameraApp", "layout_after_photo4:" + layout_after_photo.isShown());
+//                break;
             case R.id.btnPhotoAccept:
 
                 if(photoPath == null || photoPath.equals("")) {
@@ -586,7 +587,7 @@ public class CameraHelper implements View.OnClickListener {
         }
         ft.addToBackStack(null);
 
-        final String comment = textMsgWrapper.isShown()? textMsg.getText().toString() : "";
+        final String comment = textMsg.getText().toString();
         final SelectContactFragment newFragment = new SelectContactFragment();
         newFragment.setListener(new SelectContactFragment.OnSelectedContacts() {
             @Override
@@ -655,7 +656,7 @@ public class CameraHelper implements View.OnClickListener {
 
 
     public void enableQRCodeScan(boolean enable){
-
+        Log.d("myapp", "*************************enableQRCodeScan: " + enable);
         if(enable) {
             scanner = new ImageScanner();
             scanner.setConfig(0, Config.X_DENSITY, 3);

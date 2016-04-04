@@ -3,6 +3,7 @@ package com.tappitz.tappitz.ui.secondary;
 import android.animation.Animator;
 import android.animation.ValueAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -192,14 +193,31 @@ public class QRCodeDialogFragment extends DialogFragment implements View.OnClick
     @Override
     public void onResume(){
         super.onResume();
+        getDialog().setOnKeyListener(new DialogInterface.OnKeyListener() {
+            @Override
+            public boolean onKey(android.content.DialogInterface dialog,
+                                 int keyCode, android.view.KeyEvent event) {
+                if ((keyCode == android.view.KeyEvent.KEYCODE_BACK)) {
+                    // To dismiss the fragment when the back-button is pressed.
+                    dismiss();
+                    ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture(true);
+                    return true;
+                }
+                // Otherwise, do nothing else
+                else return false;
+            }
+        });
 
     }
 
+
+
     @Override
     public void onPause(){
-
-        ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture(true);
         super.onPause();
+        if(getDialog() != null)
+            getDialog().dismiss();
+
     }
 
     public void showButtonsAndBackground(boolean show){
@@ -309,9 +327,8 @@ public class QRCodeDialogFragment extends DialogFragment implements View.OnClick
     private void sendVote(final int vote){
 
         showTemporary(vote);
-
-
         getDialog().dismiss();
+        ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture(true);
 
 
 

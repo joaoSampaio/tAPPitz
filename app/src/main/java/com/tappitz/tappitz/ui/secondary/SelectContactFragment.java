@@ -11,6 +11,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.Filter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -20,7 +21,6 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.SelectSendPhotoAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Contact;
-import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.util.ContactFilter;
 import com.tappitz.tappitz.util.ModelCache;
 
@@ -45,7 +45,7 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        rootView = inflater.inflate(R.layout.select_contacts_fragment, container, false);
+        rootView = inflater.inflate(R.layout.fragment_select_contacts, container, false);
 
         adapter = new SelectSendPhotoAdapter(loadContactsOffline(getContactType()), getActivity(), new ContactFilter.OnUpdate() {
             @Override
@@ -75,6 +75,7 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
             checkBox_send_followers.setText("Send to " + followers.size() + " Followers");
         }else{
             checkBox_send_followers.setVisibility(View.GONE);
+            rootView.findViewById(R.id.textView1).setVisibility(View.GONE);
         }
 
 
@@ -91,7 +92,7 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
             public void onClick(View v) {
 
                 List<Integer> selected = adapter.getSelectedContacts();
-                if (selected.size() > 0) {
+                if (selected.size() > 0 || checkBox_send_followers.isChecked()) {
                     if (listener != null) {
                         ((Button) v).setEnabled(false);
                         boolean sendFollowers = (checkBox_send_followers).isChecked();
@@ -106,8 +107,9 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
                 }
             }
         });
-
-        rootView.findViewById(R.id.backToPrevious).setOnClickListener(new View.OnClickListener() {
+        TextView textViewDescription = (TextView)rootView.findViewById(R.id.textViewDescription);
+        textViewDescription.setText("Back");
+        rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 getDialog().dismiss();
@@ -174,4 +176,13 @@ public class SelectContactFragment extends CustomDialogFragment implements Custo
         imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
 
     }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(getDialog() != null)
+            getDialog().dismiss();
+    }
+
 }

@@ -12,6 +12,7 @@ public class Contact {
     private boolean isFriend;
     private boolean isFollower;
     private boolean amIFollowing;
+    private int color;
 
     private boolean isInviteRequest;
 
@@ -142,5 +143,11 @@ public class Contact {
             contacts.remove(contact);
     }
 
+    public int getColor() {
+        return color;
+    }
 
+    public void setColor(int color) {
+        this.color = color;
+    }
 }

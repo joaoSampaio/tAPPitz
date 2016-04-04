@@ -29,7 +29,6 @@ public class BlankFragment extends Fragment  {
     View rootView, camera_options;
     private Button btn_shutter;
     RelativeLayout layout_after_photo;
-    private View textMsgWrapper;
     private EditText textMsg;
     private View.OnClickListener click;
 
@@ -84,7 +83,6 @@ public class BlankFragment extends Fragment  {
 
         camera_options = rootView.findViewById(R.id.camera_options);
         btn_shutter = (Button) rootView.findViewById(R.id.btn_shutter);
-        textMsgWrapper = rootView.findViewById(R.id.textMsgWrapper);
         layout_after_photo = (RelativeLayout)rootView.findViewById(R.id.layout_after_photo);
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
 
@@ -142,7 +140,6 @@ int FOCUS_AREA_SIZE = 100;
     private void setUP(){
 
         Log.d("myapp", "setUP blank ");
-        textMsgWrapper.setVisibility(View.INVISIBLE);
         layout_after_photo.setVisibility(View.VISIBLE);
 
         showBtnOptions(false);

@@ -80,7 +80,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 //    private Comment commentVote;
 //    private int outbox_id = -1;
 
-
+    public List<Integer> screenHistory = new ArrayList<>();
 
     private Bundle extras;
 
@@ -139,6 +139,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                     case R.id.action_goto_qrcode:
                         if(getMiddleShowPage() != null){
                             getMiddleShowPage().showPage(Global.MIDDLE_QRCODE);
+                            enableQRCodeCapture(true);
                         }
                         break;
                     case R.id.action_goto_contacts:
@@ -570,7 +571,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                 if (mPager.getCurrentItem() != Global.HOME)
                     mPager.setCurrentItem(Global.HOME);
                 else {
-                    finish();
+                    if(!screenHistory.isEmpty()){
+                        if(screenHistory.get(0) == 0){
+                            if(mHelper != null)
+                                mHelper.deletePrevious();
+                        }
+                    }else
+                        finish();
                 }
             }
         }catch (Exception e){
@@ -927,4 +934,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             this.stateChange.remove(stateChange);
         }
     }
+
+    public MainViewPager getmPager() {
+        return mPager;
+    }
+
+
+
+
 }

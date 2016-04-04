@@ -38,6 +38,7 @@ import com.tappitz.tappitz.rest.service.SearchContactService;
 import com.tappitz.tappitz.util.ContactFilter;
 import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.RecyclerClickListener;
+import com.tappitz.tappitz.util.SimpleDividerItemDecoration;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -122,7 +123,7 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(true); // to improve performance
-
+        rv.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
 
 
         rv.setAdapter(getAdapter().getCustomAdapter()); // the data manager is assigner to the RV
@@ -159,20 +160,21 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
             }
         };
 
-        mSearchEdt.addTextChangedListener(mSearchTw);
-        mSearchEdt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    // showToast("Pedido ao servidor");
-                    //Toast.makeText(getActivity(), "Pedido ao servidor", Toast.LENGTH_SHORT).show();
-                    searchContact();
-                    return true;
+        if(mSearchEdt != null) {
+            mSearchEdt.addTextChangedListener(mSearchTw);
+            mSearchEdt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                    if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                        // showToast("Pedido ao servidor");
+                        //Toast.makeText(getActivity(), "Pedido ao servidor", Toast.LENGTH_SHORT).show();
+                        searchContact();
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
-
+            });
+        }
 
         text_no_contact = (TextView)rootView.findViewById(R.id.text_no_contact);
 

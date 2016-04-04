@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
+import com.tappitz.tappitz.ui.secondary.ContactContainerFragment;
 import com.tappitz.tappitz.ui.secondary.Contact_Settings_ContainerFragment;
 import com.tappitz.tappitz.ui.secondary.QRCodeFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
@@ -56,7 +57,7 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
         setUpColors();
 
         viewPager.setOnPageChangeListener(this);
-
+        viewPager.setOffscreenPageLimit(2);
 
 //        viewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener () {
 //            @Override
@@ -89,10 +90,10 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
                 Log.d("MIddle", "showPage:" + page);
 
                 viewPager.setPageTransformer(true, null);
-                viewPager.setOnPageChangeListener(null);
+//                viewPager.setOnPageChangeListener(null);
                 showPageMiddle(page);
                 viewPager.setPageTransformer(true, new CustomPageTransformer());
-                setPageChangeListener();
+//                setPageChangeListener();
             }
         });
 
@@ -132,7 +133,9 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
     public void onPageSelected(int position) {
         Log.d("ss", "onPageSelected:" + position);
         if(getActivity() != null){
-            ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture((position==0));
+            ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture((position == Global.MIDDLE_QRCODE));
+            ((ScreenSlidePagerActivity)getActivity()).getmPager().setPagingEnabled(position == Global.MIDDLE_BLANK);
+
         }
 
     }
@@ -187,8 +190,8 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
                     fragment = new BlankFragment();
                     break;
                 case Global.MIDDLE_CONTACTS:
-//                    fragment = new ContactsFragment();
-                    fragment = new Contact_Settings_ContainerFragment();
+                    fragment = new ContactContainerFragment();
+//                    fragment = new Contact_Settings_ContainerFragment();
                     break;
 
             }

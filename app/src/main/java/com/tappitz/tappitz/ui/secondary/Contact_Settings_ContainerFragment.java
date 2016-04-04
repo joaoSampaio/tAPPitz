@@ -84,7 +84,7 @@ public class Contact_Settings_ContainerFragment extends Fragment implements View
         DialogFragment newFragment = null;
         switch (id){
             case R.id.action_contacts:
-                newFragment = ContactsFragment.newInstance();
+                //newFragment = ContactsFragment.newInstance();
                 tag = "friends";
                 break;
             case R.id.action_followers:

@@ -29,6 +29,7 @@ import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.OperationContactService;
 import com.tappitz.tappitz.util.ContactFilter;
 import com.tappitz.tappitz.util.ModelCache;
+import com.tappitz.tappitz.util.NiceColor;
 
 import java.util.List;
 
@@ -38,7 +39,6 @@ import java.util.List;
 public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAdapter.ContactViewHolder> implements Filterable {
 
     private List<Contact> contacts;
-    private List<Contact> originalContacts;
     private ContactFilter contactFilter;
     private ContactFilter.OnUpdate update;
     private ContactFilter.OnListChange listChange;
@@ -46,7 +46,6 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
     public ContactManagerAdapter(List<Contact> contacts, ContactFilter.OnUpdate update, Activity activity ){
         this.contacts = contacts;
         Log.d("myapp", "contacts:" + contacts.size());
-        this.originalContacts = contacts;
         this.update = update;
         this.activity = activity;
         this.listChange = new ContactFilter.OnListChange() {
@@ -166,7 +165,7 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
 
         // Set the color of the shape
         GradientDrawable bgShape = (GradientDrawable) viewHolder.mCircle.getBackground();
-        bgShape.setColor(Color.parseColor("#33b5e5"));
+        bgShape.setColor(NiceColor.betterNiceColor(contact.getName()));
     }
 
     @Override
@@ -179,6 +178,8 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
     }
 
     public void setContacts(List<Contact> contacts) {
+//        this.contacts.clear();
+//        this.contacts.addAll(contacts);
         this.contacts = contacts;
     }
 

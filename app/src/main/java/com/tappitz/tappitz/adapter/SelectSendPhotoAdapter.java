@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
@@ -16,10 +17,12 @@ import android.widget.TextView;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.util.ContactFilter;
+import com.tappitz.tappitz.util.NiceColor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeMap;
 
 /**
@@ -57,7 +60,7 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
                 }else {
                     selectedContacts.put(id, id);
                 }
-                v.setBackgroundColor(!isSelected ? SELECTED : UNSELECTED);
+                //v.setBackgroundColor(!isSelected ? SELECTED : UNSELECTED);
             }
         };
     }
@@ -76,6 +79,7 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
 
     public static class SelectSendPhotoViewHolder extends RecyclerView.ViewHolder {
         TextView mName, mUsername, mCircle;
+        CheckBox checkbox;
         View container;
         int idFriend = -1;
         SelectClick listener;
@@ -86,6 +90,7 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
             mUsername = (TextView) itemView.findViewById(R.id.CONTACT_username);
             mCircle = (TextView)itemView.findViewById(R.id.CONTACT_circle);
             container = itemView.findViewById(R.id.container);
+            checkbox = (CheckBox)itemView.findViewById(R.id.checkBox);
             this.listener = listener;
         }
 
@@ -102,6 +107,9 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
             @Override
             public void onClick(View v) {
                 switch (v.getId()){
+                    case R.id.checkBox:
+                        listener.onSelected(idFriend, v);
+                        break;
                     case R.id.container:
                         listener.onSelected(idFriend, v);
                         break;
@@ -113,7 +121,7 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
 
     @Override
     public SelectSendPhotoViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.contact_simple, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.layout_contact_select, viewGroup, false);
         return new SelectSendPhotoViewHolder(v, selectClick);
     }
 
@@ -139,14 +147,25 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
         }
 
         viewHolder.mCircle.setText(letter.toUpperCase());
-
+        Random rand = new Random();
+        int r = rand.nextInt(255) / 2 + 255;
+        int g = rand.nextInt(255) / 2 + 255;
+        int b = rand.nextInt(255) / 2 + 255;
+//        float r = rand.nextFloat() / 2f + 0.5;
+//        float g = rand.nextFloat() / 2f + 0.5;
+//        float b = rand.nextFloat() / 2f + 0.5;
 
         // Set the color of the shape
         GradientDrawable bgShape = (GradientDrawable) viewHolder.mCircle.getBackground();
-        bgShape.setColor(Color.parseColor("#33b5e5"));
+//        bgShape.setColor(Color.parseColor("#33b5e5"));
+//        bgShape.setColor(Color.argb(255, r, g, b));
+        bgShape.setColor(NiceColor.betterNiceColor(contact.getName()));
+        //viewHolder.container.setBackgroundColor(isIdSelected(contact.getId()) ? SELECTED : UNSELECTED);
+        //viewHolder.setClick(viewHolder.container);
+        viewHolder.setClick(viewHolder.checkbox);
 
-        viewHolder.container.setBackgroundColor(isIdSelected(contact.getId()) ? SELECTED : UNSELECTED);
-        viewHolder.setClick(viewHolder.container);
+        viewHolder.checkbox.setChecked(isIdSelected(contact.getId()));
+
 
 
     }

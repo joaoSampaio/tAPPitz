@@ -297,7 +297,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         gpsCoordinates = "1234";
         email = registerEmail.getText().toString().toLowerCase().trim();
         password = HashUtil.computeSHAHash(registerPassword.getText().toString());
-        username = registerUsername.getText().toString();
+        username = registerUsername.getText().toString().replace(" ","");
         UserRegister user = new UserRegister(firstName, lastName, gender, birthDate, phoneNumber, country, gpsCoordinates, email, password, username);
 
 

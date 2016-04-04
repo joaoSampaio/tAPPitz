@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey"
+    android:id="@+id/container">
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/top"
+        android:background="#efefef">
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/action_back"
+            android:src="@drawable/seta_baixo"
+            android:layout_alignParentRight="false"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="5dp" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:id="@+id/searchEdt"
+            android:layout_below="@+id/action_back"
+            android:background="@color/white"
+            android:layout_marginLeft="25dp"
+            android:layout_marginRight="25dp"
+            android:imeOptions="actionSearch"
+            android:textSize="18dp"
+            android:drawableLeft="@drawable/ic_search"
+            android:paddingLeft="15dp"
+            android:hint="  Search people"
+            android:inputType="text" />
+
+    </RelativeLayout>
+
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/tab_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/top"
+        android:background="#efefef"
+        android:minHeight="?attr/actionBarSize"
+        app:tabIndicatorColor="@color/tabActive"
+        style="@style/CustomTabLayoutStyle"
+        />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/pager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/tab_layout"
+        android:background="@color/white">
+
+
+
+    </android.support.v4.view.ViewPager>
+
+
+
+
+</RelativeLayout>

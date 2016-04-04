@@ -2,6 +2,10 @@ package com.tappitz.tappitz.ui.secondary;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Handler;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -30,8 +35,12 @@ import com.tappitz.tappitz.adapter.ContactManagerAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.model.FutureWorkList;
+import com.tappitz.tappitz.rest.model.ContactSendId;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.ListFollowingService;
 import com.tappitz.tappitz.rest.service.ListFriendsService;
+import com.tappitz.tappitz.rest.service.ListMyFollowersService;
+import com.tappitz.tappitz.rest.service.OperationContactService;
 import com.tappitz.tappitz.rest.service.SearchContactService;
 import com.tappitz.tappitz.util.ContactFilter;
 import com.tappitz.tappitz.util.ModelCache;
@@ -44,15 +53,28 @@ import java.util.Comparator;
 import java.util.List;
 
 
-public class ContactsFragment extends DialogFragment implements SwipeRefreshLayout.OnRefreshListener {
+public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
+    public final static int FRIENDS = 0;
+    public final static int FOLLOWING = 1;
+    private int TYPE = 0;
     private View rootView;
-    private TextWatcher mSearchTw;
-    private EditText mSearchEdt;
+//    private TextWatcher mSearchTw;
+//    private EditText mSearchEdt;
     private SwipeRefreshLayout swipeLayout;
     List<Contact> allContactsList;
     private TextView text_no_contact;
     private ContactManagerAdapter adapter;
+    private Handler handler;
+    private String newSearch;
+    private Button action_follow;
+
+
+
+
+
+    private View progress_search, searchContainer, contact_search, progressOperation;
+    private TextView mName, mUsername, mCircle, text_no_contact_search;
 
 
     public ContactsFragment() {
@@ -66,53 +88,45 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
 
      * @return A new instance of fragment ContactsFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static ContactsFragment newInstance() {
+    public static ContactsFragment newInstance(int TYPE) {
         ContactsFragment fragment = new ContactsFragment();
+        fragment.setTYPE(TYPE);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
+//        setStyle(DialogFragment.STYLE_NORMAL, R.style.CustomDialog);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.contacts_fragment, container, false);
+        Log.d("ContactsFragment", "ContactsFragment TYPE: "+TYPE );
         loadUI();
         refresh();
         return rootView;
     }
 
     private void loadUI(){
-        TextView textViewDescription = (TextView)rootView.findViewById(R.id.textViewDescription);
-        textViewDescription.setText("Contacts");
-        textViewDescription.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDialog().dismiss();
-            }
-        });
-        rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getDialog().dismiss();
-            }
-        });
 
+
+        mName = (TextView) rootView.findViewById(R.id.CONTACT_name);
+        mUsername = (TextView) rootView.findViewById(R.id.CONTACT_username);
+        mCircle = (TextView)rootView.findViewById(R.id.CONTACT_circle);
+        searchContainer = rootView.findViewById(R.id.searchContainer);
+        progress_search = rootView.findViewById(R.id.progress_search);
+        searchContainer.setVisibility(View.GONE);
+        action_follow = (Button)rootView.findViewById(R.id.action_follow);
+        contact_search = rootView.findViewById(R.id.contact_search);
+        text_no_contact_search = (TextView) rootView.findViewById(R.id.text_no_contact_search);
+        progressOperation = rootView.findViewById(R.id.progressOperation);
+
+        handler = new Handler();
+        newSearch = "";
         allContactsList = new ArrayList<>();
-//        final Drawable upArrow = ContextCompat.getDrawable(getActivity(),R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-//        upArrow.setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.SRC_ATOP);
-//        ImageView img = (ImageView)rootView.findViewById(R.id.action_back);
-//        Drawable backArrow = img.getDrawable();
-//        if(backArrow != null){
-//            backArrow.setColorFilter(getResources().getColor(R.color.orange), PorterDuff.Mode.SRC_ATOP);
-//        }
-
-
         RecyclerView rv = (RecyclerView) rootView.findViewById(R.id.rv); // layout reference
 
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
@@ -138,52 +152,63 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
         }, getActivity());
 
         rv.setAdapter(adapter); // the data manager is assigner to the RV
-//        rv.addOnItemTouchListener( // and the click is handled
-//                new RecyclerClickListener(getActivity(), new RecyclerClickListener.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(View view, int position) {
-//                        // STUB:
-//                        // The click on the item must be handled
-////                        Toast.makeText(getActivity(), "Clicked in " + position, Toast.LENGTH_SHORT).show();
-//                    }
-//                }));
-
-        mSearchEdt = (EditText)rootView.findViewById(R.id.mSearchEdt);
 
 
-        mSearchTw=new TextWatcher() {
-
+        ((ContactContainerFragment)getParentFragment()).addSearchListener(new ContactContainerFragment.SearchText() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                Log.d("onTextChanged", " ->" + new String(s.toString()) + "  getItemCount:"+adapter.getItemCount());
 
-                adapter.getFilter().filter(s);
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count,
-                                          int after) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        };
-
-        mSearchEdt.addTextChangedListener(mSearchTw);
-        mSearchEdt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    // showToast("Pedido ao servidor");
-                    //Toast.makeText(getActivity(), "Pedido ao servidor", Toast.LENGTH_SHORT).show();
-                    searchContact();
-                    return true;
+                for(Contact c : adapter.getContacts()){
+                    Log.d("contact", " ---------->" + c.getEmail() + " getUsername:"+c.getUsername());
                 }
-                return false;
+
+                //se for following e nao exitir mais contactos entao vamso fazer search
+                if (TYPE == FOLLOWING && adapter.getItemCount() == 0) {
+
+                    adapter.getFilter().filter(s);
+                    if(adapter.getItemCount() > 0)
+                        return;
+
+
+                    Log.d("ADDContact", "TYPE == FOLLOWING && adapter.getContacts().size() == 0");
+                    newSearch = new String(s.toString());
+                    final String search = new String(s.toString());
+                    handler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (newSearch.equals(search)) {
+                                Log.d("ADDContact", "text changed is the same as 1s ago:" + newSearch + "||||" + search);
+                                searchContact();
+                            } else {
+                                Log.d("ADDContact", "text changed in less than 1s");
+                            }
+                        }
+                    }, 1500);
+
+                } else {
+                    Log.d("ADDContact", "else");
+                    adapter.getFilter().filter(s);
+                }
+
             }
         });
+
+
+
+//        mSearchEdt.addTextChangedListener(mSearchTw);
+//        mSearchEdt.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+//            @Override
+//            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+//                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+//                    // showToast("Pedido ao servidor");
+//                    //Toast.makeText(getActivity(), "Pedido ao servidor", Toast.LENGTH_SHORT).show();
+//                    searchContact();
+//                    return true;
+//                }
+//                return false;
+//            }
+//        });
 
 
         text_no_contact = (TextView)rootView.findViewById(R.id.text_no_contact);
@@ -191,6 +216,9 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
 
         swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
         swipeLayout.setOnRefreshListener(this);
+
+
+        Log.d("ContactsFragment", "ContactsFragment: end");
     }
 
 
@@ -198,27 +226,17 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
     @Override
     public void onStart() {
         super.onStart();
-        Dialog d = getDialog();
-        if (d!=null){
-            int width = ViewGroup.LayoutParams.MATCH_PARENT;
-            int height = ViewGroup.LayoutParams.MATCH_PARENT;
-            d.getWindow().setLayout(width, height);
-        }
     }
 
 
     private List<Contact> loadContactsOffline(){
-        List<Contact> contactsList = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(),new TypeToken<List<Contact>>(){}.getType(), Global.FRIENDS);
+        List<Contact> contactsList = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(),new TypeToken<List<Contact>>(){}.getType(), getOfflineId());
         if(contactsList == null)
             contactsList = new ArrayList<>();
+        Log.d("ContactsFragment", "loadContactsOffline: ");
         return contactsList;
     }
 
-
-//    @Override
-//    public void onAttach(Context context) {
-//        super.onAttach(context);
-//    }
 
     @Override
     public void onDetach() {
@@ -239,9 +257,9 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
     private void loadContacts(){
         allContactsList.clear();
         allContactsList.addAll(loadContactsOffline());
-//        allContactsList = loadContactsOffline();
         notifyAdapter();
-        new ListFriendsService(new CallbackMultiple<List<Contact>, String>() {
+
+        CallbackMultiple callback = new CallbackMultiple<List<Contact>, String>() {
             @Override
             public void success(List<Contact> response) {
 
@@ -254,10 +272,16 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
 
             @Override
             public void failed(String error) {
-//                showToast(error);
-
             }
-        }).execute();
+        };
+
+
+        if(TYPE == FOLLOWING)
+            new ListFollowingService(callback).execute();
+        else
+            new ListFriendsService(callback).execute();
+
+
     }
 
     private void notifyAdapter(){
@@ -272,58 +296,133 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
         text_no_contact.setVisibility(size > 0 ? View.GONE : View.VISIBLE);
     }
 
+
+
     private void searchContact(){
-        String searchParam = mSearchEdt.getText().toString();
+        final String searchParam = newSearch;
+        if(searchParam.isEmpty())
+            return;
 
-        boolean alreadyExists = false;
-        for (Contact c: allContactsList) {
-            if(c.getEmail().equals(searchParam) || c.getUsername().equals(searchParam))
-                alreadyExists = true;
-        }
-        if(!alreadyExists){
-            new SearchContactService(searchParam, new CallbackMultiple<Contact, String>() {
-                @Override
-                public void success(Contact response) {
+        searchContainer.setVisibility(View.VISIBLE);
+        progress_search.setVisibility(View.VISIBLE);
+        contact_search.setVisibility(View.GONE);
+        text_no_contact.setVisibility(View.GONE);
+        new SearchContactService(searchParam, new CallbackMultiple<Contact, String>() {
+            @Override
+            public void success(final Contact contact) {
+                Log.d("myapp", "searchContact success: ");
+                if(getActivity() != null && contact != null) {
+                    contact_search.setVisibility(View.VISIBLE);
+                    progress_search.setVisibility(View.GONE);
+                    Log.d("myapp", "searchContact success: dentro ");
+                    text_no_contact_search.setVisibility(View.GONE);
+                    contact.setIsFollower(false);
+                    contact.setIsFriend(false);
+                    mName.setText(contact.getName());
+                    mUsername.setText(contact.getUsername());
 
-                    List<Contact> tmp = new ArrayList<Contact>();
-                    if(response != null) {
+                    mCircle.setText(contact.getLetters());
 
-                        response.setIsFollower(false);
-                        response.setIsFriend(false);
-                        tmp.add(response);
-                    }
+                    GradientDrawable bgShape = (GradientDrawable) mCircle.getBackground();
+                    bgShape.setColor(Color.parseColor("#33b5e5"));
 
-                    adapter.setContacts(tmp);
-                    adapter.notifyDataSetChanged();
-                    checkIfHasContacts(tmp.size());
+                    action_follow.setVisibility(View.VISIBLE);
+                    action_follow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            progressOperation.setVisibility(View.VISIBLE);
+                            action_follow.setVisibility(View.GONE);
+                            new OperationContactService(new ContactSendId(contact.getId(), Global.OPERATION_TYPE_INVITE), new CallbackMultiple<Boolean, String>() {
+                                @Override
+                                public void success(Boolean response) {
+                                    if(getActivity() != null)
+                                        progressOperation.setVisibility(View.GONE);
+
+                                    Toast.makeText(AppController.getAppContext(), "Follow successful", Toast.LENGTH_LONG).show();
+                                }
+
+                                @Override
+                                public void failed(String error) {
+                                    if(getActivity() != null)
+                                        progressOperation.setVisibility(View.GONE);
+                                    Toast.makeText(AppController.getAppContext(), " "+ error, Toast.LENGTH_LONG).show();
+                                }
+                            }).execute();
+                        }
+                    });
+
                 }
 
-                @Override
-                public void failed(String error) {
-                    //showToast(error);
+
+            }
+
+            @Override
+            public void failed(String error) {
+                if(getActivity() != null) {
+                    progress_search.setVisibility(View.GONE);
+                    text_no_contact_search.setText("No matches found for "+ searchParam);
+                    text_no_contact_search.setVisibility(View.VISIBLE);
+                    //searchContainer.setVisibility(View.GONE);
+
                 }
-            }).execute();
-        }
+            }
+        }).execute();
 
 
 
-        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+
+//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
 
     }
+
+
+
+//    private void searchContact(){
+//        String searchParam = mSearchEdt.getText().toString();
+//
+//        boolean alreadyExists = false;
+//        for (Contact c: allContactsList) {
+//            if(c.getEmail().equals(searchParam) || c.getUsername().equals(searchParam))
+//                alreadyExists = true;
+//        }
+//        if(!alreadyExists){
+//            new SearchContactService(searchParam, new CallbackMultiple<Contact, String>() {
+//                @Override
+//                public void success(Contact response) {
+//
+//                    List<Contact> tmp = new ArrayList<Contact>();
+//                    if(response != null) {
+//
+//                        response.setIsFollower(false);
+//                        response.setIsFriend(false);
+//                        tmp.add(response);
+//                    }
+//
+//                    adapter.setContacts(tmp);
+//                    adapter.notifyDataSetChanged();
+//                    checkIfHasContacts(tmp.size());
+//                }
+//
+//                @Override
+//                public void failed(String error) {
+//                    //showToast(error);
+//                }
+//            }).execute();
+//        }
+//
+//
+//
+//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+//        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+//
+//    }
 
     private void saveContactsOffline(List<Contact> contacts){
 
         Context ctx = AppController.getAppContext();
-        new ModelCache<List<Contact>>().saveModel(ctx, contacts, Global.FRIENDS);
+        new ModelCache<List<Contact>>().saveModel(ctx, contacts, getOfflineId());
 
-
-//        REVER
-//        String json = new Gson().toJson(contacts);
-//        SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-//        SharedPreferences.Editor editor = sp.edit();
-//        editor.putString("contacts", json);
-//        editor.commit();
 
     }
 
@@ -336,4 +435,14 @@ public class ContactsFragment extends DialogFragment implements SwipeRefreshLayo
         });
     }
 
+    public void setTYPE(int TYPE) {
+        this.TYPE = TYPE;
+    }
+
+    private String getOfflineId(){
+        if(TYPE == FOLLOWING)
+            return Global.FRIENDS;
+        else
+            return Global.MYFOLLOWERS;
+    }
 }
