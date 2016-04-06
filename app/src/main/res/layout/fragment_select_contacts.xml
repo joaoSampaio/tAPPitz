@@ -2,116 +2,193 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
-    >
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white">
     <!--android:background="#f5f5f5"-->
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/linearLayout6"
-        android:id="@+id/option_container"
-        android:layout_margin="10dp">
-
-    </RelativeLayout>
-
-
     <include
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         layout="@layout/layout_topbar_dialog"
-        android:layout_alignParentTop="true"
         android:id="@+id/topbar" />
 
-    <RelativeLayout
-        android:orientation="vertical"
+    <android.support.design.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/topbar"
-        android:id="@+id/layout_select">
-
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/checkBox_send_followers"
-            android:scaleX="1.5"
-            android:scaleY="1.5"
-            android:layout_marginLeft="15dp"
-            android:layout_marginBottom="10dp" />
-
-        <CheckBox
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/checkBox_select_all"
-            android:scaleX="1.5"
-            android:scaleY="1.5"
-            android:layout_marginLeft="15dp"
-            android:layout_below="@+id/checkBox_send_followers" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send to Followers"
-
-            android:id="@+id/textView1"
-            android:layout_toRightOf="@+id/checkBox_send_followers"
-            android:layout_marginLeft="35dp"
-            android:layout_alignBottom="@+id/checkBox_send_followers"
-            android:layout_alignTop="@+id/checkBox_send_followers"
-            android:gravity="center_vertical"
-            android:textSize="20dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select All"
-
-            android:id="@+id/textView2"
-            android:layout_toRightOf="@+id/checkBox_select_all"
-            android:layout_marginLeft="35dp"
-            android:layout_alignBottom="@+id/checkBox_select_all"
-            android:layout_alignTop="@+id/checkBox_select_all"
-            android:gravity="center_vertical"
-            android:textSize="20dp" />
-    </RelativeLayout>
-
-
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="/\"-->
-        <!--android:id="@+id/button"-->
-        <!--android:layout_centerHorizontal="true" />-->
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:gravity="center"
-        android:visibility="visible"
-        android:id="@+id/linearLayout6" >
-
-
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Send"
-            android:layout_weight="1"
-            android:drawableRight="@drawable/ic_send"
-            android:id="@+id/nextTo" />
-    </LinearLayout>
-
-    <include
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        layout="@layout/layout_contacts_list"
-        android:id="@+id/contact_list"
-        android:layout_below="@+id/layout_select"
+        android:layout_height="match_parent"
         android:layout_above="@+id/linearLayout6"
-        android:layout_marginTop="10dp" />
+        android:layout_below="@+id/topbar">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBarLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+
+            <RelativeLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/layout_select"
+                app:layout_scrollFlags="scroll|enterAlways">
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:id="@+id/layout_followers"
+                android:gravity="center_vertical"
+                android:paddingLeft="15dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:background="@color/white"
+                android:visibility="visible">
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/checkBox_send_followers"
+                    android:scaleX="1.5"
+                    android:scaleY="1.5" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send to Followers"
+
+                    android:id="@+id/textViewFollowers"
+                    android:layout_toRightOf="@+id/checkBox_send_followers"
+                    android:layout_marginLeft="35dp"
+                    android:layout_alignBottom="@+id/checkBox_send_followers"
+                    android:layout_alignTop="@+id/checkBox_send_followers"
+                    android:gravity="center_vertical"
+                    android:textSize="20dp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="70dp"
+                android:layout_below="@+id/layout_followers"
+                android:gravity="center_vertical"
+                android:id="@+id/layout_all"
+                android:paddingLeft="15dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:background="@color/white">
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/checkBox_select_all"
+                    android:scaleX="1.5"
+                    android:scaleY="1.5"
+                    android:layout_below="@+id/checkBox_send_followers" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="All Contacts"
+
+                    android:id="@+id/textView2"
+                    android:layout_toRightOf="@+id/checkBox_select_all"
+                    android:layout_marginLeft="35dp"
+                    android:layout_alignBottom="@+id/checkBox_select_all"
+                    android:layout_alignTop="@+id/checkBox_select_all"
+                    android:gravity="center_vertical"
+                    android:textSize="20dp" />
+            </LinearLayout>
+
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/imageView4"
+                android:layout_below="@+id/layout_followers"
+                android:background="@color/grey" />
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/imageView5"
+                android:layout_below="@+id/layout_all"
+                android:background="@color/grey" />
+
+
+        </RelativeLayout>
+
+        </android.support.design.widget.AppBarLayout>
+
+        <!--<include-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="match_parent"-->
+            <!--layout="@layout/layout_contacts_list"-->
+            <!--android:id="@+id/contact_list"-->
+            <!--android:layout_above="@+id/linearLayout6"-->
+            <!--android:layout_marginTop="10dp" />-->
+
+        <android.support.v7.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rv"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
+            />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/appBarLayout">
+
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/no_contacts"
+                android:id="@+id/text_no_contact"
+                android:gravity="center_horizontal"
+                android:visibility="visible" />
+        </RelativeLayout>
+
+
+    </android.support.design.widget.CoordinatorLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_alignParentBottom="true"
+            android:visibility="visible"
+            android:id="@+id/linearLayout6"
+            android:background="@color/grey">
+
+
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send"
+                android:background="@null"
+                android:id="@+id/action_send"
+                android:textStyle="bold"
+                android:layout_toLeftOf="@+id/action_send2"
+                android:textColor="@color/greyText"
+                android:capitalize="sentences" />
+
+            <ImageView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:id="@+id/action_send2"
+                android:src="@drawable/ic_send"
+                android:layout_alignParentRight="true"
+                android:padding="5dp"
+                android:layout_marginRight="20dp"
+                android:tint="@color/greyText" />
+        </RelativeLayout>
+
+
+
+
+
+
+
+
 
 
 </RelativeLayout>

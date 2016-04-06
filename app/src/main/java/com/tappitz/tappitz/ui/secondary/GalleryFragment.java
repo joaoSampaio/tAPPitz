@@ -1,47 +1,30 @@
 package com.tappitz.tappitz.ui.secondary;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
-import com.tappitz.tappitz.adapter.ContactManagerAdapter;
 import com.tappitz.tappitz.adapter.GalleryAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Contact;
-import com.tappitz.tappitz.model.FutureWorkList;
 import com.tappitz.tappitz.model.ImageModel;
-import com.tappitz.tappitz.rest.service.CallbackMultiple;
-import com.tappitz.tappitz.rest.service.ListFriendsService;
-import com.tappitz.tappitz.rest.service.SearchContactService;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
-import com.tappitz.tappitz.util.ContactFilter;
 import com.tappitz.tappitz.util.ModelCache;
-import com.tappitz.tappitz.util.RecyclerItemClickListener;
+import com.tappitz.tappitz.util.RecyclerClickListener;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 
@@ -134,8 +117,8 @@ public class GalleryFragment extends DialogFragment {
         mAdapter = new GalleryAdapter(getActivity(), data);
         mRecyclerView.setAdapter(mAdapter);
 
-        mRecyclerView.addOnItemTouchListener(new RecyclerItemClickListener(getActivity(),
-                new RecyclerItemClickListener.OnItemClickListener() {
+        mRecyclerView.addOnItemTouchListener(new RecyclerClickListener(getActivity(),
+                new RecyclerClickListener.OnItemClickListener() {
 
                     @Override
                     public void onItemClick(View view, int position) {

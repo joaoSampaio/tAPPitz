@@ -12,8 +12,11 @@ import com.tappitz.tappitz.R;
 public class SimpleDividerItemDecoration extends RecyclerView.ItemDecoration {
     private Drawable mDivider;
 
-    public SimpleDividerItemDecoration(Context context) {
-        mDivider = context.getResources().getDrawable(R.drawable.line_divider);
+    public SimpleDividerItemDecoration(Context context, boolean isGrey) {
+        if(isGrey)
+            mDivider = context.getResources().getDrawable(R.drawable.line_divider_grey);
+        else
+            mDivider = context.getResources().getDrawable(R.drawable.line_divider);
     }
 
     @Override

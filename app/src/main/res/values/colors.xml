@@ -62,9 +62,11 @@
     <color name="mdtp_accent_color">#009688</color>
     <color name="mdtp_accent_color_dark">#00796b</color>
 
-    <color name="grey">#efefef</color>
+    <color name="grey">#EFEFEF</color>
     <color name="tabInactive">#B4B4B4</color>
     <color name="tabActive">#3F3F3F</color>
+    <color name="greyText">#666666</color>
+
 
 
 

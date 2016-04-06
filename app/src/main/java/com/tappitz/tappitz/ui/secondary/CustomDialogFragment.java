@@ -69,19 +69,6 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
         this.title = title;
     }
 
-//    /**
-//     * Use this factory method to create a new instance of
-//     * this fragment using the provided parameters.
-//     *
-//
-//     * @return A new instance of fragment ContactsFragment.
-//     */
-//    // TODO: Rename and change types and number of parameters
-//    public static CustomDialogFragment newInstance() {
-//        CustomDialogFragment fragment = new CustomDialogFragment();
-//        return fragment;
-//    }
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,22 +110,12 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
         rv.setLayoutManager(llm);
         rv.setHasFixedSize(true); // to improve performance
-        rv.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        rv.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), true));
 
 
         rv.setAdapter(getAdapter().getCustomAdapter()); // the data manager is assigner to the RV
-//        rv.addOnItemTouchListener( // and the click is handled
-//                new RecyclerClickListener(getActivity(), new RecyclerClickListener.OnItemClickListener() {
-//                    @Override
-//                    public void onItemClick(View view, int position) {
-//                        // STUB:
-//                        // The click on the item must be handled
-//                        Toast.makeText(getActivity(), "Clicked in " + position, Toast.LENGTH_SHORT).show();
-//                    }
-//                }));
 
         mSearchEdt = (EditText)rootView.findViewById(R.id.mSearchEdt);
-
 
         mSearchTw=new TextWatcher() {
 
@@ -179,8 +156,8 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
         text_no_contact = (TextView)rootView.findViewById(R.id.text_no_contact);
 
 
-        swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
-        swipeLayout.setOnRefreshListener(this);
+//        swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
+//        swipeLayout.setOnRefreshListener(this);
 
         refresh();
     }
@@ -213,13 +190,6 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
         return allContactsList;
 
     }
-
-//
-//    @Override
-//    public void onAttach() {
-//        super.onAttach();
-//    }
-
 
     @Override
     public void onAttach(Activity activity) {
@@ -258,6 +228,14 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
                     allContactsList.clear();
                     allContactsList.addAll(response);
                     saveContactsOffline(allContactsList, getAdapter().getContactType());
+
+                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
+                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 23, true));
+                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 24, true));
+                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
+                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 25, true));
+                    allContactsList.add(new Contact("Rui2", "Ruiii", "rui@g.v", 28, true));
+
                     notifyAdapter();
                 }
             }
@@ -279,16 +257,18 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
 
     }
 
-    private void notifyAdapter(){
+    private void notifyAdapter() {
         Log.d("custom", "notifyAdapter");
         getAdapter().notifyDataSetChanged();
         //adapter.notifyDataSetChanged();
         checkIfHasContacts(allContactsList.size());
-        swipeLayout.setRefreshing(false);
+//        swipeLayout.setRefreshing(false);
     }
 
     public void checkIfHasContacts(int size){
         text_no_contact.setVisibility(size > 0 ? View.GONE : View.VISIBLE);
+        if(size == 0 && rootView.findViewById(R.id.layout_all) != null)
+            rootView.findViewById(R.id.layout_all).setVisibility(View.GONE);
     }
 
     public abstract void searchContact();

@@ -191,7 +191,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         final LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
         commentList.setLayoutManager(layoutManager);
-        commentList.addItemDecoration(new SimpleDividerItemDecoration(getActivity()));
+        commentList.addItemDecoration(new SimpleDividerItemDecoration(getActivity(), false));
         commentList.setAdapter(adapter);
 
         return rootView;

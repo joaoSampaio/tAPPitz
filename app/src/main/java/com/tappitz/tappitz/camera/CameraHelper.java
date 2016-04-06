@@ -64,7 +64,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import me.dm7.barcodescanner.zbar.BarcodeFormat;
+//import me.dm7.barcodescanner.zbar.BarcodeFormat;
 
 /**
  * Created by joaosampaio on 21-02-2016.
@@ -614,7 +614,11 @@ public class CameraHelper implements View.OnClickListener {
                 newFragment.dismiss();
             }
         });
-        newFragment.show(ft, "dialog");
+
+        ft.add(newFragment, "dialog");
+        ft.commitAllowingStateLoss();
+
+        //newFragment.show(ft, "dialog");
 
     }
 
@@ -663,7 +667,8 @@ public class CameraHelper implements View.OnClickListener {
             scanner.setConfig(0, Config.Y_DENSITY, 3);
 
             scanner.setConfig(Symbol.NONE, Config.ENABLE, 0);
-            scanner.setConfig(BarcodeFormat.QRCODE.getId(), Config.ENABLE, 1);
+//            scanner.setConfig(BarcodeFormat.QRCODE.getId(), Config.ENABLE, 1);
+            scanner.setConfig(Symbol.QRCODE, Config.ENABLE, 1);
 
             barcodeScanned = false;
             if (getActivity() != null)
