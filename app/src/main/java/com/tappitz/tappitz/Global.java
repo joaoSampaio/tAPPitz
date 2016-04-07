@@ -84,6 +84,9 @@ public class Global {
     public static final String OFFLINE_INBOX = "OFFLINE_INBOX";
     public static final String OFFLINE_VOTE = "OFFLINE_VOTE";
     public static final String OFFLINE_WORK = "OFFLINE_WORK";
+    public static final String OFFLINE_UNSEEN = "OFFLINE_UNSEEN";
+    public static final String OFFLINE_VERSION = "OFFLINE_VERSION";
+
 
     public final static String FRIENDS = "FRIENDS";
     public final static String MYFOLLOWERS = "MYFOLLOWERS";

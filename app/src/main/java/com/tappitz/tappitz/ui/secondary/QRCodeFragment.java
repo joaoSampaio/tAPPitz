@@ -23,11 +23,13 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.SearchContactService;
+import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 
 
 public class QRCodeFragment extends Fragment {
@@ -78,6 +80,18 @@ public static QRCodeFragment newInstance() {
                 .override(AppController.getInstance().width, AppController.getInstance().height)
                 .into((ImageView) rootView.findViewById(R.id.picture));
         //refresh();
+
+        rootView.findViewById(R.id.btn_go_inbox).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("ContactContainer", "onclick");
+                if(((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage() != null){
+                    ((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage().showPage(Global.MIDDLE_BLANK);
+                }
+            }
+        });
+
+
         return rootView;
     }
 

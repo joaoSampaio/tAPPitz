@@ -5,10 +5,8 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,19 +15,11 @@ import android.os.StrictMode;
 import android.support.annotation.Nullable;
 import android.text.format.Time;
 import android.util.Log;
-import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.Priority;
-import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.model.GlideUrl;
-import com.bumptech.glide.load.model.LazyHeaderFactory;
 import com.bumptech.glide.load.model.LazyHeaders;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.FutureTarget;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -44,16 +34,12 @@ import com.tappitz.tappitz.model.SentPicture;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.RestClientV2;
 import com.tappitz.tappitz.rest.model.CreatePhoto;
-import com.tappitz.tappitz.rest.model.PhotoInbox;
-import com.tappitz.tappitz.rest.model.PhotoOutbox;
-import com.tappitz.tappitz.rest.model.UserLogin;
 import com.tappitz.tappitz.rest.model.VoteInbox;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.ModelCache;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -227,7 +213,7 @@ public class BackgroundService extends Service {
                         } // This is your code
                     };
                     mainHandler.post(myRunnable);
-                    //activity.getUpdateAfterPicture().updateFinalOutbox(old);
+                    //activity.getReloadOutbox().updateFinalOutbox(old);
 
                 }
             }
@@ -292,18 +278,18 @@ public class BackgroundService extends Service {
                 String now = new SimpleDateFormat("yyyy-MM-dd HH:mm").format(new Date());
                 old.setCreatedDate(now);
                 new ModelCache<List<SentPicture>>().saveModel(ctx, tmp, Global.OFFLINE_OUTBOX);
-                if(activity != null && activity.getUpdateAfterPicture() != null){
+                if(activity != null && activity.getReloadOutbox() != null){
                     // Get a handler that can be used to post to the main thread
                     Handler mainHandler = new Handler(ctx.getMainLooper());
 
                     Runnable myRunnable = new Runnable() {
                         @Override
                         public void run() {
-                            activity.getUpdateAfterPicture().refreshOfflineOutbox();
+                            activity.getReloadOutbox().refreshOfflineOutbox();
                         } // This is your code
                     };
                     mainHandler.post(myRunnable);
-                        //activity.getUpdateAfterPicture().updateFinalOutbox(old);
+                        //activity.getReloadOutbox().updateFinalOutbox(old);
 
                 }
             }
@@ -543,17 +529,17 @@ public class BackgroundService extends Service {
             Log.d("servico", "changedList.size() != fullList.size()");
             new ModelCache<List<SentPicture>>().saveModel(ctx, changedList, Global.OFFLINE_OUTBOX);
             //refresh do adapter falta!
-            if(activity != null && activity.getUpdateAfterPicture() != null){
+            if(activity != null && activity.getReloadOutbox() != null){
                 // Get a handler that can be used to post to the main thread
                 Handler mainHandler = new Handler(ctx.getMainLooper());
                 Runnable myRunnable = new Runnable() {
                     @Override
                     public void run() {
-                        activity.getUpdateAfterPicture().refreshOfflineOutbox();
+                        activity.getReloadOutbox().refreshOfflineOutbox();
                     } // This is your code
                 };
                 mainHandler.post(myRunnable);
-                //activity.getUpdateAfterPicture().updateFinalOutbox(old);
+                //activity.getReloadOutbox().updateFinalOutbox(old);
             }
         }
     }

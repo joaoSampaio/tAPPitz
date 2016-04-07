@@ -2,13 +2,11 @@ package com.tappitz.tappitz.ui.secondary;
 
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,8 +18,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactPagerAdapter;
+import com.tappitz.tappitz.app.AppController;
+import com.tappitz.tappitz.model.Contact;
+import com.tappitz.tappitz.rest.service.CallbackMultiple;
+import com.tappitz.tappitz.rest.service.ListFriendsService;
+import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
+import com.tappitz.tappitz.util.ModelCache;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,6 +41,8 @@ public class ContactContainerFragment extends Fragment {
     ViewPager viewPager;
     ContactPagerAdapter adapter;
     private List<SearchText> searchListener;
+    private List<Contact> friends;
+    private List<NotifyReturnedFriends> listenner;
     public ContactContainerFragment() {
         // Required empty public constructor
     }
@@ -46,6 +53,21 @@ public class ContactContainerFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_contact_container, container, false);
         searchListener = new ArrayList<>();
+        listenner = new ArrayList<>();
+        friends = new ArrayList<>();
+        loadContacts();
+
+        rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("ContactContainer", "onclick");
+                if(((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage() != null){
+                    ((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage().showPage(Global.MIDDLE_BLANK);
+                }
+            }
+        });
+
+
 //        for (int id: CLICKABLES) {
 //            rootView.findViewById(id).setOnClickListener(this);
 //        }
@@ -145,4 +167,42 @@ public class ContactContainerFragment extends Fragment {
         searchListener.add(listener);
     }
 
+    private void loadContacts(){
+
+
+        CallbackMultiple callback = new CallbackMultiple<List<Contact>, String>() {
+            @Override
+            public void success(List<Contact> response) {
+
+
+                new ModelCache<List<Contact>>().saveModel(AppController.getAppContext(), response, Global.FRIENDS);
+                friends.addAll(response);
+                for(NotifyReturnedFriends notify : listenner){
+                    notify.onFriendsReceived(friends);
+                }
+            }
+
+            @Override
+            public void failed(String error) {
+            }
+        };
+
+        new ListFriendsService(callback).execute();
+    }
+
+
+    public interface NotifyReturnedFriends {
+        void onFriendsReceived(List<Contact> contacts);
+    }
+
+    public void addListenner(NotifyReturnedFriends listenner) {
+        this.listenner.add(listenner);
+    }
+    public void removeListenner(NotifyReturnedFriends listenner) {
+        this.listenner.remove(listenner);
+    }
+
+    public List<Contact> getFriends() {
+        return friends;
+    }
 }

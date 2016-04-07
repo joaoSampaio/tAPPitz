@@ -152,17 +152,37 @@
         </LinearLayout>
 
 
-
-        <ImageView
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/action_goto_sent"
-            android:src="@drawable/seta"
-            android:rotation="180"
-            android:layout_marginTop="70dp"
             android:layout_alignParentRight="true"
+            android:layout_marginTop="70dp"
+            android:layout_marginRight="10dp">
 
-            android:layout_marginRight="10dp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/action_goto_sent"
+                android:src="@drawable/seta"
+                android:rotation="180"
+                 />
+
+            <TextView
+                android:id="@+id/outbox_circle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_notification"
+                android:text="10"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:gravity="center_vertical|center_horizontal"
+                android:visibility="visible"
+                android:layout_below="@+id/action_goto_sent"
+                android:layout_marginTop="-15dp" />
+            </RelativeLayout>
+
 
 
         <ImageView
@@ -202,18 +222,18 @@
 
             <TextView
                 android:id="@+id/inbox_circle"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/circle"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/circle_notification"
                 android:text="10"
                 android:textColor="@color/white"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_alignParentLeft="false"
                 android:gravity="center_vertical|center_horizontal"
-                android:layout_toRightOf="@+id/btn_go_inbox"
-                android:layout_centerVertical="true"
-                android:visibility="gone" />
+                android:visibility="visible"
+                android:layout_below="@+id/action_goto_received"
+                android:layout_marginTop="-15dp" />
 
         </RelativeLayout>
 

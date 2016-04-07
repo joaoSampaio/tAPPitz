@@ -183,8 +183,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                         Log.d("myapp", "inbox ACTION_HOVER_EXIT");
                         break;
                     case MotionEvent.ACTION_CANCEL:
-                        Log.d("myapp", "inbox ACTION_CANCEL");
-                        //showButtonsAndBackground(true);
                         break;
                     case MotionEvent.ACTION_HOVER_MOVE:
                         Log.d("myapp", "inbox ACTION_HOVER_MOVE");
@@ -227,7 +225,6 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             @Override
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
-                    Log.d("myapp", "inbox ViewPager.SCROLL_STATE_IDLE");
                     //voltamos a mostrar as opções
                     showButtonsAndBackground(true);
                 }
@@ -244,14 +241,11 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
     }
 
     public void showButtonsAndBackground(boolean show){
-        Log.d("myapp", "showButtonsAndBackground show: " + show);
         if(layout_container != null) {
-            Log.d("myapp", "showButtonsAndBackground show: " + show + "hasVoted:"+ hasVoted);
             layout_container.setVisibility(show ? View.VISIBLE : View.INVISIBLE);
             layout_already_voted_original.setVisibility((!show && hasVoted) ? View.VISIBLE : View.INVISIBLE);
         }
-        else
-            Log.d("myapp", "layout_container null");
+
     }
 
     private int getColor(int order){
@@ -396,10 +390,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         List<ReceivedPhoto> tmp = new ModelCache<List<ReceivedPhoto>>().loadModel(getActivity(),new TypeToken<List<ReceivedPhoto>>(){}.getType(), Global.OFFLINE_INBOX);
         if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof ReceivedPhoto) {
-            Log.d("inbox", "instanceof ReceivedPhoto");
             ReceivedPhoto photo = ReceivedPhoto.getPhotoWithId(tmp, id);
             if(photo != null) {
-                Log.d("inbox", "photo != null");
                 photo.setVote(vote);
                 photo.setComment(comment);
                 photo.setHasVoted(true);

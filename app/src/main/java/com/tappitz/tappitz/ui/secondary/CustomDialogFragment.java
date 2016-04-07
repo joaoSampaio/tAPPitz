@@ -213,11 +213,7 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
     }
 
     private void loadContacts(){
-//        allContactsList.clear();
-//        allContactsList.addAll(loadContactsOffline(getAdapter().getContactType()));
-//        allContactsList = loadContactsOffline();
         notifyAdapter();
-
         CallbackMultiple<List<Contact>, String> callback = new CallbackMultiple<List<Contact>, String>() {
             @Override
             public void success(List<Contact> response) {
@@ -229,12 +225,12 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
                     allContactsList.addAll(response);
                     saveContactsOffline(allContactsList, getAdapter().getContactType());
 
-                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
-                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 23, true));
-                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 24, true));
-                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
-                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 25, true));
-                    allContactsList.add(new Contact("Rui2", "Ruiii", "rui@g.v", 28, true));
+//                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
+//                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 23, true));
+//                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 24, true));
+//                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
+//                    allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 25, true));
+//                    allContactsList.add(new Contact("Rui2", "Ruiii", "rui@g.v", 28, true));
 
                     notifyAdapter();
                 }
@@ -260,7 +256,6 @@ public abstract class CustomDialogFragment extends DialogFragment implements Swi
     private void notifyAdapter() {
         Log.d("custom", "notifyAdapter");
         getAdapter().notifyDataSetChanged();
-        //adapter.notifyDataSetChanged();
         checkIfHasContacts(allContactsList.size());
 //        swipeLayout.setRefreshing(false);
     }

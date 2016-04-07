@@ -526,10 +526,9 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
 
 
     private boolean validators() {
-        EmailValidator emailValidator = new EmailValidator();
         PasswordValidator passwordValidator = new PasswordValidator();
 
-        boolean emailValidated = emailValidator.validate(editEmail.getText().toString());
+        boolean emailValidated = !editEmail.getText().toString().trim().isEmpty();
         boolean passwordValidated = passwordValidator.validate(editPassword.getText().toString());
 
         if(!emailValidated) {

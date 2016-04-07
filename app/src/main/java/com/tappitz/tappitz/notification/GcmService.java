@@ -28,6 +28,7 @@ import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.model.FutureWorkList;
 import com.tappitz.tappitz.model.ReceivedPhoto;
+import com.tappitz.tappitz.model.UnseenNotifications;
 import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.GetColor;
@@ -77,6 +78,7 @@ public class GcmService extends GcmListenerService {
         String action = "";
 
         action = data.getString("action", "");
+        UnseenNotifications unseenNotifications = UnseenNotifications.load();
         if(action != null) {
             switch (action) {
                 case Global.NEW_PICTURE_RECEIVED:
@@ -88,6 +90,7 @@ public class GcmService extends GcmListenerService {
                     break;
             }
         }
+        saveUnseenNotification(data);
         updateMyActivity(data);
         sendNotification( data);
 
@@ -138,10 +141,11 @@ public class GcmService extends GcmListenerService {
             extras.putString("action", "home");
 
         }
-
+        Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_logo_notification_big);
         NotificationManager notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_stat_logo_tappitz)
+                .setSmallIcon(R.drawable.ic_logo_notification_big)
+                .setLargeIcon(bm)
                 .setContentTitle(title)
                 .setContentText(message)
                 .setAutoCancel(true)
@@ -401,6 +405,30 @@ public class GcmService extends GcmListenerService {
 
     }
 
+
+    private void saveUnseenNotification(Bundle extras){
+        String action = "",pictureId;
+        int pictureIdInt;
+        action = extras.getString("action", "");
+        UnseenNotifications unseenNotifications = UnseenNotifications.load();
+        if(action != null) {
+            switch (action) {
+                case Global.NEW_PICTURE_RECEIVED:
+                    pictureId = extras.getString("pictureId", "-1");
+                    pictureIdInt = Integer.parseInt(pictureId);
+                    unseenNotifications.addReceivedPhoto(pictureIdInt);
+                    break;
+                case Global.NEW_PICTURE_VOTE:
+                    pictureId = extras.getString("pictureId", "-1");
+                    String vote = extras.getString("vote", "-1");
+                    pictureIdInt = Integer.parseInt(pictureId);
+                    int voteInt = Integer.parseInt(vote);
+                    unseenNotifications.addCommentPhoto(pictureIdInt, voteInt);
+                    break;
+            }
+        }
+        unseenNotifications.save();
+    }
 
 
 

@@ -1,5 +1,6 @@
 package com.tappitz.tappitz.ui;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
@@ -9,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
@@ -17,7 +19,9 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.StrictMode;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -28,28 +32,33 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 //import com.bumptech.glide.integration.okhttp.OkHttpUrlLoader;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.GlideUrl;
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ScreenSlidePagerAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.background.BackgroundService;
 import com.tappitz.tappitz.camera.CameraHelper;
-import com.tappitz.tappitz.model.Comment;
+import com.tappitz.tappitz.model.FutureWorkList;
+import com.tappitz.tappitz.model.ReceivedPhoto;
+import com.tappitz.tappitz.model.SentPicture;
+import com.tappitz.tappitz.model.UnseenNotifications;
 import com.tappitz.tappitz.notification.RegistrationIntentService;
 import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.RestClientV2;
-import com.tappitz.tappitz.rest.model.PhotoInbox;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CheckLoggedStateService;
-import com.tappitz.tappitz.rest.service.LoginService;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.MainViewPager;
+import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.NotificationCount;
+import com.tappitz.tappitz.util.RefreshUnseenNotifications;
 
 
 import java.io.IOException;
@@ -68,7 +77,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private String sessionId;
     private HomeToBlankListener listenerCamera;
     private CameraBackPressed cameraBackPressed;
-    private OutBoxFragment.UpdateAfterPicture updateAfterPicture;
+    private OutBoxFragment.ReloadOutbox reloadOutbox;
     private MiddleContainerFragment.MiddleShowPage middleShowPage;
     private InBoxFragment.ReloadInbox reloadInboxListener;
     private BlankFragment.ButtonEnable buttonEnable;
@@ -99,6 +108,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     private View.OnClickListener goTolistener;
 
+    private TextView outbox_circle, inbox_circle;
+
+    private List<RefreshUnseenNotifications> listenerUnseenNotifications = new ArrayList<>();
+
     /**
      * The number of pages (wizard steps) to show.
      */
@@ -121,14 +134,17 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         setContentView(R.layout.activity_screen_slide);
         findViewById(R.id.splashScreen).bringToFront();
         findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
-        Log.d("myapp_new", "****onCreate ");
-
+        outbox_circle = (TextView)findViewById(R.id.outbox_circle);
+        inbox_circle = (TextView)findViewById(R.id.inbox_circle);
+        outbox_circle.setVisibility(View.GONE);
+        inbox_circle.setVisibility(View.GONE);
+        requestPermissions();
+        initOfflineValues();
 
         goTolistener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                Log.d("myapp_new", "****goTolistener ");
                 switch (v.getId()){
                     case R.id.action_goto_sent:
                         showPage(Global.OUTBOX);
@@ -146,6 +162,20 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                         if(getMiddleShowPage() != null){
                             getMiddleShowPage().showPage(Global.MIDDLE_CONTACTS);
                         }
+                        break;
+                    case R.id.inbox_circle:
+                        if(getReloadInboxListener() != null){
+                            UnseenNotifications unseenNotifications = UnseenNotifications.load();
+                            if(!unseenNotifications.getReceivedPhotos().isEmpty()) {
+                                int pictureId = unseenNotifications.getReceivedPhotos().entrySet().iterator().next().getValue();
+                                getReloadInboxListener().openPageId(pictureId);
+                                showPage(Global.INBOX);
+                            }
+                        }
+                        break;
+                    case R.id.outbox_circle:
+
+                        showPage(Global.OUTBOX_OP);
                         break;
                 }
             }
@@ -210,6 +240,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }else {
             checkIsSignedIn();
         }
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(Global.NOTIFICATION_ID);
+        NotificationCount.resetCount(getApplicationContext());
     }
 
 
@@ -219,6 +252,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         Log.d("myapp_new", "****onResume onResume onResume: ");
         findViewById(R.id.splashScreen).bringToFront();
         findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
+
+        if(!allPermissionsGiven()){
+            return;
+        }
+
         SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String email = sp.getString(Global.KEY_USER, "");
         AppController.getInstance().email = email;
@@ -238,7 +276,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         cameraReady = false;
         afterLoginAction = -1;
 
-
+        String sessionid = sp.getString("sessionId", "");
+        if (Global.VERSION_V2) {
+            RestClientV2.setSessionId(sessionid);
+        } else {
+            RestClient.setSessionId(sessionid);
+        }
         //closeSplashScreen();
         runLogin = new Runnable() {
             @Override
@@ -253,7 +296,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         if(mHelper == null)
             mHelper = new CameraHelper(this);
         mHelper.setUP();
-
+        refreshUnseenNotification();
 //        checkIsSignedIn();
     }
 
@@ -287,8 +330,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                     case Global.NEW_PICTURE_VOTE:
                         Log.d("myapp", "****NEW_PICTURE_VOTE: antes ");
 
-                        if(getUpdateAfterPicture() != null) {
-                            getUpdateAfterPicture().refreshOfflineOutbox();
+                        if(getReloadOutbox() != null) {
+                            getReloadOutbox().refreshOfflineOutbox();
                             Log.d("myapp", "****NEW_PICTURE_VOTE: depois ");
                             //showPage(Global.OUTBOX);
                         }
@@ -296,7 +339,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                     default:
 //                        showPage(Global.HOME);
                 }
-
+                refreshUnseenNotification();
 
 
             }
@@ -308,6 +351,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     protected void onPause() {
         super.onPause();
         Log.d("checkIsSignedIn", "**onPause**** ");
+        if(!allPermissionsGiven()){
+            return;
+        }
         handler.removeCallbacks(runLogin);
         if(mHelper != null) {
             mHelper.showBtnOptions(false);
@@ -374,32 +420,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private void onSuccessSignIn(){
         Log.d("myapp", "**onSuccessSignIn()");
         //esconde splash screen e envia o id para notificações
-        String action = "",pictureId;
+        String action = "";
         if(extras != null)
             action = extras.getString("action","");
 
-        switch (action){
-            case Global.NEW_PICTURE_RECEIVED:
-//                pictureId = extras.getString("pictureId", "-1");
-//                String pictureSentence = extras.getString("pictureSentence", "");
-//                String authorName = extras.getString("authorName", "");
-//                inbox_vote_id = Integer.parseInt(pictureId);
-//                newPhoto = new PhotoInbox(inbox_vote_id, pictureSentence, authorName);
 
-                break;
-            case Global.NEW_PICTURE_VOTE:
-
-//                pictureId = extras.getString("pictureId", "-1");
-//                String voteAuthorName = extras.getString("authorName", "");
-//                String comment = extras.getString("comment", "");
-//                String vote = extras.getString("vote", "-1");
-//                String votedDate = extras.getString("date", "");
-//                outbox_id = Integer.parseInt(pictureId);
-//                int voteInt = Integer.parseInt(vote);
-//
-//                commentVote = new Comment(voteInt, voteAuthorName, votedDate);
-                break;
-        }
 
         signIn = true;
         AppController.getInstance().setSessionId(sessionId);
@@ -437,20 +462,22 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             @Override
             public void onPageSelected(int position) {
                 Log.d("myapp2", "**--seletcted Screen:" + position);
-
+                if(position == Global.INBOX && getReloadInboxListener() != null){
+                    getReloadInboxListener().InBoxSelected();
+                }
+                if(position == Global.OUTBOX && getReloadOutbox() != null){
+                    getReloadOutbox().outBoxSelected();
+                }
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
                 if (stateChange != null) {
                     for (ListenerPagerStateChange s : stateChange) {
                         s.onPageScrollStateChanged(state);
                     }
-                } else
-                    Log.d("myapp2", "**--stateChange is null:");
+                }
             }
-
         });
         switch (action){
             case Global.NEW_PICTURE_RECEIVED:
@@ -653,12 +680,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     }
 
 
-    public OutBoxFragment.UpdateAfterPicture getUpdateAfterPicture() {
-        return updateAfterPicture;
+    public OutBoxFragment.ReloadOutbox getReloadOutbox() {
+        return reloadOutbox;
     }
 
-    public void setUpdateAfterPicture(OutBoxFragment.UpdateAfterPicture updateAfterPicture) {
-        this.updateAfterPicture = updateAfterPicture;
+    public void setReloadOutbox(OutBoxFragment.ReloadOutbox reloadOutbox) {
+        this.reloadOutbox = reloadOutbox;
     }
 
     public InBoxFragment.ReloadInbox getReloadInboxListener() {
@@ -905,11 +932,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     public void fadeCameraBts(float alpha){
 //        Log.d("myapp2", "**--main activity alpha:"+(alpha-1));
-        camera_buttons.setAlpha(alpha-1);
+        camera_buttons.setAlpha(alpha - 1);
     }
 
     public void enableQRCodeCapture(boolean enable){
-        Log.d("myapp2", "**--qr code enabled:"+enable);
+        Log.d("myapp2", "**--qr code enabled:" + enable);
 
         if(mHelper != null){
             mHelper.enableQRCodeScan(enable);
@@ -940,6 +967,107 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     }
 
 
+    public void refreshUnseenNotification(){
+
+        UnseenNotifications unseenNotifications = UnseenNotifications.load();
+        int commentsUnseen = unseenNotifications.getReceivedComment().size();
+        int receivedUnseen = unseenNotifications.getReceivedPhotos().size();
+        outbox_circle.setText(""+commentsUnseen);
+        inbox_circle.setText(""+receivedUnseen);
+
+        outbox_circle.setVisibility(commentsUnseen > 0 ? View.VISIBLE : View.GONE);
+        inbox_circle.setVisibility(receivedUnseen>0? View.VISIBLE : View.GONE);
+
+        for(RefreshUnseenNotifications refresh : this.listenerUnseenNotifications){
+            refresh.onRefreshUnseenNotifications(unseenNotifications);
+        }
+    }
+
+    private final static int MY_PERMISSIONS_REQUEST_CAMERA = 120;
+    private final static int MY_PERMISSIONS_REQUEST_GET_ACCOUNTS = 121;
+    private final static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 122;
+    private final static int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 123;
+    private void requestPermissions(){
+
+
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS}, MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+        }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+        }
+    }
+
+    public boolean allPermissionsGiven(){
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+
+    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+
+
+        if(allPermissionsGiven()){
+            onResume();
+        }
+
+//        switch (requestCode) {
+//            case MY_PERMISSIONS_REQUEST_CAMERA: {
+//                // If request is cancelled, the result arrays are empty.
+//                if (grantResults.length > 0
+//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//
+//                    // permission was granted, yay! Do the
+//                    // contacts-related task you need to do.
+//
+//                } else {
+//
+//                    // permission denied, boo! Disable the
+//                    // functionality that depends on this permission.
+//                }
+//                return;
+//            }
+//
+//            // other 'case' lines to check for other
+//            // permissions this app might request
+//        }
+    }
+
+
+    private void initOfflineValues(){
+
+        String unseenNotifications = new ModelCache<String>().loadModel(AppController.getAppContext(), new TypeToken<String>() {
+        }.getType(), Global.OFFLINE_VERSION);
+        if(unseenNotifications == null){
+
+
+            new ModelCache<List<ReceivedPhoto>>().saveModel(AppController.getAppContext(), new ArrayList<ReceivedPhoto>(), Global.OFFLINE_INBOX);
+            new ModelCache<FutureWorkList>().saveModel(AppController.getAppContext(), new FutureWorkList(), Global.OFFLINE_WORK);
+            new ModelCache<List<SentPicture>>().saveModel(AppController.getAppContext(), new ArrayList<SentPicture>(), Global.OFFLINE_OUTBOX);
+            new ModelCache<UnseenNotifications>().saveModel(AppController.getAppContext(), new UnseenNotifications(), Global.OFFLINE_UNSEEN);
+
+            new ModelCache<String>().saveModel(AppController.getAppContext(), "existe", Global.OFFLINE_VERSION);
+        }
+    }
+
+    public void addInterestUnseenNotification(RefreshUnseenNotifications refreshUnseenNotifications){
+        this.listenerUnseenNotifications.add(refreshUnseenNotifications);
+    }
+    public void removeInterestUnseenNotification(RefreshUnseenNotifications refreshUnseenNotifications){
+        this.listenerUnseenNotifications.remove(refreshUnseenNotifications);
+    }
 
 
 }

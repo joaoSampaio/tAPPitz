@@ -51,6 +51,7 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
         this.listChange = new ContactFilter.OnListChange() {
             @Override
             public void onPublishResults(List<Contact> filteredContacts) {
+                Log.d("myapp", "listChange:" + filteredContacts.size());
                 setContacts(filteredContacts);
                 notifyDataSetChanged();
             }
@@ -62,7 +63,7 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
         TextView mName, mUsername;
         TextView mCircle;
         Button follow, remove;
-        View progressOperation;
+        View progressOperation, image_is_friend;
         int id;
 
 
@@ -74,6 +75,7 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
             follow = (Button) itemView.findViewById(R.id.action_follow);
             remove = (Button) itemView.findViewById(R.id.action_remove);
             progressOperation = itemView.findViewById(R.id.progressOperation);
+            image_is_friend = itemView.findViewById(R.id.image_is_friend);
         }
     }
 
@@ -105,8 +107,10 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
             }
         });
 
+        viewHolder.image_is_friend.setVisibility((contact.isFriend())? View.VISIBLE : View.GONE);
 
         if(contact.isFriend()){
+
             viewHolder.remove.setVisibility(View.VISIBLE);
             viewHolder.remove.setText("Remove");
             viewHolder.remove.setOnClickListener(new View.OnClickListener() {

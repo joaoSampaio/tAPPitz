@@ -267,7 +267,7 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
         }
     }
 
-    interface MiddleShowPage{
+    public interface MiddleShowPage{
         void showPage(int page);
     }
 

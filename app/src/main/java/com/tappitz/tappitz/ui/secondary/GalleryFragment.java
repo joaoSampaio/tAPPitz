@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +18,8 @@ import com.tappitz.tappitz.adapter.GalleryAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Contact;
 import com.tappitz.tappitz.model.ImageModel;
+import com.tappitz.tappitz.model.SentPicture;
+import com.tappitz.tappitz.model.UnseenNotifications;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.RecyclerClickListener;
@@ -77,12 +78,21 @@ public class GalleryFragment extends DialogFragment {
         Bundle mArgs = getArguments();
         String dataList = mArgs.getString(GALLERY_ITEMS, "");
         type = mArgs.getInt(GALLERY_TYPE, 0);
-
+        data = null;
         TextView textViewDescription = (TextView)rootView.findViewById(R.id.textViewDescription);
         if(type == ImageModel.TYPE_INBOX){
             textViewDescription.setText("Sent");
-        }else {
+        }else if(type == ImageModel.TYPE_OUTBOX) {
             textViewDescription.setText("Received");
+        } else if(type == ImageModel.TYPE_OUTBOX_NOTIFICATION){
+            textViewDescription.setText("Photos with new Comments");
+
+            UnseenNotifications unseenNotifications = UnseenNotifications.load();
+            List<SentPicture> tmp = new ModelCache<List<SentPicture>>().loadModel(getActivity(),new TypeToken<List<SentPicture>>(){}.getType(), Global.OFFLINE_OUTBOX);
+            if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof SentPicture) {
+                data = SentPicture.generateUnseenImageGallery(tmp, unseenNotifications.getReceivedComment());
+            }
+
         }
 
         textViewDescription.setOnClickListener(new View.OnClickListener() {
@@ -97,8 +107,8 @@ public class GalleryFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
-        data = null;
-        if(!dataList.equals("")){
+
+        if(data == null && !dataList.equals("")){
 
             Gson gson = new Gson();
             Type typeClass = new TypeToken<List<ImageModel>>(){}.getType();
@@ -123,25 +133,17 @@ public class GalleryFragment extends DialogFragment {
                     @Override
                     public void onItemClick(View view, int position) {
 
-                        Log.d("app", "clicked:"+position + " " + type);
-//                        Intent intent = new Intent(MainActivity.this, DetailActivity.class);
-//                        intent.putParcelableArrayListExtra("data", data);
-//                        intent.putExtra("pos", position);
-//                        startActivity(intent);
-
-                        if(type == ImageModel.TYPE_INBOX){
+                        if(type == ImageModel.TYPE_INBOX || type == ImageModel.TYPE_INBOX_NOTIFICATION){
                             if(getActivity() != null && ((ScreenSlidePagerActivity)getActivity()).getReloadInboxListener() != null && data.size() > position) {
                                 ((ScreenSlidePagerActivity) getActivity()).getReloadInboxListener().openPageId(data.get(position).getId());
+                                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.INBOX);
                             }
                         }else {
-                            Log.d("app", "getActivity() != null:"+ (getActivity() != null));
-                            Log.d("app", "((ScreenSlidePagerActivity)getActivity()).getUpdateAfterPicture() != null:"+ (((ScreenSlidePagerActivity)getActivity()).getUpdateAfterPicture() != null));
-                            Log.d("app", "data.size() > position:"+ (data.size() > position));
-                            if(getActivity() != null && ((ScreenSlidePagerActivity)getActivity()).getUpdateAfterPicture() != null && data.size() > position) {
-                                ((ScreenSlidePagerActivity) getActivity()).getUpdateAfterPicture().openPageId(data.get(position).getId());
+                            if(getActivity() != null && ((ScreenSlidePagerActivity)getActivity()).getReloadOutbox() != null && data.size() > position) {
+                                ((ScreenSlidePagerActivity) getActivity()).getReloadOutbox().openPageId(data.get(position).getId());
+                                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.OUTBOX);
                             }
                         }
-
 
                         getDialog().dismiss();
                     }
@@ -165,13 +167,19 @@ public class GalleryFragment extends DialogFragment {
 
 
     private List<Contact> loadContactsOffline(){
-        List<Contact> contactsList = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(),new TypeToken<List<Contact>>(){}.getType(), Global.FRIENDS);
+        List<Contact> contactsList = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(), new TypeToken<List<Contact>>() {
+        }.getType(), Global.FRIENDS);
         if(contactsList == null)
             contactsList = new ArrayList<>();
         return contactsList;
     }
 
-
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(getDialog() != null)
+            getDialog().dismiss();
+    }
 
     @Override
     public void onDetach() {

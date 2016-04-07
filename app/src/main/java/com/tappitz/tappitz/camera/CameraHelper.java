@@ -1,10 +1,8 @@
 package com.tappitz.tappitz.camera;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -17,16 +15,12 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.util.Base64;
-import android.util.Base64OutputStream;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -36,7 +30,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.app.AppController;
@@ -44,9 +37,6 @@ import com.tappitz.tappitz.background.BackgroundService;
 import com.tappitz.tappitz.model.FutureUpload;
 import com.tappitz.tappitz.model.ReceivedPhoto;
 import com.tappitz.tappitz.model.SentPicture;
-import com.tappitz.tappitz.rest.model.PhotoOutbox;
-import com.tappitz.tappitz.rest.service.CallbackMultiple;
-import com.tappitz.tappitz.rest.service.CreatePhotoService;
 import com.tappitz.tappitz.ui.BlankFragment;
 import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.ui.secondary.QRCodeDialogFragment;
@@ -58,10 +48,6 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 
 //import me.dm7.barcodescanner.zbar.BarcodeFormat;
@@ -597,8 +583,8 @@ public class CameraHelper implements View.OnClickListener {
 
                 SentPicture out = new SentPicture(comment, photoPath);
                 //actualiza e guarda offline
-                if (getActivity().getUpdateAfterPicture() != null) {
-                    getActivity().getUpdateAfterPicture().updateTemporaryOutbox(out);
+                if (getActivity().getReloadOutbox() != null) {
+                    getActivity().getReloadOutbox().updateTemporaryOutbox(out);
                 }
                 //adiciona work futuro
                 FutureUpload upload = out.generateFutureWork(contacts, sendFollowers);

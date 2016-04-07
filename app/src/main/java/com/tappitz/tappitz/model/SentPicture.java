@@ -11,6 +11,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 public class SentPicture {
@@ -158,6 +159,16 @@ public class SentPicture {
         List<ImageModel> images = new ArrayList<>();
         for (SentPicture photo: sentPhotos) {
             images.add(new ImageModel(photo.getUrl(), ImageModel.TYPE_INBOX, photo.getId()));
+        }
+        return  images;
+    }
+
+    public static List<ImageModel> generateUnseenImageGallery(List<SentPicture> sentPhotos, Map<Integer, Integer> unseen){
+
+        List<ImageModel> images = new ArrayList<>();
+        for (SentPicture photo: sentPhotos) {
+            if(unseen.containsKey(photo.getId()))
+                images.add(new ImageModel(photo.getUrl(), ImageModel.TYPE_INBOX, photo.getId()));
         }
         return  images;
     }

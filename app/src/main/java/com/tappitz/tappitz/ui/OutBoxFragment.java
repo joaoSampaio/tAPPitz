@@ -1,10 +1,7 @@
 package com.tappitz.tappitz.ui;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -12,29 +9,20 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.OutBoxPagerAdapter;
-import com.tappitz.tappitz.model.ListViewContactItem;
 import com.tappitz.tappitz.model.SentPicture;
-import com.tappitz.tappitz.rest.model.PhotoInbox;
-import com.tappitz.tappitz.rest.model.PhotoOutbox;
+import com.tappitz.tappitz.model.UnseenNotifications;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.DeletePhotoService;
-import com.tappitz.tappitz.rest.service.ListInboxService;
 import com.tappitz.tappitz.rest.service.ListOutboxService;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.VerticalViewPager;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -66,36 +54,34 @@ public class OutBoxFragment extends Fragment {
         viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                Log.d("myapp2", "**--seletcted inBoxFragment:" + position);
+                removeUnseenNotification();
 
             }
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
                 if (stateChange != null) {
                     for (ListenerPagerStateChange s : stateChange) {
                         s.onPageScrollStateChanged(state);
                     }
-                } else
-                    Log.d("myapp2", "**--stateChange is null:");
+                }
             }
 
         });
 
         loadOffline();
 
-        ((ScreenSlidePagerActivity)getActivity()).setUpdateAfterPicture(new UpdateAfterPicture() {
+        ((ScreenSlidePagerActivity)getActivity()).setReloadOutbox(new ReloadOutbox() {
             @Override
             public void updateTemporaryOutbox(SentPicture outbox) {
 
                 //se nao existir
-                if(!outbox.belongsTo(photos)){
-                        photos.add(0, outbox);
-                        adapter.notifyDataSetChanged();
-                        //guardamos offline a nova foto
-                        new ModelCache<List<SentPicture>>().saveModel(getActivity(), photos, Global.OFFLINE_OUTBOX);
-                    }
+                if (!outbox.belongsTo(photos)) {
+                    photos.add(0, outbox);
+                    adapter.notifyDataSetChanged();
+                    //guardamos offline a nova foto
+                    new ModelCache<List<SentPicture>>().saveModel(getActivity(), photos, Global.OFFLINE_OUTBOX);
+                }
             }
 
             @Override
@@ -137,11 +123,11 @@ public class OutBoxFragment extends Fragment {
 
             @Override
             public void refreshOfflineOutbox() {
-                if(photos != null){
+                if (photos != null) {
 
                     List<SentPicture> tmp = new ModelCache<List<SentPicture>>().loadModel(getActivity(), new TypeToken<List<SentPicture>>() {
                     }.getType(), Global.OFFLINE_OUTBOX);
-                    if(tmp != null) {
+                    if (tmp != null) {
                         int currentPage = viewPager.getCurrentItem();
 
                         photos.clear();
@@ -152,6 +138,11 @@ public class OutBoxFragment extends Fragment {
                         adapter.notifyDataSetChanged();
                     }
                 }
+            }
+
+            @Override
+            public void outBoxSelected() {
+                removeUnseenNotification();
             }
         });
         return rootView;
@@ -194,7 +185,6 @@ public class OutBoxFragment extends Fragment {
     }
 
     private void loadOffline(){
-        Log.d("myapp", "**--loadOffline:");
         if(photos.size() == 0) {
             List<SentPicture> tmp = new ModelCache<List<SentPicture>>().loadModel(getActivity(),new TypeToken<List<SentPicture>>(){}.getType(), Global.OFFLINE_OUTBOX);
             if(tmp != null && tmp.size() > 0 && tmp.get(0) instanceof SentPicture) {
@@ -293,7 +283,26 @@ public class OutBoxFragment extends Fragment {
     }
 
 
-    public interface UpdateAfterPicture{
+
+    public void removeUnseenNotification(){
+        Log.d("outbox", "removeUnseenNotification");
+        if (!photos.isEmpty()) {
+            int index = viewPager.getCurrentItem();
+            SentPicture sentPhoto = photos.get(index);
+            int pictureId = sentPhoto.getId();
+
+            UnseenNotifications unseenNotifications = UnseenNotifications.load();
+            if(unseenNotifications.getReceivedComment().remove(pictureId) != null){
+                //já apagmos agora vamso fazer refresh
+                Log.d("outbox", "refreshUnseenNotification");
+                unseenNotifications.save();
+                ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
+            }
+        }
+    }
+
+
+    public interface ReloadOutbox {
         void updateTemporaryOutbox(SentPicture outbox);
 
         void refreshOnline();
@@ -303,6 +312,8 @@ public class OutBoxFragment extends Fragment {
         void openPageId(int id);
 
         void refreshOfflineOutbox();
+
+        void outBoxSelected();
     }
 
 

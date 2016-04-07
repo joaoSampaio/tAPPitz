@@ -39,7 +39,7 @@ public class ContactFilter  extends Filter {
                 if (item.getName().toLowerCase().contains(constraint)) {
                     filterList.add(item);
                 }
-                if(item.getUsername().toLowerCase().contains(constraint) && !originalContacts.contains(item)){
+                if(item.getUsername().toLowerCase().contains(constraint) && !filterList.contains(item)){
                     filterList.add(item);
                 }
 

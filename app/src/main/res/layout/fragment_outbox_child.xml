@@ -51,22 +51,30 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="2">
-            <TextView
+
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="@dimen/text_size_normal"
-                android:id="@+id/photo_description"
-                android:inputType="textMultiLine"
-                android:gravity="left"
-                style="@style/text_normal"
-                android:layout_gravity="right|top"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
-                android:layout_centerInParent="true"
-                android:layout_alignParentBottom="false"
-                android:layout_marginBottom="50dp"
-                android:maxHeight="200dp"
-                android:layout_alignParentTop="true" />
+                android:background="@color/whiteTransparent"
+                android:padding="15dp"
+                android:id="@+id/layout_out_description">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/text_size_normal"
+                    android:id="@+id/photo_description"
+                    android:inputType="textMultiLine"
+                    android:gravity="left"
+                    style="@style/text_normal"
+                    android:layout_gravity="right|top"
+                    android:layout_centerInParent="true"
+                    android:layout_alignParentBottom="false"
+                    android:maxHeight="200dp"
+                    android:layout_alignParentTop="true" />
+            </LinearLayout>
+
         </RelativeLayout>
 
         <TextView
@@ -111,7 +119,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/painelvotacao"
         android:gravity="center_horizontal"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="50dp"
         android:layout_gravity="center"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
@@ -162,12 +170,13 @@
         android:layout_above="@+id/painelvotacao"
         android:layout_marginBottom="15dp"
         android:layout_marginRight="15dp"
-        android:layout_marginLeft="15dp">
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp">
 
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:text="X"
             android:id="@+id/action_close"
             android:layout_alignParentTop="true"
@@ -175,7 +184,10 @@
             android:textColor="@color/white"
             android:textSize="30dp"
             android:background="@null"
-            android:layout_marginRight="-15dp" />
+            android:src="@drawable/ic_close"
+            android:cropToPadding="false"
+            android:scaleType="fitXY"
+            android:tint="@color/white" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/commentList"
@@ -226,6 +238,16 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:visibility="gone" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/action_go_back"
+        android:src="@drawable/ic_navigate_before"
+        android:background="@null"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="15dp"
+        android:tint="@color/white" />
 
 
 </RelativeLayout>

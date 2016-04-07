@@ -18,29 +18,123 @@
             android:text="Sent"
             android:id="@+id/option_title"
             android:textColor="@color/black"
-            android:gravity="center_horizontal" />
+            android:textAllCaps="true"
+            android:gravity="center_horizontal"
+            android:textSize="25dp"
+            android:textStyle="bold"
+            android:paddingBottom="25dp"
+            android:paddingTop="25dp" />
 
         <View style="@style/line"></View>
 
-        <Button
-            android:text="Delete"
-            android:id="@+id/action_delete"
-            style="@style/ButtonOptions"
-            />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:id="@+id/layout_dynamic"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
+
+            <TextView
+                android:text="Feedback"
+                android:id="@+id/action_dynamic"
+                style="@style/ButtonOptions"
+                android:layout_width="wrap_content"
+                android:gravity="left"
+                android:textColor="@color/greyOP"
+                android:layout_centerVertical="true"
+                android:layout_alignParentLeft="true"
+                android:layout_height="wrap_content" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageShare"
+                android:src="@drawable/ic_reply"
+                android:scaleX="-1"
+
+                android:layout_centerVertical="true"
+                android:tint="@color/greyOP"
+                android:layout_alignParentRight="true" />
+
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:id="@+id/textNotification"
+                android:background="@drawable/circle_notification"
+                android:textColor="@color/white"
+                android:gravity="center"
+                android:text="10"
+                android:layout_alignParentRight="true"
+                android:textSize="10dp"
+                android:layout_alignParentTop="false"
+                android:layout_marginTop="3dp"
+                android:textStyle="bold"
+                android:layout_alignTop="@+id/action_dynamic" />
+        </RelativeLayout>
 
         <View style="@style/line"></View>
 
-        <Button
-            android:text="Refresh"
-            android:id="@+id/action_show_list"
-            style="@style/ButtonOptions" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+            android:id="@+id/layout_delete"
+            android:paddingBottom="20dp"
+            android:paddingTop="20dp">
+
+            <TextView
+                android:text="Delete"
+                android:id="@+id/action_delete"
+                style="@style/ButtonOptions"
+                android:layout_width="wrap_content"
+                android:gravity="left"
+                android:layout_centerInParent="true"
+                android:textColor="@color/red_options"
+                android:layout_alignParentLeft="true" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView7"
+                android:src="@drawable/ic_delete"
+                android:layout_centerVertical="true"
+                android:tint="@color/red_options"
+                android:layout_alignParentRight="true" />
+        </RelativeLayout>
 
         <View style="@style/line"></View>
 
-        <Button
-            android:text="See All"
-            android:id="@+id/action_see_all"
-            style="@style/ButtonOptions" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:id="@+id/layout_see_all"
+            android:paddingTop="20dp"
+            android:paddingBottom="20dp">
+
+            <TextView
+                style="@style/ButtonOptions"
+                android:text="SEE ALL"
+                android:id="@+id/action_see_all"
+                android:layout_width="wrap_content"
+                android:layout_centerInParent="true"
+                android:textSize="18dp"
+                android:layout_alignParentLeft="true"
+                android:gravity="left" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView8"
+                android:src="@drawable/ic_view_list"
+                android:layout_centerVertical="true"
+                android:tint="@color/greyOP"
+                android:layout_alignParentRight="true" />
+        </RelativeLayout>
 
         <View style="@style/line"></View>
     </LinearLayout>

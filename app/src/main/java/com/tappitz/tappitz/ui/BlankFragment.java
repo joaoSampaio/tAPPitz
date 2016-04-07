@@ -24,7 +24,7 @@ import java.util.List;
 public class BlankFragment extends Fragment  {
 
     final static int[] CLICABLES = {R.id.logOut, R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter,
-            R.id.action_goto_sent, R.id.action_goto_received, R.id.action_goto_qrcode, R.id.action_goto_contacts};
+            R.id.action_goto_sent, R.id.action_goto_received, R.id.action_goto_qrcode, R.id.action_goto_contacts, R.id.inbox_circle, R.id.outbox_circle};
 
     View rootView, camera_options;
     private Button btn_shutter;

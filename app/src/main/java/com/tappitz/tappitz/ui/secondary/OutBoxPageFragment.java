@@ -34,6 +34,7 @@ import com.tappitz.tappitz.model.Comment;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListVotesService;
 import com.tappitz.tappitz.ui.OutBoxFragment;
+import com.tappitz.tappitz.ui.ScreenSlidePagerActivity;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.ModelCache;
 import com.tappitz.tappitz.util.SimpleDividerItemDecoration;
@@ -45,7 +46,7 @@ import java.util.List;
 
 public class OutBoxPageFragment extends Fragment implements View.OnClickListener {
 
-    private View rootView, comment_layout;
+    private View rootView, comment_layout, layout_out_description, action_go_back;
     private TextView commentText, descriptionText;
     private List<Comment> listGreen, listRed, listYellow;
     private int selectdList, selectedPos, id;
@@ -53,7 +54,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     private ImageView color_background;
     private LinearLayout buttonsContainer;
     private ListenerPagerStateChange state;
-    private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde};
+    private final static int[] CLICKABLE = {R.id.botaoVermelho, R.id.botaoAmarelo, R.id.botaoVerde, R.id.action_go_back};
     private OutBoxPageFragment $this = this;
     private RecyclerView commentList;
     private OutBoxCommentAdapter adapter;
@@ -96,9 +97,11 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         selectedPos = -1;
         commentList = (RecyclerView)rootView.findViewById(R.id.commentList);
         buttonsContainer = (LinearLayout)rootView.findViewById(R.id.painelvotacao);
+        layout_out_description  = rootView.findViewById(R.id.layout_out_description);
+        action_go_back = rootView.findViewById(R.id.action_go_back);
         descriptionText = (TextView) rootView.findViewById(R.id.photo_description);
         Log.d("myapp", "out dateSentTimeAgo:" + dateSentTimeAgo);
-        descriptionText.setText("You - " + dateSentTimeAgo + "\n" + ((text.length() > 0) ? ("\"" + text) : ""));
+        descriptionText.setText("You - " + dateSentTimeAgo  + ((text.length() > 0) ? ( "\n" +"\"" + text) : ""));
 
 //        commentText = (TextView) rootView.findViewById(R.id.photo_comment);
 
@@ -173,7 +176,9 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                         Log.d("myapp", "inbox ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
                         if (!color_background.isShown()) {
-                            descriptionText.setVisibility(View.GONE);
+                            layout_out_description.setVisibility(View.GONE);
+                            action_go_back.setVisibility(View.GONE);
+//                            descriptionText.setVisibility(View.GONE);
                             buttonsContainer.setVisibility(View.GONE);
                         }
                         return true;
@@ -285,7 +290,9 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
     public void showButtonsAndBackground(boolean show){
 
-        descriptionText.setVisibility(show ? View.VISIBLE : View.GONE);
+        layout_out_description.setVisibility(show ? View.VISIBLE : View.GONE);
+        action_go_back.setVisibility(show ? View.VISIBLE : View.GONE);
+//        descriptionText.setVisibility(show ? View.VISIBLE : View.GONE);
         buttonsContainer.setVisibility(show ? View.VISIBLE : View.GONE);
         color_background.setVisibility(show ? View.GONE : View.VISIBLE);
         comment_layout.setVisibility(show ? View.GONE : View.VISIBLE);
@@ -360,6 +367,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             case Global.GREEN:
                 color = R.color.greenA;
                 break;
+
         }
         return color;
     }
@@ -397,6 +405,9 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                 break;
             case R.id.botaoVermelho:
                 showVoteList(Global.RED);
+                break;
+            case R.id.action_go_back:
+                ((ScreenSlidePagerActivity)getActivity()).showPage(Global.HOME);
                 break;
         }
     }

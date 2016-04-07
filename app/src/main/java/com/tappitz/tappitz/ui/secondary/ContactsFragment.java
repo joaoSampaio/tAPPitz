@@ -1,40 +1,28 @@
 package com.tappitz.tappitz.ui.secondary;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.tappitz.Global;
 import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.ContactManagerAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.Contact;
-import com.tappitz.tappitz.model.FutureWorkList;
 import com.tappitz.tappitz.rest.model.ContactSendId;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.ListFollowingService;
@@ -44,9 +32,7 @@ import com.tappitz.tappitz.rest.service.OperationContactService;
 import com.tappitz.tappitz.rest.service.SearchContactService;
 import com.tappitz.tappitz.util.ContactFilter;
 import com.tappitz.tappitz.util.ModelCache;
-import com.tappitz.tappitz.util.RecyclerClickListener;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -55,7 +41,7 @@ import java.util.List;
 
 public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    public final static int FRIENDS = 0;
+    public final static int FOLLOWERS = 0;
     public final static int FOLLOWING = 1;
     private int TYPE = 0;
     private View rootView;
@@ -156,40 +142,43 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
 
         ((ContactContainerFragment)getParentFragment()).addSearchListener(new ContactContainerFragment.SearchText() {
             @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            public void onTextChanged(final CharSequence s, int start, int before, int count) {
                 Log.d("onTextChanged", " ->" + new String(s.toString()) + "  getItemCount:"+adapter.getItemCount());
-
+                adapter.getFilter().filter(s);
                 for(Contact c : adapter.getContacts()){
                     Log.d("contact", " ---------->" + c.getEmail() + " getUsername:"+c.getUsername());
                 }
+                text_no_contact_search.setVisibility(View.GONE);
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        //se for following e nao exitir mais contactos entao vamso fazer search
+                        if (TYPE == FOLLOWING && adapter.getItemCount() == 0) {
+                            progress_search.setVisibility(View.VISIBLE);
+                            searchContainer.setVisibility(View.VISIBLE);
+                            newSearch = new String(s.toString());
+                            final String search = new String(s.toString());
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (newSearch.equals(search)) {
+                                        Log.d("ADDContact", "text changed is the same as 1s ago:" + newSearch + "||||" + search);
+                                        searchContact();
+                                    } else {
+                                        Log.d("ADDContact", "text changed in less than 1s");
+                                    }
+                                }
+                            }, 1200);
 
-                //se for following e nao exitir mais contactos entao vamso fazer search
-                if (TYPE == FOLLOWING && adapter.getItemCount() == 0) {
-
-                    adapter.getFilter().filter(s);
-                    if(adapter.getItemCount() > 0)
-                        return;
-
-
-                    Log.d("ADDContact", "TYPE == FOLLOWING && adapter.getContacts().size() == 0");
-                    newSearch = new String(s.toString());
-                    final String search = new String(s.toString());
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            if (newSearch.equals(search)) {
-                                Log.d("ADDContact", "text changed is the same as 1s ago:" + newSearch + "||||" + search);
-                                searchContact();
-                            } else {
-                                Log.d("ADDContact", "text changed in less than 1s");
-                            }
+                        }else{
+                            searchContainer.setVisibility(View.GONE);
                         }
-                    }, 1500);
-
-                } else {
-                    Log.d("ADDContact", "else");
-                    adapter.getFilter().filter(s);
-                }
+                    }
+                }, 300);
+//                else {
+//                    Log.d("ADDContact", "else");
+//                    adapter.getFilter().filter(s);
+//                }
 
             }
         });
@@ -233,7 +222,6 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
         List<Contact> contactsList = new ModelCache<List<Contact>>().loadModel(AppController.getAppContext(),new TypeToken<List<Contact>>(){}.getType(), getOfflineId());
         if(contactsList == null)
             contactsList = new ArrayList<>();
-        Log.d("ContactsFragment", "loadContactsOffline: ");
         return contactsList;
     }
 
@@ -262,11 +250,37 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
         CallbackMultiple callback = new CallbackMultiple<List<Contact>, String>() {
             @Override
             public void success(List<Contact> response) {
+                sortContacts(response);
+                saveContactsOffline(response);
+
+                if(((ContactContainerFragment)getParentFragment()).getFriends().isEmpty()){
+                    ((ContactContainerFragment)getParentFragment()).addListenner(new ContactContainerFragment.NotifyReturnedFriends() {
+                        @Override
+                        public void onFriendsReceived(List<Contact> contacts) {
+
+                            allContactsList.addAll(contacts);
+                            sortContacts(allContactsList);
+                            notifyAdapter();
+                        }
+                    });
+                }else{
+                    response.addAll(((ContactContainerFragment)getParentFragment()).getFriends());
+                }
 
                 sortContacts(response);
                 allContactsList.clear();
                 allContactsList.addAll(response);
-                saveContactsOffline(allContactsList);
+
+
+
+//                allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
+//                allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 23, true));
+//                allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 24, true));
+//                allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 22, true));
+//                allContactsList.add(new Contact("Rui", "Ruiii", "rui@g.v", 25, true));
+//                allContactsList.add(new Contact("Rui2", "Ruiii", "rui@g.v", 28, true));
+
+
                 notifyAdapter();
             }
 
@@ -279,7 +293,7 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
         if(TYPE == FOLLOWING)
             new ListFollowingService(callback).execute();
         else
-            new ListFriendsService(callback).execute();
+            new ListMyFollowersService(callback).execute();
 
 
     }
@@ -290,10 +304,10 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
         swipeLayout.setRefreshing(false);
     }
 
-    private void checkIfHasContacts(int size){
+    private void checkIfHasContacts(int size) {
         Log.d("myapp", "checkIfHasContacts: " + allContactsList.size());
-
-        text_no_contact.setVisibility(size > 0 ? View.GONE : View.VISIBLE);
+        if(TYPE != FOLLOWING)
+            text_no_contact.setVisibility(size > 0 ? View.GONE : View.VISIBLE);
     }
 
 
@@ -376,48 +390,6 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     }
 
-
-
-//    private void searchContact(){
-//        String searchParam = mSearchEdt.getText().toString();
-//
-//        boolean alreadyExists = false;
-//        for (Contact c: allContactsList) {
-//            if(c.getEmail().equals(searchParam) || c.getUsername().equals(searchParam))
-//                alreadyExists = true;
-//        }
-//        if(!alreadyExists){
-//            new SearchContactService(searchParam, new CallbackMultiple<Contact, String>() {
-//                @Override
-//                public void success(Contact response) {
-//
-//                    List<Contact> tmp = new ArrayList<Contact>();
-//                    if(response != null) {
-//
-//                        response.setIsFollower(false);
-//                        response.setIsFriend(false);
-//                        tmp.add(response);
-//                    }
-//
-//                    adapter.setContacts(tmp);
-//                    adapter.notifyDataSetChanged();
-//                    checkIfHasContacts(tmp.size());
-//                }
-//
-//                @Override
-//                public void failed(String error) {
-//                    //showToast(error);
-//                }
-//            }).execute();
-//        }
-//
-//
-//
-//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-//
-//    }
-
     private void saveContactsOffline(List<Contact> contacts){
 
         Context ctx = AppController.getAppContext();
@@ -441,7 +413,7 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
 
     private String getOfflineId(){
         if(TYPE == FOLLOWING)
-            return Global.FRIENDS;
+            return Global.FOLLOWING;
         else
             return Global.MYFOLLOWERS;
     }

@@ -66,9 +66,9 @@
     <color name="tabInactive">#B4B4B4</color>
     <color name="tabActive">#3F3F3F</color>
     <color name="greyText">#666666</color>
+    <color name="greyOP">#7D7D7D</color>
 
-
-
+    <color name="red_options">#FF4E55</color>
 
     <!--
     <color name="H1">#b0b0ff</color>

@@ -34,7 +34,7 @@ public class ContactPagerAdapter extends FragmentStatePagerAdapter {
                 fragment = ContactsFragment.newInstance(ContactsFragment.FOLLOWING);
                 break;
             case 1:
-                fragment = ContactsFragment.newInstance(ContactsFragment.FRIENDS);
+                fragment = ContactsFragment.newInstance(ContactsFragment.FOLLOWERS);
                 break;
 
         }

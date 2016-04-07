@@ -5,7 +5,8 @@ public class ImageModel {
 
     public static final int TYPE_INBOX  = 0;
     public static final int TYPE_OUTBOX  = 1;
-
+    public static final int TYPE_OUTBOX_NOTIFICATION  = 2;
+    public static final int TYPE_INBOX_NOTIFICATION  = 3;
     private String url;
     private int TYPE, id, vote;
     private boolean hasVoted;

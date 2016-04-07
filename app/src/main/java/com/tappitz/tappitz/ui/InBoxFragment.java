@@ -31,6 +31,7 @@ import com.tappitz.tappitz.R;
 import com.tappitz.tappitz.adapter.InBoxPagerAdapter;
 import com.tappitz.tappitz.app.AppController;
 import com.tappitz.tappitz.model.ReceivedPhoto;
+import com.tappitz.tappitz.model.UnseenNotifications;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.DownloadPhotoService;
 import com.tappitz.tappitz.rest.service.ListInboxService;
@@ -64,7 +65,7 @@ public class InBoxFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_in_box, container, false);
 
-        Log.d("myappllllll", "**--new InBoxFragment:");
+        Log.d("inbox", "**--new InBoxFragment:");
 
 
         photos = new ArrayList<>();
@@ -75,8 +76,7 @@ public class InBoxFragment extends Fragment {
         viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {
-                Log.d("myapp2", "**--seletcted inBoxFragment:" + position);
-
+                removeUnseenNotification();
             }
 
             @Override
@@ -86,24 +86,12 @@ public class InBoxFragment extends Fragment {
                     for (ListenerPagerStateChange s : stateChange) {
                         s.onPageScrollStateChanged(state);
                     }
-                } else
-                    Log.d("myapp2", "**--stateChange is null:");
+                }
             }
 
         });
 
         loadOffline();
-
-//        PhotoInbox in = ((ScreenSlidePagerActivity) getActivity()).getNewPhoto();
-//        if(in != null){
-//            photos.add(0, in);
-//            adapter.notifyDataSetChanged();
-//            ((ScreenSlidePagerActivity) getActivity()).setNewPhoto(null);
-//        }
-
-//        refreshInbox();
-
-
         return rootView;
     }
 
@@ -125,7 +113,6 @@ public class InBoxFragment extends Fragment {
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
                     //voltamos a mostrar as opções
-                    Log.d("myapp2", "**--outboxpage  :" + state);
                     if (stateChange != null) {
                         for (ListenerPagerStateChange s : stateChange) {
                             s.onPageScrollStateChanged(state);
@@ -139,7 +126,6 @@ public class InBoxFragment extends Fragment {
         ((ScreenSlidePagerActivity)getActivity()).setReloadInbox(new ReloadInbox() {
             @Override
             public void updateAfterVote() {
-                Log.d("myapp", "**--inbox updateAfterVote  ");
                 loadOffline();
             }
 
@@ -162,6 +148,12 @@ public class InBoxFragment extends Fragment {
             public void refreshOnline() {
                 refreshInbox();
             }
+
+            @Override
+            public void InBoxSelected() {
+                removeUnseenNotification();
+
+            }
         });
     }
 
@@ -175,12 +167,10 @@ public class InBoxFragment extends Fragment {
 
     private void refreshInbox(){
 //        rootView.findViewById(R.id.action_refresh).setEnabled(false);
-        Log.d("myappllllll", "**--refreshInbox:");
 
         new ListInboxService(new CallbackMultiple<List<ReceivedPhoto>, String>() {
             @Override
             public void success(List<ReceivedPhoto> response) {
-                Log.d("myappllllll", "**--refreshInbox:success");
 
                 if(response != null && response.size() > 0 && getActivity() != null) {
                     int showPage = 0;
@@ -194,7 +184,6 @@ public class InBoxFragment extends Fragment {
                     photos.clear();
                     photos.addAll(ReceivedPhoto.join(response));
                     adapter.notifyDataSetChanged();
-                    Log.d("myappllllll", "**--refreshInbox:showPage:"+showPage);
                     showPage(showPage);
 //                    if(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id() >= 0){
 //                        showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
@@ -240,7 +229,6 @@ public class InBoxFragment extends Fragment {
     }
 
     public void loadOffline(){
-        Log.d("myapp", "**--inbox loadOffline  ");
         int showPage = 0;
         if(viewPager != null){
             showPage = viewPager.getCurrentItem();
@@ -253,9 +241,6 @@ public class InBoxFragment extends Fragment {
 
             photos.clear();
             photos.addAll(tmp);
-            Log.d("myapp", "**--inbox has  " + photos.size());
-            Gson gson = new Gson();
-            Log.d("myapp", "**--inbox:   " + gson.toJson(tmp));
             adapter.notifyDataSetChanged();
             showPage(showPage);
         }
@@ -333,6 +318,26 @@ public class InBoxFragment extends Fragment {
         void openPageId(int id);
 
         void refreshOnline();
+
+        void InBoxSelected();
     }
+
+    public void removeUnseenNotification(){
+        Log.d("inbox", "removeUnseenNotification");
+        if (!photos.isEmpty()) {
+            int index = viewPager.getCurrentItem();
+            ReceivedPhoto receivedPhoto = photos.get(index);
+            int pictureId = receivedPhoto.getPictureId();
+
+            UnseenNotifications unseenNotifications = UnseenNotifications.load();
+            if(unseenNotifications.getReceivedPhotos().remove(pictureId) != null){
+                //já apagmos agora vamso fazer refresh
+                Log.d("inbox", "refreshUnseenNotification");
+                unseenNotifications.save();
+                ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
+            }
+        }
+    }
+
 
 }
