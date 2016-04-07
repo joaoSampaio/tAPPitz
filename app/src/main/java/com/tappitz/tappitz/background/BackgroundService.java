@@ -235,9 +235,7 @@ public class BackgroundService extends Service {
         final String url = Global.ENDPOINT + "/pictures/"+newId;
         Log.d("servico", "preloading " + url + " width:" + width + " height:" + height);
 
-        Time time;
-        time = new Time();time.setToNow();
-        Log.d("TIME TEST 1","loading image"+ Long.toString(time.toMillis(false)));
+
 
 
         SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
@@ -254,10 +252,6 @@ public class BackgroundService extends Service {
         try {
             File cacheFile = future.get();
 
-            time = new Time();time.setToNow();
-            Log.d("TIME AsyncTask myBitmap", "cacheFile.length():"+cacheFile.length()+"||depois do get:" +Long.toString(time.toMillis(false)));
-            time = new Time();time.setToNow();
-            Log.d("TIME AsyncTask3", Long.toString(time.toMillis(false)));
         } catch (InterruptedException e) {
             Log.d("TIME", "ex:" + e.getMessage());
             e.printStackTrace();
@@ -338,32 +332,6 @@ public class BackgroundService extends Service {
         return false;
     }
 
-//    private boolean loginClient(){
-//        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-//        final String email = sp.getString(Global.KEY_USER, "");
-//        final String password  = sp.getString(Global.KEY_PASS, "");
-//        if(email.length() > 0 && password.length() > 0){
-//            Call<JsonElement> call = RestClientV2.getService().login(new UserLogin(email, password));
-//            try {
-//                JsonElement json = call.execute().body();
-//                if (json != null) {
-//                    JsonObject obj = json.getAsJsonObject();
-//                    boolean status = obj.get("status").getAsBoolean();
-//                    if (status) {
-//                        String sessionId = json.getAsJsonObject().get("sessionId").getAsString();
-//                        SharedPreferences.Editor editor = sp.edit();
-//                        editor.putString("sessionId", sessionId);
-//                        editor.commit();
-//                        RestClientV2.setSessionId(sessionId);
-//                        return true;
-//                    }
-//                }
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        return false;
-//    }
 
     private void doWork(){
         List<FutureVote> votes;

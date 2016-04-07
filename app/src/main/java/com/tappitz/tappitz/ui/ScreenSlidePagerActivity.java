@@ -265,7 +265,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         notificationManager.cancel(Global.NOTIFICATION_ID);
         NotificationCount.resetCount(getApplicationContext());
 
-
+        if(mHelper == null)
+            mHelper = new CameraHelper(this);
+        mHelper.setUP();
         if(mHelper == null || !mHelper.requestedFile){
             start_camera();
         }
@@ -290,12 +292,10 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             }
         };
         handler = new Handler();
-        handler.postDelayed(runLogin,200);
+        handler.postDelayed(runLogin, 200);
 
 
-        if(mHelper == null)
-            mHelper = new CameraHelper(this);
-        mHelper.setUP();
+
         refreshUnseenNotification();
 //        checkIsSignedIn();
     }
@@ -1022,27 +1022,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         if(allPermissionsGiven()){
             onResume();
         }
-
-//        switch (requestCode) {
-//            case MY_PERMISSIONS_REQUEST_CAMERA: {
-//                // If request is cancelled, the result arrays are empty.
-//                if (grantResults.length > 0
-//                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//
-//                    // permission was granted, yay! Do the
-//                    // contacts-related task you need to do.
-//
-//                } else {
-//
-//                    // permission denied, boo! Disable the
-//                    // functionality that depends on this permission.
-//                }
-//                return;
-//            }
-//
-//            // other 'case' lines to check for other
-//            // permissions this app might request
-//        }
     }
 
 
