@@ -54,6 +54,7 @@ import com.tappitz.tappitz.rest.RestClient;
 import com.tappitz.tappitz.rest.RestClientV2;
 import com.tappitz.tappitz.rest.service.CallbackMultiple;
 import com.tappitz.tappitz.rest.service.CheckLoggedStateService;
+import com.tappitz.tappitz.ui.secondary.ContactContainerFragment;
 import com.tappitz.tappitz.util.ListenerPagerStateChange;
 import com.tappitz.tappitz.util.MainViewPager;
 import com.tappitz.tappitz.util.ModelCache;
@@ -79,6 +80,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private CameraBackPressed cameraBackPressed;
     private OutBoxFragment.ReloadOutbox reloadOutbox;
     private MiddleContainerFragment.MiddleShowPage middleShowPage;
+    private ContactContainerFragment.ReloadAllContactsFragments reloadAllContactsFragments;
     private InBoxFragment.ReloadInbox reloadInboxListener;
     private BlankFragment.ButtonEnable buttonEnable;
     private int afterLoginAction = -1;
@@ -256,7 +258,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         if(!allPermissionsGiven()){
             return;
         }
-
+        handler = new Handler();
         SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String email = sp.getString(Global.KEY_USER, "");
         AppController.getInstance().email = email;
@@ -291,7 +293,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                 checkIsSignedIn();
             }
         };
-        handler = new Handler();
+
         handler.postDelayed(runLogin, 200);
 
 
@@ -335,6 +337,18 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                             Log.d("myapp", "****NEW_PICTURE_VOTE: depois ");
                             //showPage(Global.OUTBOX);
                         }
+                        break;
+                    case Global.NEW_FOLLOWER:
+                        if(reloadAllContactsFragments != null)
+                            reloadAllContactsFragments.onReloadAllContactsFragments();
+                        break;
+                    case Global.RELATION_DELETED:
+                        if(reloadAllContactsFragments != null)
+                            reloadAllContactsFragments.onReloadAllContactsFragments();
+                        break;
+                    case Global.NEW_FRIEND:
+                        if(reloadAllContactsFragments != null)
+                            reloadAllContactsFragments.onReloadAllContactsFragments();
                         break;
                     default:
 //                        showPage(Global.HOME);
@@ -662,7 +676,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private void closeSplashScreen(){
         Log.d("myapp", "****closeSplashScreen ");
 
-
+        if(handler == null)
+            handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -1047,6 +1062,12 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     public void removeInterestUnseenNotification(RefreshUnseenNotifications refreshUnseenNotifications){
         this.listenerUnseenNotifications.remove(refreshUnseenNotifications);
     }
+
+
+    public void setReloadAllContactsFragments(ContactContainerFragment.ReloadAllContactsFragments reloadAllContactsFragments){
+        this.reloadAllContactsFragments = reloadAllContactsFragments;
+    }
+
 
 
 }

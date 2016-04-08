@@ -1,6 +1,7 @@
 package com.tappitz.tappitz.model;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Contact {
@@ -150,4 +151,28 @@ public class Contact {
     public void setColor(int color) {
         this.color = color;
     }
+
+    public static boolean isContactInList(List<Contact> contacts, String email){
+        for (Contact c : contacts){
+            if(c.getEmail().equals(email))
+                return true;
+        }
+        return false;
+    }
+
+    public static void removeDuplicates(List<Contact> contacts){
+
+        List<Contact> contactsNoDuplicates = new ArrayList<>();
+
+        for (Contact c: contacts){
+            if(!isContactInList(contactsNoDuplicates, c.getEmail())){
+                contactsNoDuplicates.add(c);
+            }
+        }
+        contacts.clear();
+        contacts.addAll(contactsNoDuplicates);
+
+    }
+
+
 }

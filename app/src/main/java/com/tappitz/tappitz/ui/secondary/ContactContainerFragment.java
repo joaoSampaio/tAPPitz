@@ -1,5 +1,6 @@
 package com.tappitz.tappitz.ui.secondary;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -14,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +45,7 @@ public class ContactContainerFragment extends Fragment {
     private List<SearchText> searchListener;
     private List<Contact> friends;
     private List<NotifyReturnedFriends> listenner;
+    private List<ContactsFragment.ReloadContacts> reloadChildContacts;
     public ContactContainerFragment() {
         // Required empty public constructor
     }
@@ -55,6 +58,7 @@ public class ContactContainerFragment extends Fragment {
         searchListener = new ArrayList<>();
         listenner = new ArrayList<>();
         friends = new ArrayList<>();
+        reloadChildContacts = new ArrayList<>();
         loadContacts();
 
         rootView.findViewById(R.id.action_back).setOnClickListener(new View.OnClickListener() {
@@ -142,6 +146,12 @@ public class ContactContainerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        ((ScreenSlidePagerActivity)getActivity()).setReloadAllContactsFragments(new ReloadAllContactsFragments() {
+            @Override
+            public void onReloadAllContactsFragments() {
+                reloadChildren();
+            }
+        });
     }
 
 
@@ -149,6 +159,7 @@ public class ContactContainerFragment extends Fragment {
     public void onPause(){
         super.onPause();
         searchListener.clear();
+        ((ScreenSlidePagerActivity)getActivity()).setReloadAllContactsFragments(null);
     }
 
 
@@ -202,7 +213,50 @@ public class ContactContainerFragment extends Fragment {
         this.listenner.remove(listenner);
     }
 
+    public void addReloadContacts(ContactsFragment.ReloadContacts listenner) {
+        this.reloadChildContacts.add(listenner);
+    }
+    public void removeReloadContacts(ContactsFragment.ReloadContacts listenner) {
+        this.reloadChildContacts.remove(listenner);
+    }
+
+
+
     public List<Contact> getFriends() {
         return friends;
     }
+
+
+    public void reloadChildren(){
+        Log.d("ContactContainer", "reloadChildren");
+//        mSearchEdt.removeTextChangedListener(mSearchTw);
+        mSearchEdt.setText("");
+//        mSearchEdt.addTextChangedListener(mSearchTw);
+//        this.listenner.clear();
+        closeKeyboard();
+        this.friends.clear();
+        loadContacts();
+
+        for(ContactsFragment.ReloadContacts reload : reloadChildContacts){
+            reload.onReloadContacts();
+        }
+
+//        adapter = new ContactPagerAdapter(getChildFragmentManager());
+//        viewPager.setAdapter(adapter);
+
+    }
+
+    public interface ReloadAllContactsFragments{
+        void onReloadAllContactsFragments();
+    }
+
+    private void closeKeyboard(){
+        try {
+            InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

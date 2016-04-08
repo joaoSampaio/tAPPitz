@@ -52,7 +52,7 @@ public class FollowingFragment extends CustomDialogFragment implements CustomDia
             public void addContact(String eMail, int id, String name) {
 
             }
-        }, getActivity());
+        }, getActivity(), null);
 
 
         loadUI(rootView);

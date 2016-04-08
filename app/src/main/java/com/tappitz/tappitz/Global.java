@@ -63,11 +63,11 @@ public class Global {
     public static final String FONT1 = "fonts/justice.ttf";
 
 
-    public static final String NEW_FRIEND_REQUEST = "NEW_FOLLOWER";
-    public static final String UNDO_FRIEND_REQUEST = "RELATION_DELETED";
+    public static final String NEW_FOLLOWER = "NEW_FOLLOWER";
+    public static final String RELATION_DELETED = "RELATION_DELETED";
     public static final String BLOCKED_FRIEND = "BLOCKED_FRIEND";
     public static final String REMOVED_FRIEND_REQUEST = "REMOVED_FRIEND_REQUEST";
-    public static final String ACCEPTED_FRIEND_REQUEST = "NEW_FRIEND";
+    public static final String NEW_FRIEND = "NEW_FRIEND";
     public static final String NEW_PICTURE_RECEIVED = "NEW_PICTURE_RECEIVED";
     public static final String NEW_PICTURE_VOTE = "NEW_PICTURE_VOTE";
 

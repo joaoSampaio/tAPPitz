@@ -43,10 +43,12 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
     private ContactFilter.OnUpdate update;
     private ContactFilter.OnListChange listChange;
     private Activity activity;
-    public ContactManagerAdapter(List<Contact> contacts, ContactFilter.OnUpdate update, Activity activity ){
+    private ReloadChildren reloadChildren;
+    public ContactManagerAdapter(List<Contact> contacts, ContactFilter.OnUpdate update, Activity activity, ReloadChildren reloadChildren ){
         this.contacts = contacts;
         Log.d("myapp", "contacts:" + contacts.size());
         this.update = update;
+        this.reloadChildren = reloadChildren;
         this.activity = activity;
         this.listChange = new ContactFilter.OnListChange() {
             @Override
@@ -207,6 +209,11 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
 
                 if (viewHolder != null)
                     notifyDataSetChanged();
+
+
+                if(reloadChildren != null)
+                    reloadChildren.onReloadChildren();
+
                 Toast.makeText(AppController.getAppContext(), "Contact Removed", Toast.LENGTH_LONG).show();
             }
 
@@ -231,6 +238,9 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
 
                 if (viewHolder != null)
                     notifyDataSetChanged();
+
+                if(reloadChildren != null)
+                    reloadChildren.onReloadChildren();
                 Toast.makeText(AppController.getAppContext(), "Unfollowed", Toast.LENGTH_LONG).show();
             }
 
@@ -268,6 +278,9 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
 
                 if (viewHolder != null)
                     notifyDataSetChanged();
+
+                if(reloadChildren != null)
+                    reloadChildren.onReloadChildren();
                 Toast.makeText(AppController.getAppContext(), "Follow successful", Toast.LENGTH_LONG).show();
             }
 
@@ -278,6 +291,10 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
                 Toast.makeText(AppController.getAppContext(), " " + error, Toast.LENGTH_LONG).show();
             }
         }).execute();
+    }
+
+    public interface ReloadChildren{
+        void onReloadChildren();
     }
 
 }

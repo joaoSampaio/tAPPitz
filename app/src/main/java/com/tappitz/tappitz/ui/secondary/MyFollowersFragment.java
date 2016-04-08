@@ -52,7 +52,7 @@ public class MyFollowersFragment extends CustomDialogFragment implements CustomD
             public void addContact(String eMail, int id, String name) {
 
             }
-        }, getActivity());
+        }, getActivity(), null);
 
 
         loadUI(rootView);
