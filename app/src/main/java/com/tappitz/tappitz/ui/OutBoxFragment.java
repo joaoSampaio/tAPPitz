@@ -174,12 +174,15 @@ public class OutBoxFragment extends Fragment {
                     adapter.notifyDataSetChanged();
                     showPage(showPage);
                     new ModelCache<List<SentPicture>>().saveModel(getActivity(), photos, Global.OFFLINE_OUTBOX);
+
                 }
+                rootView.findViewById(R.id.containerNoPhoto).setVisibility((photos.size() == 0)?View.VISIBLE: View.GONE);
             }
 
             @Override
             public void failed(String error) {
-//                rootView.findViewById(R.id.action_refresh).setEnabled(true);
+                rootView.findViewById(R.id.containerNoPhoto).setVisibility(View.VISIBLE);
+
             }
         }).execute();
     }
@@ -194,6 +197,8 @@ public class OutBoxFragment extends Fragment {
         }
         if(photos.size() == 0) {
             refreshOutbox();
+        }else{
+            rootView.findViewById(R.id.containerNoPhoto).setVisibility(View.GONE);
         }
     }
 

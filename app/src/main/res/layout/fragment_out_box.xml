@@ -6,6 +6,42 @@
     android:background="@color/white"
     android:id="@+id/container">
 
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:gravity="center"
+        android:id="@+id/containerNoPhoto"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You have no photos yet..."
+            android:id="@+id/textView"
+            android:layout_above="@+id/imageView6"
+            android:layout_centerHorizontal="true"
+            android:textSize="25dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Take a photo and share it!"
+            android:id="@+id/textView3"
+            android:layout_above="@+id/imageView6"
+            android:layout_centerHorizontal="true"
+            android:textSize="25dp" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView6"
+            android:src="@drawable/ic_photo_camera"
+            android:layout_centerInParent="true"
+            android:tint="@color/greyText" />
+    </LinearLayout>
+
     <com.tappitz.tappitz.util.VerticalViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
