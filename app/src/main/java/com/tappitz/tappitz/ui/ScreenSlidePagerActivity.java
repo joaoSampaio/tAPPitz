@@ -15,6 +15,7 @@ import android.content.res.Configuration;
 import android.graphics.Matrix;
 import android.graphics.SurfaceTexture;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -273,7 +274,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         if(mHelper == null || !mHelper.requestedFile){
             start_camera();
         }
-
 
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
         signIn = false;
@@ -676,8 +676,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private void closeSplashScreen(){
         Log.d("myapp", "****closeSplashScreen ");
 
-        if(handler == null)
-            handler = new Handler();
+//        if(handler == null)
+//            handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -767,9 +767,8 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         if(mCamera != null)
             return;
 
-
         if( mTextureView == null){
-             mTextureView = new TextureView(this);
+            mTextureView = new TextureView(this);
             mTextureView.setSurfaceTextureListener(this);
             camera_preview.addView(mTextureView);
             return;
@@ -984,17 +983,21 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     public void refreshUnseenNotification(){
 
-        UnseenNotifications unseenNotifications = UnseenNotifications.load();
-        int commentsUnseen = unseenNotifications.getReceivedComment().size();
-        int receivedUnseen = unseenNotifications.getReceivedPhotos().size();
-        outbox_circle.setText(""+commentsUnseen);
-        inbox_circle.setText(""+receivedUnseen);
+        try {
+            UnseenNotifications unseenNotifications = UnseenNotifications.load();
+            int commentsUnseen = unseenNotifications.getReceivedComment().size();
+            int receivedUnseen = unseenNotifications.getReceivedPhotos().size();
+            outbox_circle.setText("" + commentsUnseen);
+            inbox_circle.setText("" + receivedUnseen);
 
-        outbox_circle.setVisibility(commentsUnseen > 0 ? View.VISIBLE : View.GONE);
-        inbox_circle.setVisibility(receivedUnseen>0? View.VISIBLE : View.GONE);
+            outbox_circle.setVisibility(commentsUnseen > 0 ? View.VISIBLE : View.GONE);
+            inbox_circle.setVisibility(receivedUnseen > 0 ? View.VISIBLE : View.GONE);
 
-        for(RefreshUnseenNotifications refresh : this.listenerUnseenNotifications){
-            refresh.onRefreshUnseenNotifications(unseenNotifications);
+            for (RefreshUnseenNotifications refresh : this.listenerUnseenNotifications) {
+                refresh.onRefreshUnseenNotifications(unseenNotifications);
+            }
+        }catch (Exception e){
+            Log.e("erro", " " + e.getMessage());
         }
     }
 
@@ -1006,38 +1009,44 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
 
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS}, MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-        }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-        }
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
+//        }
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS}, MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
+//        }
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
+//        }
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+//        }
     }
 
     public boolean allPermissionsGiven(){
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
+
+        return true;
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+//            return true;
+//        }
+
+//        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
+//                ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED &&
+//                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
+//                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
 
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-
-
-        if(allPermissionsGiven()){
-            onResume();
-        }
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode,
+//                                           String permissions[], int[] grantResults) {
+//
+//
+//        if(allPermissionsGiven()){
+//            onResume();
+//        }
+//    }
 
 
     private void initOfflineValues(){

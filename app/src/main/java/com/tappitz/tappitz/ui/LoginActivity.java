@@ -66,7 +66,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
     private Handler handler;
     private Runnable runnable;
     private Button btn_date_picker;
-    private TextView textViewDate;
+    private TextView textViewDate, textViewError;
 
     private List<Integer> screens;
 
@@ -95,7 +95,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         registerUsername = (AppCompatEditText) findViewById(R.id.registerUsername);
         login = (ActionProcessButton)findViewById(R.id.btn_login);
         login.setMode(ActionProcessButton.Mode.ENDLESS);
-
+        textViewError = (TextView)findViewById(R.id.textViewError);
         curScreen = R.id.screen_login;
 
         SharedPreferences prefs = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
@@ -321,6 +321,8 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
                     Log.d("myapp", "***get(status)**false*");
                     String error = json.getAsJsonObject().get("error").toString();
                     editPassword.setError(error);
+                    textViewError.setText(error);
+                    textViewError.setVisibility(View.VISIBLE);
                 }
                 progressDialog.dismiss();
 

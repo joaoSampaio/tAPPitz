@@ -67,10 +67,10 @@ public class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {
         switch (position){
 
             case Global.INBOX_OP:
-                width = 0.45f;
+                width = 0.5f;
                 break;
             case Global.OUTBOX_OP:
-                width = 0.45f;
+                width = 0.5f;
                 break;
         }
         return(width);

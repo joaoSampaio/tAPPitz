@@ -11,7 +11,7 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:gravity="center"
-        android:visibility="gone"
+        android:visibility="invisible"
         android:id="@+id/bottom_actions">
 
         <Button
@@ -40,12 +40,8 @@
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="20dp"
-        android:id="@+id/paginaregisto">
-
-
-
-
-
+        android:id="@+id/paginaregisto"
+        android:visibility="visible">
 
 
 
@@ -275,7 +271,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/screen_reg2"
-            android:visibility="gone">
+            android:visibility="invisible">
 
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/username_holder"
@@ -332,13 +328,20 @@
 
             </android.support.design.widget.TextInputLayout>
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/textViewError"
+                android:textColor="#eb0909" />
+
             <android.support.design.widget.TextInputLayout
                 android:id="@+id/phone_holder"
                 android:layout_width="match_parent"
                 android:alpha="0.8"
                 android:theme="@style/TextLabel"
                 android:layout_height="wrap_content"
-                style="@style/TextLabel">
+                style="@style/TextLabel"
+                android:layout_marginBottom="50dp">
 
                 <android.support.v7.widget.AppCompatEditText
                     android:id="@+id/registerPhoneNumber"

@@ -301,7 +301,8 @@ public class OutBoxFragment extends Fragment {
                 //já apagmos agora vamso fazer refresh
                 Log.d("outbox", "refreshUnseenNotification");
                 unseenNotifications.save();
-                ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
+                if(getActivity() != null)
+                    ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
             }
         }
     }

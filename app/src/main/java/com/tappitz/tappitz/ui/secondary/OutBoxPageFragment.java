@@ -332,9 +332,9 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
         for (Comment c: commentList) {
             allComments = "";
-            allComments += c.getName() + " - " + c.getTimeAgo() + "\n";
+            allComments += c.getName() + " - " + c.getTimeAgo();
             if(c.getComment().length() > 0){
-                allComments += "\"" + c.getComment() + "\n";
+                allComments +=  "\n" + "\"" + c.getComment() + "\n";
             }
             allComments +=  "\n";
             comments.add(allComments);

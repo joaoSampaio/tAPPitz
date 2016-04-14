@@ -5,21 +5,75 @@
     android:id="@+id/container">
     <!--android:background="@color/white"-->
 
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/containerNoPhoto">
 
-    <!--<android.support.v4.widget.DrawerLayout-->
-        <!--xmlns:android="http://schemas.android.com/apk/res/android"-->
-        <!--android:id="@+id/drawer_layout"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent">-->
-        <!--&lt;!&ndash; The main content view &ndash;&gt;-->
 
-        <com.tappitz.tappitz.util.VerticalViewPager
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:visibility="visible" >
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="No photos received."
+                android:id="@+id/textView4"
+                android:layout_above="@+id/imageView9"
+                android:layout_centerHorizontal="true"
+                android:textSize="25dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ask yor friends."
+                android:id="@+id/textView5"
+                android:layout_above="@+id/imageView9"
+                android:layout_centerHorizontal="true"
+                android:textSize="25dp" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imageView9"
+                android:src="@drawable/ic_photo_camera"
+                android:layout_centerInParent="true"
+                android:tint="@color/greyText" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView10"
+            android:layout_alignParentLeft="true"
+            android:src="@drawable/ic_navigate_before" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Swipe to check the Menu"
+            android:id="@+id/textView6"
+            android:layout_toRightOf="@+id/imageView10"
+            android:layout_alignTop="@+id/imageView10"
+            android:layout_alignBottom="@+id/imageView10"
+            android:gravity="center_vertical"
+            android:textSize="16dp" />
+
+
+    </RelativeLayout>
+
+    <com.tappitz.tappitz.util.VerticalViewPager
             android:id="@+id/viewPager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"/>
 
 
-        <!--<include-->
+    <!--<include-->
             <!--android:id="@+id/camera_buttons"-->
             <!--layout="@layout/layout_topbar"-->
             <!--/>-->

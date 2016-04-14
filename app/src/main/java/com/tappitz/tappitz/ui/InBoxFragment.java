@@ -198,11 +198,13 @@ public class InBoxFragment extends Fragment {
 
                     new ModelCache<List<ReceivedPhoto>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
                 }
+                rootView.findViewById(R.id.containerNoPhoto).setVisibility((photos.size() == 0)?View.VISIBLE: View.GONE);
             }
 
             @Override
             public void failed(String error) {
 //                rootView.findViewById(R.id.action_refresh).setEnabled(true);
+                rootView.findViewById(R.id.containerNoPhoto).setVisibility(View.VISIBLE);
             }
         }).execute();
     }
@@ -247,6 +249,8 @@ public class InBoxFragment extends Fragment {
 
         if(photos.size() == 0){
             refreshInbox();
+        }else{
+            rootView.findViewById(R.id.containerNoPhoto).setVisibility(View.GONE);
         }
 
     }

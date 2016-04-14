@@ -153,9 +153,6 @@ public class CameraHelper implements View.OnClickListener {
 
     public void setUP(){
         Log.d("MyCameraApp", "setUP home");
-//        textMsgWrapper.setVisibility(View.INVISIBLE);
-
-//        temp_pic.setVisibility(View.VISIBLE);
         setUpSize();
 
 

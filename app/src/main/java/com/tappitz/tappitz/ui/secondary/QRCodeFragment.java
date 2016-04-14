@@ -77,7 +77,6 @@ public static QRCodeFragment newInstance() {
                 .centerCrop()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .priority(Priority.HIGH)
-                .override(AppController.getInstance().width, AppController.getInstance().height)
                 .into((ImageView) rootView.findViewById(R.id.picture));
         //refresh();
 
