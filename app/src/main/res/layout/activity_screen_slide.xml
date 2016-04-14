@@ -41,7 +41,7 @@
 
 
 
-    <com.tappitz.tappitz.util.MainViewPager
+    <com.tappitz.app.util.MainViewPager
         android:id="@+id/pager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

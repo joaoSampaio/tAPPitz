@@ -72,7 +72,7 @@
 
 
 
-    <com.tappitz.tappitz.util.VerticalViewPager
+    <com.tappitz.app.util.VerticalViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
