@@ -117,25 +117,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
 
             loadVotesOffline();
 
-            Glide.with($this)
-                    .load(url)
-                    .listener(new RequestListener<String, GlideDrawable>() {
-                        @Override
-                        public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
-                            Log.d("myapp", "out onException" + e.getMessage());
-                            return false;
-                        }
-
-                        @Override
-                        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            return false;
-                        }
-                    })
-                    .override(AppController.getInstance().width, AppController.getInstance().height)
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .priority(Priority.HIGH)
-                    .into((ImageView) rootView.findViewById(R.id.picture));
+            loadImage(url);
 
         }else {
 
@@ -153,13 +135,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                 });
             }
 
-            Glide.with($this)
-                    .load(imagePath)
-                    .centerCrop()
-                    .diskCacheStrategy(DiskCacheStrategy.ALL)
-                    .priority(Priority.HIGH)
-                    .override(AppController.getInstance().width, AppController.getInstance().height)
-                    .into((ImageView) rootView.findViewById(R.id.picture));
+            loadImage(imagePath);
 
         }
         touch = new View.OnTouchListener() {
@@ -200,6 +176,26 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         commentList.setAdapter(adapter);
 
         return rootView;
+    }
+
+    private void loadImage(String path){
+        if(AppController.getInstance().width == 0){
+            Glide.with($this)
+                    .load(path)
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .priority(Priority.HIGH)
+                    .into((ImageView) rootView.findViewById(R.id.picture));
+        }else {
+            Glide.with($this)
+                    .load(path)
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                    .priority(Priority.HIGH)
+                    .override(AppController.getInstance().width, AppController.getInstance().height)
+                    .into((ImageView) rootView.findViewById(R.id.picture));
+        }
+
     }
 
     private void loadVotesOffline(){

@@ -387,16 +387,15 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     private void checkIsSignedIn(){
 
+        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        String sessionid = sp.getString("sessionId", "");
+        if (Global.VERSION_V2) {
+            RestClientV2.setSessionId(sessionid);
+        } else {
+            RestClient.setSessionId(sessionid);
+        }
         if(BackgroundService.isWifiAvailable()) {
             Log.d("checkIsSignedIn", "**checkIsSignedIn**** ");
-
-            SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-            String sessionid = sp.getString("sessionId", "");
-            if (Global.VERSION_V2) {
-                RestClientV2.setSessionId(sessionid);
-            } else {
-                RestClient.setSessionId(sessionid);
-            }
 
             final String email = sp.getString(Global.KEY_USER, "");
             final String password = sp.getString(Global.KEY_PASS, "");
@@ -756,6 +755,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         //setCameraDisplayOrientation(this, 1, mCamera);
     }
 
+    int numFails = 0;
     SurfaceTexture surface;
     public void start_camera(){
         Log.d("cam", "start_camera " + (mCamera == null));
@@ -770,8 +770,20 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
         //surface = mTextureView.getSurfaceTexture();
 
-        mCamera = Camera.open(AppController.getInstance().currentCameraId);
-
+        try {
+            mCamera = Camera.open(AppController.getInstance().currentCameraId);
+        }catch (Exception e) {
+            Log.e("camera", "line 776 camera fail:" + e.getMessage());
+            numFails++;
+            if (numFails <= 1) {
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        start_camera();
+                    }
+                }, 100);
+            }
+        }
         try {
 //            updateTextureMatrix(AppController.getInstance().width, AppController.getInstance().height);
             CameraHelper.setCameraDisplayOrientation(AppController.getInstance().currentCameraId, mCamera);

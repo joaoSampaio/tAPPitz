@@ -3,6 +3,7 @@ package com.tappitz.app.adapter;
 import android.app.Activity;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -91,28 +92,39 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
             this.listener = listener;
         }
 
+        public SelectClick getListener() {
+            return listener;
+        }
 
         public void removeClick(View v){
             v.setOnClickListener(null);
         }
 
-        public void setClick(View v){
-            v.setOnClickListener(myClickListener);
-        }
+//        public void setClick(View v){
+//            v.setOnClickListener(myClickListener);
+//        }
 
-        private View.OnClickListener myClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                switch (v.getId()){
-                    case R.id.checkBox:
-                        listener.onSelected(idFriend, v);
-                        break;
-                    case R.id.container:
-                        listener.onSelected(idFriend, v);
-                        break;
-                }
-            }
-        };
+//        private View.OnClickListener myClickListener = new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                switch (v.getId()){
+//                    case R.id.checkBox:
+//                        listener.onSelected(idFriend, v);
+//                        break;
+//                    case R.id.container:
+//                        if(v.getTag() != null){
+//                            CheckBox chk = (CheckBox)v.getTag();
+//                            chk.setOnClickListener(null);
+//                            boolean isSelected = selectedContacts.containsKey(id);
+//                            chk.setChecked(isIdSelected(contact.getId()));
+//                            chk.setOnClickListener(this);
+//
+//                        }
+//                        listener.onSelected(idFriend, v);
+//                        break;
+//                }
+//            }
+//        };
 
     }
 
@@ -125,7 +137,7 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
 
 
     @Override
-    public void onBindViewHolder(SelectSendPhotoViewHolder viewHolder, int i) {
+    public void onBindViewHolder(final SelectSendPhotoViewHolder viewHolder, int i) {
         // get the single element from the main array
         Contact contact = contacts.get(i);
         // Set the values
@@ -148,9 +160,40 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
         int r = rand.nextInt(255) / 2 + 255;
         int g = rand.nextInt(255) / 2 + 255;
         int b = rand.nextInt(255) / 2 + 255;
-//        float r = rand.nextFloat() / 2f + 0.5;
-//        float g = rand.nextFloat() / 2f + 0.5;
-//        float b = rand.nextFloat() / 2f + 0.5;
+
+        View.OnClickListener myClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                switch (v.getId()){
+                    case R.id.checkBox:
+                        viewHolder.getListener().onSelected(viewHolder.idFriend, v);
+                        break;
+                    case R.id.container:
+                        if(v.getTag() != null){
+                            CheckBox chk = (CheckBox)v.getTag();
+                            chk.setOnClickListener(null);
+                            boolean isSelected = !selectedContacts.containsKey(viewHolder.idFriend);
+                            chk.setChecked(isSelected);
+                            chk.setOnClickListener(this);
+
+                        }
+                        viewHolder.getListener().onSelected(viewHolder.idFriend, v);
+                        break;
+                }
+
+
+                for (Map.Entry<Integer, Integer> key: selectedContacts.entrySet()) {
+
+                    Log.d("selected", "key:"+key);
+
+                }
+                Log.d("selected", "----------------------:");
+            }
+        };
+
+
+
+
 
         // Set the color of the shape
         GradientDrawable bgShape = (GradientDrawable) viewHolder.mCircle.getBackground();
@@ -159,7 +202,11 @@ public class SelectSendPhotoAdapter extends RecyclerView.Adapter<SelectSendPhoto
         bgShape.setColor(NiceColor.betterNiceColor(contact.getName()));
         //viewHolder.container.setBackgroundColor(isIdSelected(contact.getId()) ? SELECTED : UNSELECTED);
         //viewHolder.setClick(viewHolder.container);
-        viewHolder.setClick(viewHolder.checkbox);
+
+        viewHolder.container.setTag(viewHolder.checkbox);
+        viewHolder.container.setOnClickListener(myClickListener);
+
+        viewHolder.checkbox.setOnClickListener(myClickListener);
 
         viewHolder.checkbox.setChecked(isIdSelected(contact.getId()));
 

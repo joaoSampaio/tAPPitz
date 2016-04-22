@@ -208,6 +208,19 @@ public class InBoxFragment extends Fragment {
         if(position >= 0){
             viewPager.setCurrentItem(position);
             //((ScreenSlidePagerActivity)getActivity()).setInbox_vote_id(-1);
+        }else{
+
+
+
+            int pictureId = id;
+
+            UnseenNotifications unseenNotifications = UnseenNotifications.load();
+            if(unseenNotifications.getReceivedPhotos().remove(pictureId) != null){
+                //já apagmos agora vamso fazer refresh
+                Log.d("inbox", "refreshUnseenNotification");
+                unseenNotifications.save();
+                ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
+            }
         }
 
     }

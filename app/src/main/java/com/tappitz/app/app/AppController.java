@@ -6,12 +6,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.tappitz.app.R;
-import com.tappitz.app.rest.RestClient;
+import com.tappitz.app.rest.RestClientV2;
 import com.tappitz.app.rest.model.ErrorLogEntry;
+import com.tappitz.app.rest.model.GoogleId;
 
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
@@ -20,8 +23,8 @@ import org.acra.annotation.ReportsCrashes;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
+
+import retrofit2.Call;
 
 //import com.squareup.okhttp.Request;
 
@@ -60,14 +63,14 @@ public class AppController extends Application {
         AppController.context = getApplicationContext();
 
         // Setup handler for uncaught exceptions.
-//        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-//            @Override
-//            public void uncaughtException(Thread thread, Throwable e) {
-//                handleUncaughtException(thread, e);
-//                oldHandler.uncaughtException(thread, e);
-//            }
-//        });
+        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
+        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable e) {
+                handleUncaughtException(thread, e);
+                oldHandler.uncaughtException(thread, e);
+            }
+        });
     }
 
     public void handleUncaughtException(Thread thread, Throwable e) {
@@ -89,15 +92,17 @@ public class AppController extends Application {
         final String phoneData = "sdk: " + androidVersion + "|model: " + model + "|version: " + appVersion;
         final ErrorLogEntry errorEntry = new ErrorLogEntry(errorLog, phoneData);
 
-        RestClient.getService().sendErrorLog(errorEntry, new Callback<JsonElement>() {
-            @Override
-            public void success(JsonElement json, retrofit.client.Response response2) {
-                //System.exit(1); // kill off the crashed app
-            }
+
+        Call<JsonElement> call = RestClientV2.getService().sendErrorLog(errorEntry);
+        call.enqueue(new retrofit2.Callback<JsonElement>() {
+             @Override
+             public void onResponse(Call<JsonElement> call, retrofit2.Response<JsonElement> response) {
+
+             }
 
             @Override
-            public void failure(RetrofitError error) {
-                //System.exit(1); // kill off the crashed app
+            public void onFailure(Call<JsonElement> call, Throwable t) {
+
             }
         });
     }
