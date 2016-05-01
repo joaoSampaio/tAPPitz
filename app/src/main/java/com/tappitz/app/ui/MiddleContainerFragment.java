@@ -133,7 +133,8 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
         Log.d("ss", "onPageSelected:" + position);
         if(getActivity() != null){
             ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture((position == Global.MIDDLE_QRCODE));
-            ((ScreenSlidePagerActivity)getActivity()).getmPager().setPagingEnabled(position == Global.MIDDLE_BLANK);
+            if(((ScreenSlidePagerActivity)getActivity()).getmPager() != null)
+                ((ScreenSlidePagerActivity)getActivity()).getmPager().setPagingEnabled(position == Global.MIDDLE_BLANK);
 
         }
 

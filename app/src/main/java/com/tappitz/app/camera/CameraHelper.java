@@ -7,14 +7,19 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.hardware.Camera;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -30,6 +35,12 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.tappitz.app.Global;
 import com.tappitz.app.R;
 import com.tappitz.app.app.AppController;
@@ -41,6 +52,7 @@ import com.tappitz.app.ui.BlankFragment;
 import com.tappitz.app.ui.ScreenSlidePagerActivity;
 import com.tappitz.app.ui.secondary.QRCodeDialogFragment;
 import com.tappitz.app.ui.secondary.SelectContactFragment;
+import com.tappitz.app.util.AnimatedGifEncoder;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -48,15 +60,25 @@ import net.sourceforge.zbar.ImageScanner;
 import net.sourceforge.zbar.Symbol;
 import net.sourceforge.zbar.SymbolSet;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import github.ankushsachdeva.emojicon.EmojiconEditText;
 
 //import me.dm7.barcodescanner.zbar.BarcodeFormat;
 
 /**
  * Created by joaosampaio on 21-02-2016.
  */
-public class CameraHelper implements View.OnClickListener {
+public class CameraHelper implements View.OnClickListener, View.OnLongClickListener {
 
+    private final static int MAXFRAMES = 5;
     private ScreenSlidePagerActivity activity;
     private Button btn_shutter;
     private ImageButton btn_back;
@@ -65,12 +87,18 @@ public class CameraHelper implements View.OnClickListener {
     private boolean turnLightOn = false;
     public boolean requestedFile = false;
     RelativeLayout layout_after_photo, layout_before_photo;
-    private EditText textMsg;
+    private EmojiconEditText textMsg;
+    private ImageView emoji_btn;
     private byte[] photoData;
     private int previewCount = 0;
     private int qrCodeSampleTime = 5;
     private ImageScanner scanner;
     private boolean barcodeScanned = false;
+    private boolean isLongClickActive = false;
+    ArrayList<Bitmap> bitmapsGif;
+    private int numFrames = 0;
+    private Handler handler;
+    private Runnable gifRunnable;
 
     final static int[] CLICABLES = {R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept};
 
@@ -82,7 +110,21 @@ public class CameraHelper implements View.OnClickListener {
     public CameraHelper(ScreenSlidePagerActivity act) {
         this.activity = act;
 
+        isLongClickActive = false;
+        bitmapsGif = new ArrayList<>();
+        handler = new Handler();
+        gifRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if(isLongClickActive && numFrames < MAXFRAMES) {
+                    Log.d("gif", "Runnable:"+numFrames);
+                    addFrameWhenAvailable();
+                    if (handler != null)
+                        handler.postDelayed(this, 1 * 1000);
+                }
 
+            }
+        };
         btn_back  = (ImageButton) activity.findViewById(R.id.btnPhotoDelete);
 
         btn_shutter = (Button) activity.findViewById(R.id.btn_shutter);
@@ -92,7 +134,8 @@ public class CameraHelper implements View.OnClickListener {
         layout_after_photo = (RelativeLayout)activity.findViewById(R.id.layout_after_photo);
         layout_before_photo = (RelativeLayout)activity.findViewById(R.id.layout_before_photo);
 
-        textMsg = (EditText)activity.findViewById(R.id.textMsg);
+        textMsg = (EmojiconEditText)activity.findViewById(R.id.textMsg);
+        emoji_btn = (ImageView) activity.findViewById(R.id.emoji_btn);
 
         layout_after_photo.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -137,7 +180,7 @@ public class CameraHelper implements View.OnClickListener {
         SharedPreferences sp = getActivity().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         int width = sp.getInt(Global.SCREEN_WIDTH, 0);
         int height = sp.getInt(Global.SCREEN_HEIGHT, 0);
-        if(true || width == 0) {
+        if( width == 0) {
 
             Display d = ((WindowManager)activity.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
             width = d.getWidth();
@@ -280,7 +323,6 @@ public class CameraHelper implements View.OnClickListener {
                 Log.d("myapp", "onSaveToFileRotated ");
                 photoPath = photoPathNew;
                 activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-                Log.d("myapp", "2 setEnabled(true)");
                 btn_back.setEnabled(true);
             }
         });
@@ -293,10 +335,8 @@ public class CameraHelper implements View.OnClickListener {
         public void onPictureTaken(byte[] data, Camera camera) {
             //decode the data obtained by the camera into a Bitmap
 
-            Log.d("myapp", "PictureCallback");
             photoData = data;
             stop_camera();
-            //getActivity().destroyView();
 
             new SavePhotoBackgroundTask(photoData, new SavePhotoBackgroundTask.SaveNewRotatedPictureInterface() {
                 @Override
@@ -366,12 +406,16 @@ public class CameraHelper implements View.OnClickListener {
         //este metodo esconde o menu da camera ou mostra o botao para tirar foto, simplesmente tem animações porque era codigo que ja tinha feito para outra app
         if(!takePhoto){
             temp_pic.setVisibility(View.GONE);
-            //surfaceView.setVisibility(View.VISIBLE);
         }
-        //btn_shutter.setVisibility(takePhoto ? View.GONE : View.VISIBLE);
+
+        if(takePhoto){
+            getActivity().getEmojiManager().setEmojiconEditText(textMsg);
+            getActivity().getEmojiManager().setEmojiButton(emoji_btn);
+        }else {
+
+        }
+
         
-        
-        //showBtnOptions(!takePhoto);
         layout_before_photo.setVisibility(takePhoto ? View.GONE : View.VISIBLE);
         layout_after_photo.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
 
@@ -382,26 +426,8 @@ public class CameraHelper implements View.OnClickListener {
         Log.d("myapp", "showBtnOptions:"+show);
         activity.findViewById(R.id.camera_options).setVisibility(!show ? View.GONE : View.VISIBLE);
         activity.findViewById(R.id.layout_camera).setVisibility(View.GONE);
-//        rootView.findViewById(R.id.go_to).setVisibility(!show ? View.GONE : View.VISIBLE);
-//        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
     }
 
-//    private void showEditText(){
-//        Log.d("myapp", "showEditText");
-//        final boolean isVisible = textMsgWrapper.isShown();
-//        activity.findViewById( R.id.btnText).setEnabled(false);
-//        textMsgWrapper.setVisibility(isVisible ? View.INVISIBLE : View.VISIBLE);
-//        activity.findViewById(R.id.btnText).setEnabled(true);
-//
-//        if(!isVisible){
-//            textMsg.requestFocus();
-//            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-//            imm.showSoftInput(textMsg, InputMethodManager.SHOW_IMPLICIT);
-//        }else {
-//            InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
-//            imm.hideSoftInputFromWindow(btn_shutter.getWindowToken(), 0);
-//        }
-//    }
 
 
     @Override
@@ -422,11 +448,8 @@ public class CameraHelper implements View.OnClickListener {
                 Log.d("myapp", "btn_shutter");
 
                 if(getActivity().getmCamera() != null) {
-                    Log.d("myapp", "1 setEnabled(false)");
                     btn_back.setEnabled(false);
-                    Log.d("myapp", "btn_shutter2**");
                     getActivity().getmCamera().takePicture(null, null, mPicture);
-                    Log.d("myapp", "btn_shutter2");
                     (activity).enableSwipe(false);
                     onTakePick(true);
                     getActivity().screenHistory.add(0, 0);
@@ -439,10 +462,7 @@ public class CameraHelper implements View.OnClickListener {
                 deletePrevious();
 
                 break;
-//            case R.id.btnText:
-////                showEditText();
-//                Log.d("MyCameraApp", "layout_after_photo4:" + layout_after_photo.isShown());
-//                break;
+
             case R.id.btnPhotoAccept:
 
                 if(photoPath == null || photoPath.equals("")) {
@@ -483,7 +503,6 @@ public class CameraHelper implements View.OnClickListener {
                 try {
                     enableCameraButtons(false);
                     if(getActivity().getmCamera() == null) {
-                        Log.d("myapp", "btn_flash is null:");
                         enableCameraButtons(true);
                         return;
                     }
@@ -504,11 +523,9 @@ public class CameraHelper implements View.OnClickListener {
                         getActivity().getmCamera().startPreview();
                         b.setTextColor(Color.WHITE);
                     }
-                    Log.d("myapp", "btn_flash end:");
                     enableCameraButtons(true);
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Log.d("myapp", "btn_flash Exception:");
                     enableCameraButtons(true);
                 }
                 break;
@@ -558,7 +575,6 @@ public class CameraHelper implements View.OnClickListener {
         if(listener != null){
             listener.enableCameraButtons(enable);
         }
-//        showBtnOptions(enable);
     }
 
     void showDialog() {
@@ -673,12 +689,14 @@ public class CameraHelper implements View.OnClickListener {
 
             try {
 
-
+                generateBitmapIfGif(data, camera.getParameters().getPreviewSize().width, camera.getParameters().getPreviewSize().height);
                 previewCount++;
                 //so verifica qr code X em X vezes
                 if((previewCount % qrCodeSampleTime) != 0)
                     return;
                 previewCount = 0;
+                if(barcodeScanned)
+                    return;
                 Camera.Parameters parameters = camera.getParameters();
                 Camera.Size size = parameters.getPreviewSize();
 
@@ -735,5 +753,170 @@ public class CameraHelper implements View.OnClickListener {
     };
 
 
+    @Override
+    public boolean onLongClick(View view) {
+        switch (view.getId()){
+            case R.id.btn_shutter:
+                if(handler != null && !isLongClickActive) {
+                    Log.d("gif", "OnLongClickListener gif");
+                    bitmapsGif.clear();
+                    numFrames = 0;
+                    isLongClickActive = true;
+
+                    onTakePick(true);
+                    getActivity().screenHistory.add(0, 0);
+                    (activity).enableSwipe(false);
+                    barcodeScanned = true;
+                    if (getActivity() != null)
+                        getActivity().getmCamera().setPreviewCallback(previewCb);
+                    handler.post(gifRunnable);
+
+
+                }
+            break;
+        }
+
+        return true;
+    }
+
+    private void addFrameWhenAvailable(){
+        newFrameIfAvailable = true;
+
+
+    }
+
+
+    private boolean newFrameIfAvailable = false;
+
+    private void generateBitmapIfGif(byte[] bitmapdata, int width, int height){
+
+        if(newFrameIfAvailable && numFrames < MAXFRAMES) {
+
+
+
+            Bitmap originalBitmap = PhotoSave.getBitmapImageFromYUV(bitmapdata, width, height );
+
+
+
+
+
+
+            Log.d("gif", "generateBitmapIfGif:"+numFrames);
+            newFrameIfAvailable = false;
+            Log.d("gif", "bitmapdata.length:"+bitmapdata.length);
+//            Bitmap originalBitmap = BitmapFactory.decodeByteArray(bitmapdata, 0, bitmapdata.length, null);
+            Log.d("gif", "originalBitmap!=null:"+ (originalBitmap!=null));
+            int orientation = Exif.getOrientation(bitmapdata);
+
+            Log.d("gif", "orientation:"+ orientation);
+            Log.d("gif", "width:"+ originalBitmap.getWidth());
+            Log.d("gif", "height:"+ originalBitmap.getHeight());
+            if(width > height)
+                orientation = 90;
+            switch(orientation) {
+                case 90:
+                    originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 90);
+                    break;
+                case 270:
+                    originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 270);
+                    break;
+
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                Log.d("gif", "originalBitmap.getAllocationByteCount():"+originalBitmap.getAllocationByteCount());
+            }
+
+//            ByteArrayOutputStream out = new ByteArrayOutputStream();
+//            originalBitmap.compress(Bitmap.CompressFormat.JPEG, 80, out);
+//            originalBitmap = BitmapFactory.decodeStream(new ByteArrayInputStream(out.toByteArray()));
+            bitmapsGif.add(originalBitmap);
+
+            FileOutputStream outStream = null;
+            try {
+                File file = PhotoSave.getOutputMediaFile();
+                outStream = new FileOutputStream(file);
+                originalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, outStream); // bmp is your Bitmap instance
+                outStream.close();
+
+                        photoPath = file.getAbsolutePath();
+                        getActivity().sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(file)));
+
+            } catch (FileNotFoundException e) {
+                Log.d("CAMERA", e.getMessage());
+            } catch (IOException e) {
+                Log.d("CAMERA", e.getMessage());
+            }
+
+
+
+
+            Log.d("gif", "bitmapsGif.add(decoded):"+numFrames);
+            if(numFrames == (MAXFRAMES -1))
+                saveGifToFile();
+            numFrames++;
+        }
+
+    }
+
+
+//    public byte[] generateGIF() {
+////        ArrayList<Bitmap> bitmaps = adapter.getBitmapArray();
+//        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+//        AnimatedGifEncoder encoder = new AnimatedGifEncoder();
+//        encoder.setDelay(1000);
+//        encoder.start(bos);
+//        for (Bitmap bitmap : bitmapsGif) {
+//            encoder.addFrame(bitmap);
+//        }
+//        encoder.finish();
+//        return bos.toByteArray();
+//    }
+
+    public void saveGifToFile(){
+        Log.d("gif", "save gif");
+        isLongClickActive = false;
+
+
+
+
+        new SaveGifBackgroundTask(bitmapsGif, new SaveGifBackgroundTask.GifSaved() {
+            @Override
+            public void onGifSaved(Uri uri, String photoPath) {
+                Log.d("gif", "onGifSaved");
+                activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+                Toast.makeText(AppController.getAppContext(), "Gif saved", Toast.LENGTH_SHORT);
+
+                stop_camera();
+                if (temp_pic != null) {
+                    temp_pic.setVisibility(View.VISIBLE);
+                }
+
+                Glide.with(getActivity())
+                .load(photoPath)
+                .asGif()
+                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                .priority(Priority.IMMEDIATE)
+                .listener(new RequestListener<String, GifDrawable>() {
+                    @Override
+                    public boolean onException(Exception e, String model, Target<GifDrawable> target, boolean isFirstResource) {
+                        Log.d("glide", "exception");
+                        if(e != null)
+                            Log.d("glide", "exception->"+e.getMessage());
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                        Log.d("glide", "onResourceReady");
+                        return false;
+                    }
+                })
+                .into(temp_pic);
+
+
+            }
+        }).execute();
+    }
 
 }

@@ -60,7 +60,7 @@
                 android:padding="15dp"
                 android:id="@+id/layout_out_description">
 
-                <TextView
+                <github.ankushsachdeva.emojicon.EmojiconTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="@dimen/text_size_normal"

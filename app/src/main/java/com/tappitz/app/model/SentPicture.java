@@ -39,7 +39,7 @@ public class SentPicture {
     public SentPicture(String comment, String pathPictureTemporary) {
         Random rand = new Random();
 
-        this.id = rand.nextInt();
+        this.id =  - rand.nextInt();
         this.comment = comment;
         this.pathPictureTemporary = pathPictureTemporary;
         this.isTemporary = true;

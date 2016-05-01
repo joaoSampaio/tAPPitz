@@ -51,6 +51,7 @@ import com.tappitz.app.rest.RestClientV2;
 import com.tappitz.app.rest.service.CallbackMultiple;
 import com.tappitz.app.rest.service.CheckLoggedStateService;
 import com.tappitz.app.ui.secondary.ContactContainerFragment;
+import com.tappitz.app.util.EmojiManager;
 import com.tappitz.app.util.ListenerPagerStateChange;
 import com.tappitz.app.util.MainViewPager;
 import com.tappitz.app.util.ModelCache;
@@ -107,6 +108,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     private View.OnClickListener goTolistener;
 
     private TextView outbox_circle, inbox_circle;
+    private EmojiManager emojiManager;
 
     private List<RefreshUnseenNotifications> listenerUnseenNotifications = new ArrayList<>();
 
@@ -254,6 +256,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         if(!allPermissionsGiven()){
             return;
         }
+
+//        EmojiconEditText tv = (EmojiconEditText)findViewById(R.id.textMsg);
+//        if (tv != null) {
+//            tv.setHorizontallyScrolling(false);
+//            tv.setMaxLines(2);
+//        }
+
         handler = new Handler();
         SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String email = sp.getString(Global.KEY_USER, "");
@@ -281,6 +290,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         } else {
             RestClient.setSessionId(sessionid);
         }
+        emojiManager = new EmojiManager(this);
         //closeSplashScreen();
         runLogin = new Runnable() {
             @Override
@@ -294,6 +304,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
 
         refreshUnseenNotification();
+
+
+
 //        checkIsSignedIn();
     }
 
@@ -580,8 +593,9 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
         if(goTolistener != null)
             goTolistener.onClick(v);
-
     }
+
+
 
     public void showPage(int page){
         if(mPagerAdapter != null && page >= 0 && page < NUM_PAGES){
@@ -1084,6 +1098,11 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         this.reloadAllContactsFragments = reloadAllContactsFragments;
     }
 
+    public CameraHelper getCameraHelper() {
+        return mHelper;
+    }
 
-
+    public EmojiManager getEmojiManager() {
+        return emojiManager;
+    }
 }

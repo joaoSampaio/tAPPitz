@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.load.resource.gif.GifDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.google.gson.reflect.TypeToken;
@@ -43,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import github.ankushsachdeva.emojicon.EmojiconTextView;
 
 public class OutBoxPageFragment extends Fragment implements View.OnClickListener {
 
@@ -99,7 +102,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         buttonsContainer = (LinearLayout)rootView.findViewById(R.id.painelvotacao);
         layout_out_description  = rootView.findViewById(R.id.layout_out_description);
         action_go_back = rootView.findViewById(R.id.action_go_back);
-        descriptionText = (TextView) rootView.findViewById(R.id.photo_description);
+        descriptionText = (EmojiconTextView) rootView.findViewById(R.id.photo_description);
         Log.d("myapp", "out dateSentTimeAgo:" + dateSentTimeAgo);
         descriptionText.setText("You - " + dateSentTimeAgo  + ((text.length() > 0) ? ( "\n" +"\"" + text) : ""));
 
@@ -179,6 +182,51 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
     }
 
     private void loadImage(String path){
+
+        String[] urls = {
+                "http://workspiration.org/sites/default/files/mr_turtleneck.gif",
+                "http://static1.squarespace.com/static/552a5cc4e4b059a56a050501/565f6b57e4b0d9b44ab87107/565f6ddee4b0d9b44ab89215/1449098068446/NYCGifathon2.gif",
+                "http://www.thisiscolossal.com/wp-content/uploads/2014/03/120515.gif",
+                "https://media.giphy.com/media/A1UKfhxcowj3W/giphy.gif",
+                "https://media.giphy.com/media/xTiTnzEhdR9y9PNyc8/giphy.gif",
+                "http://media0.giphy.com/media/gO94QQsHYlo7S/giphy.gif",
+                "http://2.media.dorkly.cvcdn.com/61/81/c560076359e426be43435777130268ea.gif",
+                "http://i.imgur.com/DfQqM.gif",
+                "http://cdn.rsvlts.com/wp-content/uploads/2013/11/Melanie-Iglesias-GIF-06.gif",
+                "http://49.media.tumblr.com/94810974eadfd211f13da8ee90a68557/tumblr_nxzgx5Wo271rtbl5vo1_500.gif",
+                "http://media3.giphy.com/media/CpA8xFyiRfQ2s/giphy.gif"
+
+        };
+//        int idFake = id;
+//        if(id < 0 )
+//            idFake = 22;
+//        path = urls[idFake % 10];
+//
+//        Glide.with($this)
+//                .load(path)
+//                .asGif()
+//                .centerCrop()
+//                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+//                .priority(Priority.IMMEDIATE)
+//                .override(AppController.getInstance().width, AppController.getInstance().height)
+//                .listener(new RequestListener<String, GifDrawable>() {
+//                    @Override
+//                    public boolean onException(Exception e, String model, Target<GifDrawable> target, boolean isFirstResource) {
+//                        Log.d("glide", "exception");
+//                        if(e != null)
+//                            Log.d("glide", "exception->"+e.getMessage());
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+//                        Log.d("glide", "onResourceReady");
+//                        return false;
+//                    }
+//                })
+//                .into((ImageView) rootView.findViewById(R.id.picture));
+
+
         if(AppController.getInstance().width == 0){
             Glide.with($this)
                     .load(path)
@@ -187,6 +235,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                     .priority(Priority.HIGH)
                     .into((ImageView) rootView.findViewById(R.id.picture));
         }else {
+
             Glide.with($this)
                     .load(path)
                     .centerCrop()

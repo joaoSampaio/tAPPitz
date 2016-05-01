@@ -4,10 +4,14 @@ package com.tappitz.app.camera;
 import android.annotation.SuppressLint;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.ImageFormat;
 import android.graphics.Matrix;
+import android.graphics.Rect;
+import android.graphics.YuvImage;
 import android.os.Environment;
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,11 +23,13 @@ public class PhotoSave {
 
     @SuppressLint("SimpleDateFormat") public static File getOutputMediaFile()
     {
+        return getOutputMediaFile("jpg");
+    }
+
+    @SuppressLint("SimpleDateFormat") public static File getOutputMediaFile(String extension){
         if (true == isExternalStoragePresent())
         {
-            //MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString() + "/tAPPitz");
-//            File mediaStorageDir = new File(Environment.getExternalStorageDirectory().toString() + "/DCIM/Camera");
 
             if (!mediaStorageDir.exists())
             {
@@ -36,7 +42,7 @@ public class PhotoSave {
 
             String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
             File mediaFile;
-            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "tAPPitz_" + timeStamp + ".jpg");
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator + "tAPPitz_" + timeStamp + "."+extension);
             return mediaFile;
         }
         else
@@ -53,6 +59,7 @@ public class PhotoSave {
             return null;
         }
     }
+
 
     public static boolean isExternalStoragePresent()
     {
@@ -101,25 +108,6 @@ public class PhotoSave {
                 Log.d("foto", "Save to File orientation: " + orientation);
                 Bitmap originalBitmap = BitmapFactory.decodeByteArray(photoData, 0, photoData.length, null);
 
-                // others devices
-//                if(originalBitmap.getHeight() < originalBitmap.getWidth()){
-//                    orientation = 90;
-//                } else {
-//                    orientation = 0;
-//                }
-                Log.d("foto", "originalBitmap.getHeight(): " + originalBitmap.getHeight());
-                Log.d("foto", "originalBitmap.getWidth(): " + originalBitmap.getWidth());
-//                switch(orientation) {
-//                    case ExifInterface.ORIENTATION_ROTATE_90:
-//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 90);
-//                        break;
-//                    case ExifInterface.ORIENTATION_ROTATE_180:
-//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 180);
-//                        break;
-//                    case ExifInterface.ORIENTATION_ROTATE_270:
-//                        originalBitmap = PhotoSave.RotateBitmap(originalBitmap, 270);
-//                        break;
-//                }
 
                 switch(orientation) {
                     case 90:
@@ -156,5 +144,16 @@ public class PhotoSave {
         return file;
     }
 
+    public static Bitmap getBitmapImageFromYUV(byte[] data, int width, int height) {
+        YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21, width, height, null);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        yuvimage.compressToJpeg(new Rect(0, 0, width, height), 90, baos);
+
+        byte[] jdata = baos.toByteArray();
+        BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
+        bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+        Bitmap bmp = BitmapFactory.decodeByteArray(jdata, 0, jdata.length, bitmapFatoryOptions);
+        return bmp;
+    }
 
 }

@@ -4,8 +4,10 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -59,6 +61,39 @@ public class BlankFragment extends Fragment  {
 
             }
         });
+
+
+
+
+
+        rootView.findViewById(R.id.btn_shutter).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+
+                ((ScreenSlidePagerActivity)getActivity()).getCameraHelper().onLongClick(view);
+                return true;
+            }
+        });
+
+//        View.OnTouchListener photoTouchListener = new View.OnTouchListener() {
+//
+//            @Override
+//            public boolean onTouch(View pView, MotionEvent pEvent) {
+//                pView.onTouchEvent(pEvent);
+//                // We're only interested in when the button is released.
+//                if (pEvent.getAction() == MotionEvent.ACTION_UP) {
+//                    // We're only interested in anything if our speak button is currently pressed.
+//                    if (isLongClickActive) {
+//                        Log.d("gif", "ACTION_UP gif");
+//                        // Do something when the button is released.
+//                        isLongClickActive = false;
+//                    }
+//                }
+//                return false;
+//            }
+//        };
+
+//        rootView.findViewById(R.id.btn_shutter).setOnTouchListener(photoTouchListener);
 
         click = new View.OnClickListener() {
             @Override

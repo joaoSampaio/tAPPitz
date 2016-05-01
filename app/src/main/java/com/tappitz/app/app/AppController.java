@@ -58,19 +58,19 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
 
-        ACRA.init(this);
+        //ACRA.init(this);
         mInstance = this;
         AppController.context = getApplicationContext();
 
         // Setup handler for uncaught exceptions.
-        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
-            @Override
-            public void uncaughtException(Thread thread, Throwable e) {
-                handleUncaughtException(thread, e);
-                oldHandler.uncaughtException(thread, e);
-            }
-        });
+//        final Thread.UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
+//        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+//            @Override
+//            public void uncaughtException(Thread thread, Throwable e) {
+//                handleUncaughtException(thread, e);
+//                oldHandler.uncaughtException(thread, e);
+//            }
+//        });
     }
 
     public void handleUncaughtException(Thread thread, Throwable e) {

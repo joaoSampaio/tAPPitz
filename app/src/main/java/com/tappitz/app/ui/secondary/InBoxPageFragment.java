@@ -17,6 +17,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,6 +36,7 @@ import com.tappitz.app.background.BackgroundService;
 import com.tappitz.app.model.FutureVote;
 import com.tappitz.app.model.ReceivedPhoto;
 import com.tappitz.app.ui.InBoxFragment;
+import com.tappitz.app.ui.ScreenSlidePagerActivity;
 import com.tappitz.app.util.ListenerPagerStateChange;
 import com.tappitz.app.util.ModelCache;
 import com.tappitz.app.util.VerticalViewPager;
@@ -42,14 +45,17 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
+import github.ankushsachdeva.emojicon.EmojiconEditText;
+import github.ankushsachdeva.emojicon.EmojiconTextView;
+
 
 public class InBoxPageFragment extends Fragment implements View.OnClickListener, View.OnLongClickListener {
 
-    private View rootView, layout_vote, layout_container, layoutVoteText, painelvotacao, layout_already_voted_original, loading;
+    private View rootView, layout_vote, layout_container, layoutVoteText, painelvotacao, layout_already_voted_original, loading, layoutText, descriptionContainer;
     private TextView textViewOwner, yourComment;
     private Button botaoVermelho, botaoAmarelo, botaoVerde;
-    private ImageView color_background;
-    private EditText editTextComment;
+    private ImageView color_background, emoji_btn;
+    private EmojiconEditText editTextComment;
     private int id, currentVote;
     private ListenerPagerStateChange state;
     String text;
@@ -71,8 +77,10 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         rootView = inflater.inflate(R.layout.fragment_inbox_child, container, false);
         ImageView imageView = (ImageView)rootView.findViewById(R.id.picture);
         String url = getArguments().getString(Global.IMAGE_RESOURCE_URL);
-        text = getArguments().getString(Global.TEXT_RESOURCE);
         id = getArguments().getInt(Global.ID_RESOURCE);
+
+        text = getArguments().getString(Global.TEXT_RESOURCE);
+
         String owner = getArguments().getString(Global.OWNER_RESOURCE);
         String dateSentTimeAgo = getArguments().getString(Global.DATE_RESOURCE);
 
@@ -131,6 +139,9 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             rootView.findViewById(idBtn).setOnLongClickListener(this);
         }
 
+//        ScrollView sv = (ScrollView)rootView.findViewById(R.id.layoutVoteText);
+//        sv.setEnabled(false);
+
         painelvotacao = rootView.findViewById(R.id.painelvotacao);
         layoutVoteText = rootView.findViewById(R.id.layoutVoteText);
         botaoVerde = (Button)rootView.findViewById(R.id.botaoVerde);
@@ -138,14 +149,16 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         botaoVermelho = (Button)rootView.findViewById(R.id.botaoVermelho);
         color_background = (ImageView)rootView.findViewById(R.id.color_background);
         layout_already_voted_original = rootView.findViewById(R.id.layout_already_voted_original);
-
-        editTextComment = (EditText)rootView.findViewById(R.id.editTextComment);
+        layoutText = rootView.findViewById(R.id.layoutText);
+        editTextComment = (EmojiconEditText)rootView.findViewById(R.id.editTextComment);
+        descriptionContainer = rootView.findViewById(R.id.descriptionContainer);
+        emoji_btn = (ImageView)rootView.findViewById(R.id.emoji_btn);
         layout_vote = rootView.findViewById(R.id.layout_vote);
         layout_container = rootView.findViewById(R.id.container);
         yourComment = (TextView)rootView.findViewById(R.id.yourComment);
         yourComment.setText( ((myComment!= null && myComment.length() > 0)? ("\"" + myComment) : ""));
 
-        TextView textview = (TextView) rootView.findViewById(R.id.photo_description);
+        TextView textview = (EmojiconTextView) rootView.findViewById(R.id.photo_description);
         textview.setText( ((text!= null && text.length() > 0)? ("\"" + text) : ""));
         TextView textViewVoted = (TextView) rootView.findViewById(R.id.photo_description_voted);
         textViewVoted.setText( ((text!= null && text.length() > 0)? ("\"" + text) : ""));
@@ -167,27 +180,33 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
             rootView.findViewById(R.id.layout_vote).setVisibility(View.VISIBLE);
         }
 
+        editTextComment.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    closeKeyboard();
+                }else{
+                    changeBackButtonPosition(false);
+                }
+
+            }
+        });
+
         rootView.findViewById(R.id.picture).setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
-                    case MotionEvent.ACTION_HOVER_EXIT:
-                        Log.d("myapp", "inbox ACTION_HOVER_EXIT");
-                        break;
-                    case MotionEvent.ACTION_CANCEL:
-                        break;
-                    case MotionEvent.ACTION_HOVER_MOVE:
-                        Log.d("myapp", "inbox ACTION_HOVER_MOVE");
-                        break;
+
                     case MotionEvent.ACTION_DOWN:
                         Log.d("myapp", "inbox ACTION_DOWN");
-                        showButtonsAndBackground(false);
-                        //imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-                        return true;
+//                        showButtonsAndBackground(false);
+//                        //imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
+//                        return true;
                     case MotionEvent.ACTION_POINTER_DOWN:
                         Log.d("myapp", "inbox ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
+//                        imm.hideSoftInputFromWindow(emoji_btn.getWindowToken(), 0);
                         showButtonsAndBackground(false);
                         //imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
                         return true;
@@ -302,6 +321,9 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         }
 
+        ((ScreenSlidePagerActivity)getActivity()).getEmojiManager().setEmojiconEditText(editTextComment);
+        ((ScreenSlidePagerActivity)getActivity()).getEmojiManager().setEmojiButton(emoji_btn);
+
         color_background.setBackgroundColor(getResources().getColor(getColor(currentVote)));
         color_background.setVisibility(View.VISIBLE);
         showSendExtras(true);
@@ -309,12 +331,24 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         editTextComment.requestFocus();
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(editTextComment, InputMethodManager.SHOW_IMPLICIT);
-
+        changeBackButtonPosition(false);
         return true;
     }
 
     private void showSendExtras(boolean show){
-        editTextComment.setVisibility(show? View.VISIBLE : View.GONE);
+
+        RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if(show){
+            p.addRule(RelativeLayout.ABOVE, R.id.layoutText);
+        }else {
+            p.addRule(RelativeLayout.ABOVE, R.id.painelvotacao);
+        }
+
+        descriptionContainer.setLayoutParams(p);
+
+        layoutText.setVisibility(show? View.VISIBLE : View.GONE);
+//        editTextComment.setVisibility(show? View.VISIBLE : View.GONE);
         layoutVoteText.setVisibility(show ? View.VISIBLE : View.GONE);
         painelvotacao.setVisibility(show? View.INVISIBLE : View.VISIBLE);
         color_background.setVisibility(show ? View.VISIBLE : View.GONE);
@@ -324,6 +358,18 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
     }
 
+    private void changeBackButtonPosition(boolean top){
+        RelativeLayout.LayoutParams p = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+        if(top){
+            p.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+        }else {
+            p.addRule(RelativeLayout.CENTER_VERTICAL);
+        }
+
+        layoutVoteText.setLayoutParams(p);
+    }
+
     private void closeKeyboard(){
         try {
             InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -331,6 +377,7 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
         } catch (Exception e) {
             e.printStackTrace();
         }
+        changeBackButtonPosition(true);
     }
 
     private void animatePagerTransition(final boolean forward, final VerticalViewPager viewPager) {
