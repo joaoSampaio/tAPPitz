@@ -25,11 +25,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -99,6 +101,10 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
     private int numFrames = 0;
     private Handler handler;
     private Runnable gifRunnable;
+    private Camera mCamera;
+
+    private FrameLayout camera_preview;
+    CameraPreview4 previewView;
 
     final static int[] CLICABLES = {R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept};
 
@@ -196,6 +202,21 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
 
     public void setUP(){
         Log.d("MyCameraApp", "setUP home");
+
+        btn_shutter.setVisibility(View.GONE);
+
+        camera_preview = (FrameLayout)getActivity().findViewById(R.id.camera_preview);
+//        previewView = new CameraPreview4(getActivity());
+//        camera_preview.addView(previewView);
+
+        startCamera();
+//        mCamera = Camera.open(AppController.getInstance().currentCameraId);
+//        determineDisplayOrientation();
+//        previewView.setCamera(mCamera);
+
+
+
+
         setUpSize();
 
 
@@ -214,10 +235,103 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
             onTakePick(true);
         }
 
-        btn_shutter.setVisibility(View.GONE);
+
 
         showBtnOptions(true);
         Log.d("MyCameraApp", "layout_after_photo3:" + layout_after_photo.isShown());
+    }
+
+
+    public void destroyCamera(){
+        stopCamera();
+        camera_preview.removeAllViews();
+    }
+
+    public void startCamera(){
+        Log.d("MyCameraApp", "start camera .....>>>>>:");
+        camera_preview.removeAllViews();
+        previewView = new CameraPreview4(getActivity());
+        camera_preview.addView(previewView);
+
+
+        mCamera = Camera.open(AppController.getInstance().currentCameraId);
+        determineDisplayOrientation();
+        previewView.setCamera(mCamera);
+        AppController.getInstance().mCameraReady = true;
+
+        if(getActivity().getListenerCamera() != null)
+            getActivity().getListenerCamera().onCameraAvailable();
+        getActivity().notifyCameraReady();
+        btn_shutter.setVisibility(View.VISIBLE);
+        showBtnOptions(true);
+        onTakePick(false);
+    }
+
+    public void stopCamera(){
+
+        if (mCamera != null) {
+            previewView.setCamera(null);
+            mCamera.release();
+            mCamera = null;
+        }
+        //camera_preview.removeAllViews();
+    }
+
+
+    public void determineDisplayOrientation() {
+        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+        Camera.getCameraInfo(AppController.getInstance().currentCameraId, cameraInfo);
+
+        int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+        int degrees  = 0;
+
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+
+        int displayOrientation;
+
+        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            displayOrientation = (cameraInfo.orientation + degrees) % 360;
+            displayOrientation = (360 - displayOrientation) % 360;
+        } else {
+            displayOrientation = (cameraInfo.orientation - degrees + 360) % 360;
+        }
+
+        mCamera.setDisplayOrientation(displayOrientation);
+        Camera.Parameters parameters = mCamera.getParameters();
+        parameters.setPictureFormat(PixelFormat.JPEG);
+        parameters.set("jpeg-quality", 90);
+
+
+//        int rotation = getActivity().getWindowManager().getDefaultDisplay().getRotation();
+//        int degrees = 0;
+//        switch (rotation) {
+//            case Surface.ROTATION_0: degrees = 0; break; //Natural orientation
+//            case Surface.ROTATION_90: degrees = 90; break; //Landscape left
+//            case Surface.ROTATION_180: degrees = 180; break;//Upside down
+//            case Surface.ROTATION_270: degrees = 270; break;//Landscape right
+//        }
+//        Camera.CameraInfo info = new Camera.CameraInfo();
+//        int rotate = (info.orientation - degrees + 360) % 360;
+        displayOrientation = (cameraInfo.orientation - degrees + 360) % 360;
+        parameters.setRotation(displayOrientation);
+
+        mCamera.setParameters(parameters);
     }
 
     private void onCameraAvailable(){
@@ -350,10 +464,11 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
                     }else{
 
                         photoPath = UriPath.getPath(activity, uri);
-                        loadBitmapFile(temp_pic, photoPath, AppController.getInstance().width, AppController.getInstance().height);
+//                        loadBitmapFile(temp_pic, photoPath, AppController.getInstance().width, AppController.getInstance().height);
                         activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
                         photoData = null;
                         Log.d("myapp", "1 setEnabled(true)");
+                        Toast.makeText(activity, "done", Toast.LENGTH_LONG);
 //                        btn_back.setEnabled(true);
 
                     }
@@ -448,7 +563,7 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
                 Log.d("myapp", "btn_shutter");
 
                 if(getActivity().getmCamera() != null) {
-                    btn_back.setEnabled(false);
+                    //btn_back.setEnabled(false);
                     getActivity().getmCamera().takePicture(null, null, mPicture);
                     (activity).enableSwipe(false);
                     onTakePick(true);
@@ -485,8 +600,10 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
                         }
                     }).execute();
                 }else {
+                    Log.d("myapp", "photoPath has uri");
                     showDialog();
                 }
+
                 break;
 
             case R.id.btn_load:
@@ -919,4 +1036,7 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
         }).execute();
     }
 
+    public Camera getmCamera() {
+        return mCamera;
+    }
 }

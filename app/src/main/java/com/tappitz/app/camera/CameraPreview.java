@@ -1,10 +1,15 @@
 package com.tappitz.app.camera;
 
 import android.content.Context;
+import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.util.Log;
+import android.view.Display;
+import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+
+import com.tappitz.app.ui.ScreenSlidePagerActivity;
 
 /**
  * Created by joaosampaio on 12-02-2016.
@@ -14,11 +19,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Camera mCamera;
     String TAG = "cameraApp";
     private static final double ASPECT_RATIO = 3.0 / 4.0;
+    private ScreenSlidePagerActivity activity;
+    private int orgPreviewWidth;
+    private int orgPreviewHeight;
 
-    public CameraPreview(Context context, Camera camera) {
-        super(context);
+    public CameraPreview(ScreenSlidePagerActivity activity, Camera camera) {
+        super(activity);
         mCamera = camera;
-
+        this.activity = activity;
         // Install a SurfaceHolder.Callback so we get notified when the
         // underlying surface is created and destroyed.
         mHolder = getHolder();
@@ -101,4 +109,14 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         setMeasuredDimension(width, height);
     }
 
+
+
+
+    public Camera getmCamera() {
+        return mCamera;
+    }
+
+    public ScreenSlidePagerActivity getActivity() {
+        return activity;
+    }
 }

@@ -28,9 +28,8 @@ public class BlankFragment extends Fragment  {
     final static int[] CLICABLES = {R.id.logOut, R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btn_shutter,
             R.id.action_goto_sent, R.id.action_goto_received, R.id.action_goto_qrcode, R.id.action_goto_contacts, R.id.inbox_circle, R.id.outbox_circle};
 
-    View rootView, camera_options;
+    View rootView, camera_options, layout_before_photo;
     private Button btn_shutter;
-    RelativeLayout layout_after_photo;
     private EditText textMsg;
     private View.OnClickListener click;
 
@@ -43,21 +42,16 @@ public class BlankFragment extends Fragment  {
     public View onCreateView(LayoutInflater inflater, final ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_blank, container, false);
-        Log.d("myapp2", "onCreateView blanck");
 
         ((ScreenSlidePagerActivity)getActivity()).setButtonEnable(new ButtonEnable() {
             @Override
             public void enableCameraButtons(boolean enable) {
-                Log.d("myapp", "enableCameraButtons2222:" + enable);
-//                enable =  true;
-//                showBtnOptions(enable);
+
                 rootView.findViewById(R.id.btn_toggle_camera).setEnabled(enable);
                 rootView.findViewById(R.id.btn_flash).setEnabled(enable);
                 rootView.findViewById(R.id.btn_load).setEnabled(enable);
                 rootView.findViewById(R.id.camera_options).setVisibility(View.VISIBLE);
 
-//                for (int id : CLICABLES)
-//                    rootView.findViewById(id).setOnClickListener(enable? click : null);
 
             }
         });
@@ -66,34 +60,15 @@ public class BlankFragment extends Fragment  {
 
 
 
-        rootView.findViewById(R.id.btn_shutter).setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-
-                ((ScreenSlidePagerActivity)getActivity()).getCameraHelper().onLongClick(view);
-                return true;
-            }
-        });
-
-//        View.OnTouchListener photoTouchListener = new View.OnTouchListener() {
-//
+//        rootView.findViewById(R.id.btn_shutter).setOnLongClickListener(new View.OnLongClickListener() {
 //            @Override
-//            public boolean onTouch(View pView, MotionEvent pEvent) {
-//                pView.onTouchEvent(pEvent);
-//                // We're only interested in when the button is released.
-//                if (pEvent.getAction() == MotionEvent.ACTION_UP) {
-//                    // We're only interested in anything if our speak button is currently pressed.
-//                    if (isLongClickActive) {
-//                        Log.d("gif", "ACTION_UP gif");
-//                        // Do something when the button is released.
-//                        isLongClickActive = false;
-//                    }
-//                }
-//                return false;
+//            public boolean onLongClick(View view) {
+//
+//                ((ScreenSlidePagerActivity)getActivity()).getCameraHelper().onLongClick(view);
+//                return true;
 //            }
-//        };
+//        });
 
-//        rootView.findViewById(R.id.btn_shutter).setOnTouchListener(photoTouchListener);
 
         click = new View.OnClickListener() {
             @Override
@@ -115,10 +90,11 @@ public class BlankFragment extends Fragment  {
                 ((ScreenSlidePagerActivity)getActivity()).pass(v);
             }
         };
-
+        View layout_after_photo = rootView.findViewById(R.id.layout_after_photo);
+        layout_after_photo.setVisibility(View.GONE);
         camera_options = rootView.findViewById(R.id.camera_options);
         btn_shutter = (Button) rootView.findViewById(R.id.btn_shutter);
-        layout_after_photo = (RelativeLayout)rootView.findViewById(R.id.layout_after_photo);
+        layout_before_photo = (RelativeLayout)rootView.findViewById(R.id.layout_before_photo);
         textMsg = (EditText)rootView.findViewById(R.id.textMsg);
 
         for(int id : CLICABLES)
@@ -146,10 +122,10 @@ int FOCUS_AREA_SIZE = 100;
                 (int)(y + touchMinor/2));
 
         final Rect targetFocusRect = new Rect(
-                tfocusRect.left * 2000/layout_after_photo.getWidth() - 1000,
-                tfocusRect.top * 2000/layout_after_photo.getHeight() - 1000,
-                tfocusRect.right * 2000/layout_after_photo.getWidth() - 1000,
-                tfocusRect.bottom * 2000/layout_after_photo.getHeight() - 1000);
+                tfocusRect.left * 2000/layout_before_photo.getWidth() - 1000,
+                tfocusRect.top * 2000/layout_before_photo.getHeight() - 1000,
+                tfocusRect.right * 2000/layout_before_photo.getWidth() - 1000,
+                tfocusRect.bottom * 2000/layout_before_photo.getHeight() - 1000);
 
 
 //        int left = clamp(Float.valueOf((x / layout_after_photo.getWidth()) * 2000 - 1000).intValue(), FOCUS_AREA_SIZE);
@@ -175,7 +151,6 @@ int FOCUS_AREA_SIZE = 100;
     private void setUP(){
 
         Log.d("myapp", "setUP blank ");
-        layout_after_photo.setVisibility(View.VISIBLE);
 
         showBtnOptions(false);
         btn_shutter.setVisibility(View.GONE);
@@ -204,7 +179,7 @@ int FOCUS_AREA_SIZE = 100;
 
 
     private void enableFocus(){
-        layout_after_photo.setOnTouchListener(new View.OnTouchListener() {
+        layout_before_photo.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 Log.d("myapp", "setOnTouchListener blank ");
@@ -280,8 +255,8 @@ int FOCUS_AREA_SIZE = 100;
     private void showBtnOptions(boolean show){
         rootView.findViewById(R.id.camera_options).setVisibility(!show ? View.GONE : View.VISIBLE);
         rootView.findViewById(R.id.layout_camera).setVisibility(View.GONE);
-//        rootView.findViewById(R.id.go_to).setVisibility(!show ? View.GONE : View.VISIBLE);
-//        rootView.findViewById(R.id.layout_goto).setVisibility(View.GONE);
+
+
     }
 
     public interface ButtonEnable{
