@@ -25,6 +25,7 @@ public class ReceivedPhoto {
     private String comment;
     private int vote;
     private boolean isVoteTemporary;
+    private boolean isGif;
 
 
     public ReceivedPhoto(int pictureId, String pictureSentence, String authorName, String sentDate, boolean hasVoted, String votedDate, String comment, int vote) {

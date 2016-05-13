@@ -22,6 +22,7 @@ public class SentPicture {
     private int id;
     private String comment;
     private String createdDate;
+    private boolean isGif;
 
     public SentPicture(int id, String comment, String createdDate, boolean isTemporary){
         this.id = id;

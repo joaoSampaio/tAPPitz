@@ -206,6 +206,8 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
         btn_shutter.setVisibility(View.GONE);
 
         camera_preview = (FrameLayout)getActivity().findViewById(R.id.camera_preview);
+        previewView = new CameraPreview4(getActivity());
+        camera_preview.addView(previewView);
 //        previewView = new CameraPreview4(getActivity());
 //        camera_preview.addView(previewView);
 
@@ -247,11 +249,17 @@ public class CameraHelper implements View.OnClickListener, View.OnLongClickListe
         camera_preview.removeAllViews();
     }
 
+    public void restartCamera(){
+        if(mCamera != null){
+            mCamera.startPreview();
+        }
+    }
+
     public void startCamera(){
         Log.d("MyCameraApp", "start camera .....>>>>>:");
-        camera_preview.removeAllViews();
-        previewView = new CameraPreview4(getActivity());
-        camera_preview.addView(previewView);
+//        camera_preview.removeAllViews();
+//        previewView = new CameraPreview4(getActivity());
+//        camera_preview.addView(previewView);
 
 
         mCamera = Camera.open(AppController.getInstance().currentCameraId);

@@ -11,6 +11,7 @@ public class CreatePhoto {
     private String comment;
     private String picture;
     private List<Integer> friendIds;
+    private boolean isGif;
 
     public CreatePhoto(String comment, List<Integer> contacts, String picture, boolean sendToFollowers) {
         this.comment = comment;

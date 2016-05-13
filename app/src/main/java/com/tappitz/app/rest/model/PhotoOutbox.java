@@ -11,6 +11,7 @@ public class PhotoOutbox {
 
     private int id;
     private String comment;
+    private boolean isGif;
     private String createdDate;
 
     public PhotoOutbox( int id, String text){

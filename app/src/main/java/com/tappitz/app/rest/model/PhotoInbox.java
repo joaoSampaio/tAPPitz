@@ -16,6 +16,7 @@ public class PhotoInbox {
     private boolean hasVoted;
     private String votedDate;
     private String comment;
+    private boolean isGif;
     private int vote;
 
 
