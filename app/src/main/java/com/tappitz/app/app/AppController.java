@@ -42,7 +42,7 @@ public class AppController extends Application {
 
     public Camera mCamera;
     public SurfaceHolder surfaceHolder;
-    public int currentCameraId;
+    public int currentCameraId = 1;
     public int width;
     public int height;
     private String sessionId;
@@ -58,7 +58,7 @@ public class AppController extends Application {
     public void onCreate() {
         super.onCreate();
 
-        //ACRA.init(this);
+//        ACRA.init(this);
         mInstance = this;
         AppController.context = getApplicationContext();
 

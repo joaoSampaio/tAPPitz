@@ -20,7 +20,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.tappitz.app.camera.CameraPreview3;
 import com.tappitz.app.camera.CameraPreview4;
 
 
