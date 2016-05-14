@@ -43,6 +43,7 @@ public class LoginService extends ServerCommunicationService {
                             try {
                                 sessionId = json.getAsJsonObject().get("sessionId").getAsString();
                             } catch (Exception e) {
+                                Log.d("REST", "erro:------------------------------");
                                 e.printStackTrace();
                                 callback.failed("network problem");
                                 return;
@@ -50,7 +51,7 @@ public class LoginService extends ServerCommunicationService {
 
                             callback.success(sessionId);
                         } else {
-                            Log.d("myapp", "deu erro");
+                            Log.d("REST", "status false:------------------------------"+obj.get("error").getAsString());
                             callback.failed(obj.get("error").getAsString());
                         }
                     }
@@ -58,6 +59,7 @@ public class LoginService extends ServerCommunicationService {
 
                 @Override
                 public void onFailure(Call<JsonElement> call, Throwable t) {
+                    Log.d("REST", "onFailure:------------------------------" + t.getMessage());
                     callback.failed("network problem");
                 }
             });}
