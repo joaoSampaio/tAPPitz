@@ -180,12 +180,14 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
 
 
     public void surfaceCreated(SurfaceHolder holder) {
+        Log.d(TAG, "onLayout surfaceCreated:" + (mCamera != null));
         // The Surface has been created, acquire the camera and tell it where
         // to draw.
         try {
             if (mCamera != null) {
                 mCamera.setPreviewDisplay(holder);
             }else{
+
                new Handler().postDelayed(new Runnable() {
                    @Override
                    public void run() {
@@ -252,6 +254,7 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
         // Now that the size is known, set up the camera parameters and begin
         // the preview.
+        Log.d(TAG, " surfaceChanged)");
         reachedSurfaceChanged = true;
         if(mCamera != null){
             surfaceChangedCamera();
@@ -380,44 +383,70 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
 
     }
 
+    public void restartPreview(){
+        if(getmCamera() != null ){
+
+            getmCamera().startPreview();
+
+        }
+    }
+
+
     @Override
-    public void takePhoto(Camera.PictureCallback mPicture) {
+    public void takePhoto(Camera.PictureCallback mPicture, CallbackCameraAction callback) {
         if(mCamera != null) {
             getmCamera().takePicture(null, null, mPicture);
+            callback.onSuccess();
         }
     }
 
     @Override
-    public void turnCamera() {
-        if(mCamera != null) {
-            if(AppController.getInstance().currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
-                AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
-            }
-            else {
-                AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
-            }
-            stopCamera();
-            mCamera = Camera
-                    .open(AppController.getInstance().currentCameraId);
-            setCamera(mCamera);
+    public void turnCamera(CallbackCameraAction callback) {
+        Log.d("MyCameraApp", "turnCamera:");
+        try {
+            if(mCamera != null) {
+                if(AppController.getInstance().currentCameraId == Camera.CameraInfo.CAMERA_FACING_BACK){
+                    AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_FRONT;
+                }
+                else {
+                    AppController.getInstance().currentCameraId = Camera.CameraInfo.CAMERA_FACING_BACK;
+                }
+                stopCamera();
 
+                startCamera();
+
+//                mCamera = Camera
+//                        .open(AppController.getInstance().currentCameraId);
+//                setCamera(mCamera);
+
+                callback.onSuccess();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            callback.onFailure();
         }
     }
 
     @Override
-    public void toggleFlash(){
-        AppController.getInstance().turnLightOn = !AppController.getInstance().turnLightOn;
+    public void toggleFlash(CallbackCameraAction callback){
 
-        Camera.Parameters params = getmCamera().getParameters();
+        try {
+            AppController.getInstance().turnLightOn = !AppController.getInstance().turnLightOn;
+            Camera.Parameters params = getmCamera().getParameters();
 
-        if (AppController.getInstance().turnLightOn) {
-            params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
-            getmCamera().setParameters(params);
-            getmCamera().startPreview();
-        } else {
-            params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
-            getmCamera().setParameters(params);
-            getmCamera().startPreview();
+            if (AppController.getInstance().turnLightOn) {
+                params.setFlashMode(Camera.Parameters.FLASH_MODE_ON);
+                getmCamera().setParameters(params);
+                getmCamera().startPreview();
+            } else {
+                params.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                getmCamera().setParameters(params);
+                getmCamera().startPreview();
+            }
+            callback.onSuccess();
+        } catch (Exception e) {
+            e.printStackTrace();
+            callback.onFailure();
         }
     }
 

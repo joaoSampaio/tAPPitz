@@ -7,8 +7,8 @@ import android.hardware.Camera;
  */
 public interface CameraInterface {
 
-    void takePhoto(Camera.PictureCallback mPicture);
-    void turnCamera();
-    void toggleFlash();
+    void takePhoto(Camera.PictureCallback mPicture, CallbackCameraAction callback);
+    void turnCamera(CallbackCameraAction callback);
+    void toggleFlash(CallbackCameraAction callback);
 
 }
