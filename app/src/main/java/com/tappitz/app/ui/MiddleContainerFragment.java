@@ -83,7 +83,7 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
 //
 //        });
 
-        ((ScreenSlidePagerActivity)getActivity()).setMiddleShowPage(new MiddleShowPage() {
+        ((MainActivity)getActivity()).setMiddleShowPage(new MiddleShowPage() {
             @Override
             public void showPage(int page) {
                 Log.d("MIddle", "showPage:" + page);
@@ -132,9 +132,9 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
     public void onPageSelected(int position) {
         Log.d("ss", "onPageSelected:" + position);
         if(getActivity() != null){
-            ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture((position == Global.MIDDLE_QRCODE));
-            if(((ScreenSlidePagerActivity)getActivity()).getmPager() != null)
-                ((ScreenSlidePagerActivity)getActivity()).getmPager().setPagingEnabled(position == Global.MIDDLE_BLANK);
+            ((MainActivity)getActivity()).getmHelper().enableQRCodeCapture((position == Global.MIDDLE_QRCODE));
+            if(((MainActivity)getActivity()).getmPager() != null)
+                ((MainActivity)getActivity()).getmPager().setPagingEnabled(position == Global.MIDDLE_BLANK);
 
         }
 
@@ -225,7 +225,7 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
                         // Fade the image in
                         container.setAlpha(1 + position);
                         if(getActivity() != null)
-                            ((ScreenSlidePagerActivity)getActivity()).fadeCameraBts(1 - position);
+                            ((MainActivity)getActivity()).fadeCameraBts(1 - position);
                     }
 
                 } else if (position <= 1) { // (0,1]
@@ -235,7 +235,7 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
 //                        Log.d("myapp2", "**--Fade the image out:");
                         container.setAlpha(1 - position);
                         if(getActivity() != null)
-                            ((ScreenSlidePagerActivity)getActivity()).fadeCameraBts(1 + position);
+                            ((MainActivity)getActivity()).fadeCameraBts(1 + position);
                     }
                 } else { // (1,+Infinity]
                     // This page is way off-screen to the right

@@ -82,7 +82,7 @@ public class InBoxFragment extends Fragment {
     @Override
     public void onPause(){
         super.onPause();
-        ((ScreenSlidePagerActivity)getActivity()).removeStateChange(stateOut);
+        ((MainActivity)getActivity()).removeStateChange(stateOut);
     }
 
 
@@ -103,9 +103,9 @@ public class InBoxFragment extends Fragment {
                 }
             }
         };
-        ((ScreenSlidePagerActivity)getActivity()).addStateChange(stateOut);
+        ((MainActivity)getActivity()).addStateChange(stateOut);
 
-        ((ScreenSlidePagerActivity)getActivity()).setReloadInbox(new ReloadInbox() {
+        ((MainActivity)getActivity()).setReloadInbox(new ReloadInbox() {
             @Override
             public void updateAfterVote() {
                 loadOffline();
@@ -143,7 +143,7 @@ public class InBoxFragment extends Fragment {
     @Override
     public void onStop(){
         super.onStop();
-        ((ScreenSlidePagerActivity)getActivity()).setReloadInbox(null);
+        ((MainActivity)getActivity()).setReloadInbox(null);
     }
 
 
@@ -167,8 +167,8 @@ public class InBoxFragment extends Fragment {
                     photos.addAll(ReceivedPhoto.join(response));
                     adapter.notifyDataSetChanged();
                     showPage(showPage);
-//                    if(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id() >= 0){
-//                        showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
+//                    if(((MainActivity) getActivity()).getInbox_vote_id() >= 0){
+//                        showPage(((MainActivity) getActivity()).getInbox_vote_id());
 //                    }else{
 //                        currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
 //                        viewPager.setCurrentItem(currentPage);
@@ -176,7 +176,7 @@ public class InBoxFragment extends Fragment {
 
 
 
-                    //showPage(((ScreenSlidePagerActivity) getActivity()).getInbox_vote_id());
+                    //showPage(((MainActivity) getActivity()).getInbox_vote_id());
 
                     new ModelCache<List<ReceivedPhoto>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
                 }
@@ -207,7 +207,7 @@ public class InBoxFragment extends Fragment {
         //foi encontrada a imagem vamos mostra-la
         if(position >= 0){
             viewPager.setCurrentItem(position);
-            //((ScreenSlidePagerActivity)getActivity()).setInbox_vote_id(-1);
+            //((MainActivity)getActivity()).setInbox_vote_id(-1);
         }else{
 
 
@@ -219,7 +219,7 @@ public class InBoxFragment extends Fragment {
                 //já apagmos agora vamso fazer refresh
                 Log.d("inbox", "refreshUnseenNotification");
                 unseenNotifications.save();
-                ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
+                ((MainActivity)getActivity()).refreshUnseenNotification();
             }
         }
 
@@ -260,7 +260,7 @@ public class InBoxFragment extends Fragment {
                     @Override
                     public void success(Intent data) {
                         if(getActivity() != null){
-                            ScreenSlidePagerActivity activity = (ScreenSlidePagerActivity)getActivity();
+                            MainActivity activity = (MainActivity)getActivity();
                             activity.showPage(Global.HOME);
                             activity.onActivityResult(Global.BROWSE_REQUEST, Activity.RESULT_OK, data);
                         }
@@ -333,7 +333,7 @@ public class InBoxFragment extends Fragment {
                 //já apagmos agora vamso fazer refresh
                 Log.d("inbox", "refreshUnseenNotification");
                 unseenNotifications.save();
-                ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
+                ((MainActivity)getActivity()).refreshUnseenNotification();
             }
         }
     }

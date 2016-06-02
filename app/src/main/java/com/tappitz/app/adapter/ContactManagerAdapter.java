@@ -161,7 +161,6 @@ public class ContactManagerAdapter extends RecyclerView.Adapter<ContactManagerAd
             });
 
         }
-        Log.d("myapp", "onBindViewHolder:" + contact.getName());
         viewHolder.mCircle.setText(contact.getLetters());
 
 

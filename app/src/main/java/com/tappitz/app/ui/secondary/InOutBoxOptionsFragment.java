@@ -19,7 +19,7 @@ import com.tappitz.app.model.ImageModel;
 import com.tappitz.app.model.ReceivedPhoto;
 import com.tappitz.app.model.SentPicture;
 import com.tappitz.app.model.UnseenNotifications;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.util.ModelCache;
 import com.tappitz.app.util.RefreshUnseenNotifications;
 
@@ -94,7 +94,7 @@ public class InOutBoxOptionsFragment extends Fragment implements View.OnClickLis
                     ((TextView)rootView.findViewById(R.id.textNotification)).setText(""+unseenNotifications.getReceivedComment().size());
                 }
             };
-            ((ScreenSlidePagerActivity)getActivity()).addInterestUnseenNotification(refreshUnseenNotifications);
+            ((MainActivity)getActivity()).addInterestUnseenNotification(refreshUnseenNotifications);
         }
     }
 
@@ -103,7 +103,7 @@ public class InOutBoxOptionsFragment extends Fragment implements View.OnClickLis
     public void onPause(){
         super.onPause();
         if(TYPE == Global.OPTIONS_TYPE_OUTBOX){
-            ((ScreenSlidePagerActivity)getActivity()).removeInterestUnseenNotification(refreshUnseenNotifications);
+            ((MainActivity)getActivity()).removeInterestUnseenNotification(refreshUnseenNotifications);
         }
     }
 
@@ -118,14 +118,14 @@ public class InOutBoxOptionsFragment extends Fragment implements View.OnClickLis
                     return;
                 }
                 if(TYPE == Global.OPTIONS_TYPE_INBOX){
-                    //if(((ScreenSlidePagerActivity)getActivity()).getReloadInboxListener() != null)
-                    // ((ScreenSlidePagerActivity)getActivity()).getReloadInboxListener().refreshOnline();
+                    //if(((MainActivity)getActivity()).getReloadInboxListener() != null)
+                    // ((MainActivity)getActivity()).getReloadInboxListener().refreshOnline();
 
                 }
                 if(TYPE == Global.OPTIONS_TYPE_OUTBOX){
                     //delete
-                    if(((ScreenSlidePagerActivity)getActivity()).getReloadOutbox() != null)
-                        ((ScreenSlidePagerActivity)getActivity()).getReloadOutbox().deletePhoto();
+                    if(((MainActivity)getActivity()).getReloadOutbox() != null)
+                        ((MainActivity)getActivity()).getReloadOutbox().deletePhoto();
 
 //                    Toast.makeText(getActivity(), "we are working on it...", Toast.LENGTH_SHORT).show();
                 }
@@ -134,12 +134,12 @@ public class InOutBoxOptionsFragment extends Fragment implements View.OnClickLis
             case R.id.layout_dynamic:
                 if(TYPE == Global.OPTIONS_TYPE_INBOX)
                     //share
-                    if(((ScreenSlidePagerActivity)getActivity()).getReloadInboxListener() != null)
-                        ((ScreenSlidePagerActivity)getActivity()).getReloadInboxListener().sharePicture();
+                    if(((MainActivity)getActivity()).getReloadInboxListener() != null)
+                        ((MainActivity)getActivity()).getReloadInboxListener().sharePicture();
                 if(TYPE == Global.OPTIONS_TYPE_OUTBOX) {
                     // see pending comments
-//                    if (((ScreenSlidePagerActivity) getActivity()).getReloadOutbox() != null)
-//                        ((ScreenSlidePagerActivity) getActivity()).getReloadOutbox().refreshOnline();
+//                    if (((MainActivity) getActivity()).getReloadOutbox() != null)
+//                        ((MainActivity) getActivity()).getReloadOutbox().refreshOnline();
                     openGallery(ImageModel.TYPE_OUTBOX_NOTIFICATION, "", "Gallery_OUTBOX_NOTIFICATION");
                 }
 

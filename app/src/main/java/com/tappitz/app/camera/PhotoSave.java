@@ -147,7 +147,7 @@ public class PhotoSave {
     public static Bitmap getBitmapImageFromYUV(byte[] data, int width, int height) {
         YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21, width, height, null);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        yuvimage.compressToJpeg(new Rect(0, 0, width, height), 90, baos);
+        yuvimage.compressToJpeg(new Rect(0, 0, width, height), 80, baos);
         byte[] jdata = baos.toByteArray();
         BitmapFactory.Options bitmapFatoryOptions = new BitmapFactory.Options();
         bitmapFatoryOptions.inPreferredConfig = Bitmap.Config.RGB_565;

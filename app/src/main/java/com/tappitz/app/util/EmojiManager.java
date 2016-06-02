@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.PopupWindow;
 
 import com.tappitz.app.R;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 
 import github.ankushsachdeva.emojicon.EmojiconEditText;
 import github.ankushsachdeva.emojicon.EmojiconGridView;
@@ -24,10 +24,10 @@ public class EmojiManager {
     View rootView;
     ImageView emojiButton;
     ImageView submitButton ;
-    private ScreenSlidePagerActivity activity;
+    private MainActivity activity;
     EmojiconsPopup popup;
 
-    public EmojiManager(ScreenSlidePagerActivity activity) {
+    public EmojiManager(MainActivity activity) {
         this.activity = activity;
         rootView = getActivity().findViewById(R.id.activity_root);
         popup = new EmojiconsPopup(rootView, activity);
@@ -157,7 +157,7 @@ public class EmojiManager {
 
 
 
-    public ScreenSlidePagerActivity getActivity() {
+    public MainActivity getActivity() {
         return activity;
     }
 }

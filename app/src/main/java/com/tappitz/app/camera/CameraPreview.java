@@ -1,15 +1,11 @@
 package com.tappitz.app.camera;
 
-import android.content.Context;
-import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.util.Log;
-import android.view.Display;
-import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 
 /**
  * Created by joaosampaio on 12-02-2016.
@@ -19,11 +15,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     private Camera mCamera;
     String TAG = "cameraApp";
     private static final double ASPECT_RATIO = 3.0 / 4.0;
-    private ScreenSlidePagerActivity activity;
+    private MainActivity activity;
     private int orgPreviewWidth;
     private int orgPreviewHeight;
 
-    public CameraPreview(ScreenSlidePagerActivity activity, Camera camera) {
+    public CameraPreview(MainActivity activity, Camera camera) {
         super(activity);
         mCamera = camera;
         this.activity = activity;
@@ -116,7 +112,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
         return mCamera;
     }
 
-    public ScreenSlidePagerActivity getActivity() {
+    public MainActivity getActivity() {
         return activity;
     }
 }

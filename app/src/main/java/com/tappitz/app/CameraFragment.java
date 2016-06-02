@@ -72,7 +72,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback {
         try {
 
 
-            previewView = new CameraPreview4(getActivity());
+            //previewView = new CameraPreview4(getActivity());
             frame.addView(previewView);
 
 

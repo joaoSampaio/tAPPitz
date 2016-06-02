@@ -4,10 +4,8 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -43,7 +41,7 @@ public class BlankFragment extends Fragment  {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_blank, container, false);
 
-        ((ScreenSlidePagerActivity)getActivity()).setButtonEnable(new ButtonEnable() {
+        ((MainActivity)getActivity()).setButtonEnable(new ButtonEnable() {
             @Override
             public void enableCameraButtons(boolean enable) {
 
@@ -60,14 +58,14 @@ public class BlankFragment extends Fragment  {
 
 
 
-//        rootView.findViewById(R.id.btn_shutter).setOnLongClickListener(new View.OnLongClickListener() {
-//            @Override
-//            public boolean onLongClick(View view) {
-//
-//                ((ScreenSlidePagerActivity)getActivity()).getCameraHelper().onLongClick(view);
-//                return true;
-//            }
-//        });
+        rootView.findViewById(R.id.btn_shutter).setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+
+                ((MainActivity)getActivity()).getmHelper().onLongClick(view);
+                return true;
+            }
+        });
 
 
         click = new View.OnClickListener() {
@@ -87,7 +85,7 @@ public class BlankFragment extends Fragment  {
                         getActivity().finish();
                         return;
                 }
-                ((ScreenSlidePagerActivity)getActivity()).pass(v);
+                ((MainActivity)getActivity()).pass(v);
             }
         };
         View layout_after_photo = rootView.findViewById(R.id.layout_after_photo);
@@ -145,7 +143,7 @@ int FOCUS_AREA_SIZE = 100;
     @Override
     public void onStop(){
         super.onStop();
-        ((ScreenSlidePagerActivity)getActivity()).setListenerCamera(null);
+        ((MainActivity)getActivity()).setListenerCamera(null);
     }
 
     private void setUP(){
@@ -154,7 +152,7 @@ int FOCUS_AREA_SIZE = 100;
 
         showBtnOptions(false);
         btn_shutter.setVisibility(View.GONE);
-        ((ScreenSlidePagerActivity)getActivity()).setListenerCamera(new ScreenSlidePagerActivity.HomeToBlankListener() {
+        ((MainActivity)getActivity()).setListenerCamera(new MainActivity.HomeToBlankListener() {
             @Override
             public void onCameraAvailable() {
                 Log.d("myapp", "onCameraAvailable blank ");
@@ -192,7 +190,7 @@ int FOCUS_AREA_SIZE = 100;
                         //=====Write down your Finger Pressed code here
 
                         camera_options.setTag("hide");
-                        ((ScreenSlidePagerActivity) getActivity()).pass(camera_options);
+                        ((MainActivity) getActivity()).pass(camera_options);
 
 
                         Camera camera = AppController.getInstance().mCamera;

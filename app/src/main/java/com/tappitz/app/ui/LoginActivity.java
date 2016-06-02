@@ -400,7 +400,7 @@ public class LoginActivity extends FragmentActivity implements View.OnClickListe
         editor.apply();
 
         //abre o fragmento HOME
-        Intent intent = new Intent(this, ScreenSlidePagerActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivityForResult(intent, 0);
         finish();
     }

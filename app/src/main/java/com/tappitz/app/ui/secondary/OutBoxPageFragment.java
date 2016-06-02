@@ -21,10 +21,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.load.resource.gif.GifDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.gson.reflect.TypeToken;
 import com.tappitz.app.Global;
 import com.tappitz.app.R;
@@ -34,8 +30,8 @@ import com.tappitz.app.background.BackgroundService;
 import com.tappitz.app.model.Comment;
 import com.tappitz.app.rest.service.CallbackMultiple;
 import com.tappitz.app.rest.service.ListVotesService;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.ui.OutBoxFragment;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
 import com.tappitz.app.util.ListenerPagerStateChange;
 import com.tappitz.app.util.ModelCache;
 import com.tappitz.app.util.SimpleDividerItemDecoration;
@@ -452,7 +448,7 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
                 showVoteList(Global.RED);
                 break;
             case R.id.action_go_back:
-                ((ScreenSlidePagerActivity)getActivity()).showPage(Global.HOME);
+                ((MainActivity)getActivity()).showPage(Global.HOME);
                 break;
         }
     }

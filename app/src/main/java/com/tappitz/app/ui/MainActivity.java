@@ -29,6 +29,7 @@ import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
@@ -41,7 +42,11 @@ import com.tappitz.app.R;
 import com.tappitz.app.adapter.ScreenSlidePagerAdapter;
 import com.tappitz.app.app.AppController;
 import com.tappitz.app.background.BackgroundService;
+import com.tappitz.app.camera.CallbackCameraAction;
 import com.tappitz.app.camera.CameraHelper;
+import com.tappitz.app.camera.CameraHelper2;
+import com.tappitz.app.camera.CameraPreview4;
+import com.tappitz.app.model.ActivityResult;
 import com.tappitz.app.model.FutureWorkList;
 import com.tappitz.app.model.ReceivedPhoto;
 import com.tappitz.app.model.SentPicture;
@@ -60,13 +65,12 @@ import com.tappitz.app.util.NotificationCount;
 import com.tappitz.app.util.RefreshUnseenNotifications;
 
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class ScreenSlidePagerActivity extends FragmentActivity implements TextureView.SurfaceTextureListener{
+public class MainActivity extends FragmentActivity{
 
 
     private boolean cameraReady;
@@ -93,13 +97,14 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
     private Bundle extras;
 
-//    private Camera mCamera;
-    private TextureView mTextureView;
     private Handler handler;
     private Runnable runLogin;
 
-    private CameraHelper mHelper;
-    private FrameLayout camera_preview;
+    //private CameraHelper mHelper;
+    private CameraHelper2 mHelper;
+    private ActivityResult imageGalleryResult;
+    CameraPreview4 previewView;
+    FrameLayout frame;
 
     BackgroundService mService;
     boolean mBound = false;
@@ -139,7 +144,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         inbox_circle = (TextView)findViewById(R.id.inbox_circle);
         outbox_circle.setVisibility(View.GONE);
         inbox_circle.setVisibility(View.GONE);
-        requestPermissions();
+        frame = (FrameLayout)findViewById(R.id.camera);
         initOfflineValues();
 
         goTolistener = new View.OnClickListener() {
@@ -156,7 +161,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                     case R.id.action_goto_qrcode:
                         if(getMiddleShowPage() != null){
                             getMiddleShowPage().showPage(Global.MIDDLE_QRCODE);
-                            enableQRCodeCapture(true);
+                            getmHelper().enableQRCodeCapture(true);
                         }
                         break;
                     case R.id.action_goto_contacts:
@@ -184,7 +189,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
         extras = getIntent().getExtras();
         camera_buttons = findViewById(R.id.camera_buttons);
-        camera_preview = (FrameLayout)findViewById(R.id.camera_preview);
 
         if (android.os.Build.VERSION.SDK_INT > 9) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -214,6 +218,102 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
         isRunning = false;
     }
+
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        Log.d("myapp_new", "****onResume onResume onResume: ");
+        findViewById(R.id.splashScreen).bringToFront();
+        findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
+        handler = new Handler();
+        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        String email = sp.getString(Global.KEY_USER, "");
+        AppController.getInstance().email = email;
+
+        clearNotifications();
+
+
+        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
+        signIn = false;
+        cameraReady = false;
+        afterLoginAction = -1;
+
+        String sessionid = sp.getString("sessionId", "");
+        if (Global.VERSION_V2) {
+            RestClientV2.setSessionId(sessionid);
+        } else {
+            RestClient.setSessionId(sessionid);
+        }
+        emojiManager = new EmojiManager(this);
+        try {
+
+            previewView = new CameraPreview4(this, new CallbackCameraAction() {
+                @Override
+                public void onSuccess() {
+                    closeSplashScreen();
+                    if(getListenerCamera() != null)
+                        getListenerCamera().onCameraAvailable();
+                }
+
+                @Override
+                public void onFailure() {
+
+                }
+            });
+            frame.addView(previewView);
+            mHelper = new CameraHelper2(this, previewView);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            Log.e("TAG", "Can't open camera with id ", exception);
+            return;
+        }
+
+
+        //closeSplashScreen();
+//        runLogin = new Runnable() {
+//            @Override
+//            public void run() {
+//                checkIsSignedIn();
+//            }
+//        };
+//        handler.postDelayed(runLogin, 200);
+        checkIsSignedIn();
+        refreshUnseenNotification();
+        if(mHelper != null && imageGalleryResult != null){
+            closeSplashScreen();
+            mHelper.onActivityResult(imageGalleryResult.getRequestCode(), imageGalleryResult.getResultCode(), imageGalleryResult.getData());
+            imageGalleryResult = null;
+        }
+
+    }
+
+    //Must unregister onPause()
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        handler.removeCallbacks(runLogin);
+
+        frame.removeAllViews();
+
+        if(mHelper != null) {
+            mHelper.showBtnOptions(false);
+            mHelper.onTakePick(false);
+
+            if(getButtonEnable() != null){
+                getButtonEnable().enableCameraButtons(true);
+            }
+
+            mHelper = null;
+        }
+
+        enableSwipe(true);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
+    }
+
+
 
     //determina o que acontece quando clica na notificação
     @Override
@@ -248,73 +348,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }
-
-
-    @Override
-    public void onResume(){
-        super.onResume();
-        Log.d("myapp_new", "****onResume onResume onResume: ");
-        findViewById(R.id.splashScreen).bringToFront();
-        findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
-
-        if(!allPermissionsGiven()){
-            return;
-        }
-
-//        mTextureView = (TextureView) findViewById(R.id.textureView);
-//        mTextureView.setSurfaceTextureListener(this);
-
-
-
-
-
-
-        handler = new Handler();
-        SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
-        String email = sp.getString(Global.KEY_USER, "");
-        AppController.getInstance().email = email;
-
-        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(Global.NOTIFICATION_ID);
-        NotificationCount.resetCount(getApplicationContext());
-
-        if(mHelper == null)
-            mHelper = new CameraHelper(this);
-        mHelper.setUP();
-//        if(mHelper == null || !mHelper.requestedFile){
-//            start_camera();
-//        }
-
-        LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
-        signIn = false;
-        cameraReady = false;
-        afterLoginAction = -1;
-
-        String sessionid = sp.getString("sessionId", "");
-        if (Global.VERSION_V2) {
-            RestClientV2.setSessionId(sessionid);
-        } else {
-            RestClient.setSessionId(sessionid);
-        }
-        emojiManager = new EmojiManager(this);
-        //closeSplashScreen();
-        runLogin = new Runnable() {
-            @Override
-            public void run() {
-                checkIsSignedIn();
-            }
-        };
-
-        handler.postDelayed(runLogin, 200);
-
-
-
-        refreshUnseenNotification();
-
-
-
-//        checkIsSignedIn();
     }
 
 
@@ -368,32 +401,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
     };
 
-    //Must unregister onPause()
-    @Override
-    protected void onPause() {
-        super.onPause();
-        if(!allPermissionsGiven()){
-            return;
-        }
-        handler.removeCallbacks(runLogin);
-        if(mHelper != null) {
-            mHelper.showBtnOptions(false);
-            mHelper.onTakePick(false);
-
-            if(getButtonEnable() != null){
-                getButtonEnable().enableCameraButtons(true);
-            }
-
-            mHelper = null;
-        }
-//        if(mCamera != null) {
-//            stop_camera();
-//
-//        }
-        destroyView();
-        enableSwipe(true);
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(mMessageReceiver);
-    }
 
 
 
@@ -456,7 +463,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         mPager.setClipChildren(false);
         mPager.setClipToPadding(false);
 
-//        mPager.setPageTransformer(true, new CustomPageTransformer());
         mPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -504,9 +510,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                 showPage(Global.HOME);
         }
 
-        //if( isCameraReady())
-        closeSplashScreen();
-
         Intent intentRegister = new Intent(this, RegistrationIntentService.class);
         startService(intentRegister);
         isRunning = true;
@@ -525,7 +528,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             BackgroundService.LocalBinder binder = (BackgroundService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
-            mService.registerClient(ScreenSlidePagerActivity.this);
+            mService.registerClient(MainActivity.this);
         }
 
         @Override
@@ -533,44 +536,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
             mBound = false;
         }
     };
-
-
-
-    public class CustomPageTransformer implements ViewPager.PageTransformer {
-        public void transformPage(View view, float position) {
-            int pageWidth = view.getWidth();
-            if (positionTab < 3 && positionTab > 0) {
-                View container = view.findViewById(R.id.container);
-
-                if (position < -1) { // [-Infinity,-1)
-                    // This page is way off-screen to the left
-                } else if (position <= 0) { // [-1,0]
-                    // This page is moving out to the left
-
-                    // Counteract the default swipe
-                    //view.setTranslationX(pageWidth * -position);
-
-                    if (container != null) {
-                        // Fade the image in
-                        container.setAlpha(1 + position);
-                    }
-
-                } else if (position <= 1) { // (0,1]
-                    // This page is moving in from the right
-                    if (container != null) {
-                        // Fade the image out
-                        container.setAlpha(1 - position);
-                    }
-                } else { // (1,+Infinity]
-                    // This page is way off-screen to the right
-                }
-            }
-        }
-    }
-
-
-
-
 
     private void goToLoginActivity(){
         Intent intent = new Intent(this, LoginActivity.class);
@@ -613,7 +578,7 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
                     if(!screenHistory.isEmpty()){
                         if(screenHistory.get(0) == 0){
                             if(mHelper != null)
-                                mHelper.deletePrevious();
+                                mHelper.deletePhoto();
                         }
                     }else
                         finish();
@@ -680,20 +645,17 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
 
 //        if(handler == null)
 //            handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                findViewById(R.id.splashScreen).setVisibility(View.GONE);
-                signIn = false;
-                cameraReady = false;
-            }
-        }, 1000);
-    }
-
-
-
-    public int getInbox_vote_id() {
-        return inbox_vote_id;
+        findViewById(R.id.splashScreen).setVisibility(View.GONE);
+        signIn = false;
+        cameraReady = false;
+//        handler.postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                findViewById(R.id.splashScreen).setVisibility(View.GONE);
+//                signIn = false;
+//                cameraReady = false;
+//            }
+//        }, 1000);
     }
 
 
@@ -730,289 +692,29 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
     }
 
 
-    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
-        Log.d("Cam2", "onSurfaceTextureAvailable width:"+width + " height:"+height);
-        this.surface = surface;
-        start_camera();
-
-
-
-
-
-
-
-    }
-
-    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
-        // Ignored, Camera does all the work for us
-        Log.d("Cam", "onSurfaceTextureSizeChanged");
-//        updateTextureMatrix(orgPreviewWidth,orgPreviewHeight);
-
-    }
-
-    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-        Log.d("Cam", "onSurfaceTextureDestroyed");
-        stop_camera();
-        return true;
-    }
-
-    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
-        // Invoked every time there's a new Camera preview frame
-
-
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-
-        System.out.println("IN onConfigurationChanged()");
-        //setCameraDisplayOrientation(this, 1, mCamera);
-    }
-
-    int numFails = 0;
-    SurfaceTexture surface;
-
-
-    public void start_camera(){
-        if(getCameraHelper() != null)
-            getCameraHelper().startCamera();
-
-
-    }
-
-
-
-//    public void start_camera(){
-//        Log.d("cam", "start_camera " + (mCamera == null));
-//        if(mCamera != null)
-//            return;
-//
-////        if( mTextureView == null){
-////            mTextureView = new TextureView(this);
-////            mTextureView.setSurfaceTextureListener(this);
-////            camera_preview.addView(mTextureView);
-////            return;
-////        }
-//        //surface = mTextureView.getSurfaceTexture();
-//
-//        try {
-//            mCamera = Camera.open(AppController.getInstance().currentCameraId);
-//        }catch (Exception e) {
-//            Log.e("camera", "line 776 camera fail:" + e.getMessage());
-//            numFails++;
-//            if (numFails <= 1) {
-//                new Handler().postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        start_camera();
-//                    }
-//                }, 100);
-//            }
-//        }
-//        try {
-////            updateTextureMatrix(AppController.getInstance().width, AppController.getInstance().height);
-//            CameraHelper.setCameraDisplayOrientation(AppController.getInstance().currentCameraId, mCamera);
-//            mCamera.setPreviewTexture(surface);
-//            mCamera.startPreview();
-//            AppController.getInstance().mCameraReady = true;
-//
-//            Log.d("cam", "onCameraAvailable");
-//            callbackCameraAvailable();
-//            notifyCameraReady();
-//            if(mHelper != null){
-//                findViewById(R.id.btn_shutter).setVisibility(View.VISIBLE);
-//                mHelper.showBtnOptions(true);
-//                mHelper.onTakePick(false);
-//            }
-//
-//
-//        } catch (IOException ioe) {
-//            Log.d("cam", "ioe" + ioe.getMessage());
-//            // Something bad happened
-//        }
-//    }
-
-    public void stop_camera(){
-        if(getCameraHelper() != null)
-            getCameraHelper().stopCamera();
-//        if(mCamera != null) {
-//            mCamera.setPreviewCallback(null);
-//            mCamera.stopPreview();
-//            mCamera.release();
-//            mCamera = null;
-//            AppController.getInstance().mCameraReady = false;
-//
-//        }
-    }
-
-    public void destroyView(){
-        if(getCameraHelper() != null)
-            getCameraHelper().destroyCamera();
-//        if( mTextureView != null){
-//            camera_preview.removeAllViews();
-//            mTextureView = null;
-//        }
-    }
-
-    public Camera getmCamera() {
-        return getCameraHelper().getmCamera();
-//        return mCamera;
-    }
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.d("myapp", "onActivityResult main: " + requestCode);
 
         super.onActivityResult(requestCode, resultCode, data);
-        if(mHelper == null) {
-            mHelper = new CameraHelper(this);
-        }
+
         if(requestCode == Global.BROWSE_REQUEST && resultCode == Activity.RESULT_OK&& null != data) {
-            mHelper.requestedFile = true;
-        }else {
-            mHelper.requestedFile = false;
-        }
 
-        mHelper.onActivityResult(requestCode, resultCode, data);
+            imageGalleryResult = new ActivityResult(requestCode, resultCode, data);
 
-
-    }
-
-    private int orgPreviewWidth;
-    private int orgPreviewHeight;
-    private void updateTextureMatrix(int width, int height)
-    {
-        boolean isPortrait = false;
-
-        Display display = getWindowManager().getDefaultDisplay();
-        if (display.getRotation() == Surface.ROTATION_0 || display.getRotation() == Surface.ROTATION_180) isPortrait = true;
-        else if (display.getRotation() == Surface.ROTATION_90 || display.getRotation() == Surface.ROTATION_270) isPortrait = false;
-
-        int previewWidth = orgPreviewWidth;
-        int previewHeight = orgPreviewHeight;
-
-        if (isPortrait)
-        {
-            previewWidth = orgPreviewHeight;
-            previewHeight = orgPreviewWidth;
-        }
-
-        float ratioSurface = (float) width / height;
-        float ratioPreview = (float) previewWidth / previewHeight;
-
-        float scaleX;
-        float scaleY;
-
-        if (ratioSurface > ratioPreview)
-        {
-            scaleX = (float) height / previewHeight;
-            scaleY = 1;
-        }
-        else
-        {
-            scaleX = 1;
-            scaleY = (float) width / previewWidth;
-        }
-
-        Matrix matrix = new Matrix();
-
-        matrix.setScale(scaleX, scaleY);
-        mTextureView.setTransform(matrix);
-
-        float scaledWidth = width * scaleX;
-        float scaledHeight = height * scaleY;
-
-        float dx = (width - scaledWidth) / 2;
-        float dy = (height - scaledHeight) / 2;
-        mTextureView.setTranslationX(dx);
-        mTextureView.setTranslationY(dy);
-    }
-
-    private Pair<Integer, Integer> getMaxSize(List<Camera.Size> sizes)
-    {
-        int width = 0;
-        int height = 0;
-
-        int maxHeight = getScreenSize().second;
-
-        Camera.Size sizeScreen = sizes.get(0);
-        for (int i = 0; i < sizes.size(); i++) {
-
-            if (sizes.get(i).width > sizeScreen.width)
-                sizeScreen = sizes.get(i);
-            if(sizes.get(i).height == maxHeight) {
-                sizeScreen = sizes.get(i);
-                break;
-            }
-        }
-
-        width = sizeScreen.width;
-        height = sizeScreen.height;
-
-        return new Pair<Integer, Integer>(width, height);
-    }
-
-
-    private Pair<Integer, Integer> getScreenSize(){
-        Display display = getWindowManager().getDefaultDisplay();
-
-// display size in pixels
-        Point size = new Point();
-        display.getSize(size);
-        int width = size.x;
-        int height = size.y;
-        return new Pair<Integer, Integer>(width, height);
-    }
-
-    public void setCameraDisplayOrientation(int cameraId, Camera camera)
-    {
-        if(camera != null) {
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(cameraId, info);
-            int rotation = getWindowManager().getDefaultDisplay().getRotation();
-            int degrees = 0;
-            switch (rotation) {
-                case Surface.ROTATION_0:
-                    degrees = 0;
-                    break;
-                case Surface.ROTATION_90:
-                    degrees = 90;
-                    break;
-                case Surface.ROTATION_180:
-                    degrees = 180;
-                    break;
-                case Surface.ROTATION_270:
-                    degrees = 270;
-                    break;
-            }
-
-            int result;
-            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-                result = (info.orientation + degrees) % 360;
-                result = (360 - result) % 360;  // compensate the mirror
-            } else {  // back-facing
-                result = (info.orientation - degrees + 360) % 360;
-            }
-            camera.setDisplayOrientation(result);
-
-            Camera.Parameters params = camera.getParameters();
-            params.setRotation(result);
-            camera.setParameters(params);
         }
     }
+
+
+
 
     public void fadeCameraBts(float alpha){
 //        Log.d("myapp2", "**--main activity alpha:"+(alpha-1));
         camera_buttons.setAlpha(alpha - 1);
     }
 
-    public void enableQRCodeCapture(boolean enable){
-        Log.d("myapp2", "**--qr code enabled:" + enable);
-
-        if(mHelper != null){
-            mHelper.enableQRCodeScan(enable);
-        }
+    public CameraHelper2 getmHelper() {
+        return mHelper;
     }
 
     public MiddleContainerFragment.MiddleShowPage getMiddleShowPage() {
@@ -1059,52 +761,6 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         }
     }
 
-    private final static int MY_PERMISSIONS_REQUEST_CAMERA = 120;
-    private final static int MY_PERMISSIONS_REQUEST_GET_ACCOUNTS = 121;
-    private final static int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 122;
-    private final static int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 123;
-    private void requestPermissions(){
-
-
-
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CAMERA}, MY_PERMISSIONS_REQUEST_CAMERA);
-//        }
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.GET_ACCOUNTS}, MY_PERMISSIONS_REQUEST_GET_ACCOUNTS);
-//        }
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
-//        }
-//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
-//        }
-    }
-
-    public boolean allPermissionsGiven(){
-
-        return true;
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-//            return true;
-//        }
-
-//        return ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-//                ContextCompat.checkSelfPermission(this, Manifest.permission.GET_ACCOUNTS) == PackageManager.PERMISSION_GRANTED &&
-//                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED &&
-//                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
-
-    }
-
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode,
-//                                           String permissions[], int[] grantResults) {
-//
-//
-//        if(allPermissionsGiven()){
-//            onResume();
-//        }
-//    }
 
 
     private void initOfflineValues(){
@@ -1135,11 +791,13 @@ public class ScreenSlidePagerActivity extends FragmentActivity implements Textur
         this.reloadAllContactsFragments = reloadAllContactsFragments;
     }
 
-    public CameraHelper getCameraHelper() {
-        return mHelper;
-    }
-
     public EmojiManager getEmojiManager() {
         return emojiManager;
+    }
+
+    public void clearNotifications(){
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(Global.NOTIFICATION_ID);
+        NotificationCount.resetCount(getApplicationContext());
     }
 }

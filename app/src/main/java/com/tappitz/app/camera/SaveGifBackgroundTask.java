@@ -9,9 +9,12 @@ import android.util.Log;
 
 import com.tappitz.app.util.AnimatedGifEncoder;
 
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 
 public class SaveGifBackgroundTask extends AsyncTask<Void, Void, String> {
@@ -35,9 +38,68 @@ public class SaveGifBackgroundTask extends AsyncTask<Void, Void, String> {
             File file = PhotoSave.getOutputMediaFile("gif");
             uri = Uri.fromFile(file);
             photoPath = file.getAbsolutePath();
-            outStream = new FileOutputStream(file);
-            outStream.write(generateGIF());
-            outStream.close();
+//            outStream = new FileOutputStream(file);
+//            outStream.write(generateGIF());
+//            outStream.close();
+
+
+            BufferedOutputStream bos = null;
+            try {
+
+                outStream = new FileOutputStream(file);
+                bos = new BufferedOutputStream(outStream);
+
+                AnimatedGifEncoder encoder = new AnimatedGifEncoder();
+                encoder.setDelay(1000);
+                encoder.setQuality(20);
+                encoder.start(bos);
+                for (Bitmap bitmap : bitmaps) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                        Log.d("gif", "bitmap:"+bitmap.getAllocationByteCount());
+                    }
+                    encoder.addFrame(bitmap);
+                }
+                encoder.finish();
+            }
+            catch (FileNotFoundException fnfe) {
+                System.out.println("File not found" + fnfe);
+            }
+            catch (IOException ioe) {
+                System.out.println("Error while writing to file" + ioe);
+            }
+            finally {
+                try {
+                    if (bos != null) {
+                        bos.flush();
+                        bos.close();
+                    }
+                }
+                catch (Exception e) {
+                    System.out.println("Error while closing streams" + e);
+                }
+            }
+
+
+
+
+
+
+//            outStream = new FileOutputStream(file);
+//            AnimatedGifEncoder encoder = new AnimatedGifEncoder();
+//            encoder.setDelay(1000);
+//            encoder.setQuality(80);
+//            encoder.start(outStream);
+//            for (Bitmap bitmap : bitmaps) {
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+//                    Log.d("gif", "bitmap:"+bitmap.getAllocationByteCount());
+//                }
+//                encoder.addFrame(bitmap);
+//            }
+//            encoder.finish();
+//            outStream.close();
+
+
+
 
             file = null;
         }catch(Exception e){
@@ -72,7 +134,7 @@ public class SaveGifBackgroundTask extends AsyncTask<Void, Void, String> {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         AnimatedGifEncoder encoder = new AnimatedGifEncoder();
         encoder.setDelay(1000);
-        encoder.setQuality(20);
+        encoder.setQuality(80);
         encoder.start(bos);
         for (Bitmap bitmap : bitmaps) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {

@@ -20,7 +20,7 @@ import com.tappitz.app.model.Contact;
 import com.tappitz.app.model.ImageModel;
 import com.tappitz.app.model.SentPicture;
 import com.tappitz.app.model.UnseenNotifications;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.util.ModelCache;
 import com.tappitz.app.util.RecyclerClickListener;
 
@@ -134,14 +134,14 @@ public class GalleryFragment extends DialogFragment {
                     public void onItemClick(View view, int position) {
 
                         if(type == ImageModel.TYPE_INBOX || type == ImageModel.TYPE_INBOX_NOTIFICATION){
-                            if(getActivity() != null && ((ScreenSlidePagerActivity)getActivity()).getReloadInboxListener() != null && data.size() > position) {
-                                ((ScreenSlidePagerActivity) getActivity()).getReloadInboxListener().openPageId(data.get(position).getId());
-                                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.INBOX);
+                            if(getActivity() != null && ((MainActivity)getActivity()).getReloadInboxListener() != null && data.size() > position) {
+                                ((MainActivity) getActivity()).getReloadInboxListener().openPageId(data.get(position).getId());
+                                ((MainActivity) getActivity()).showPage(Global.INBOX);
                             }
                         }else {
-                            if(getActivity() != null && ((ScreenSlidePagerActivity)getActivity()).getReloadOutbox() != null && data.size() > position) {
-                                ((ScreenSlidePagerActivity) getActivity()).getReloadOutbox().openPageId(data.get(position).getId());
-                                ((ScreenSlidePagerActivity) getActivity()).showPage(Global.OUTBOX);
+                            if(getActivity() != null && ((MainActivity)getActivity()).getReloadOutbox() != null && data.size() > position) {
+                                ((MainActivity) getActivity()).getReloadOutbox().openPageId(data.get(position).getId());
+                                ((MainActivity) getActivity()).showPage(Global.OUTBOX);
                             }
                         }
 

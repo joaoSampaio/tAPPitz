@@ -20,6 +20,65 @@
         </RelativeLayout>
 
 
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:id="@+id/gif_box_container">
+
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:id="@+id/gif_squares">
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:id="@+id/gif_box1" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:id="@+id/gif_box2"
+                    android:src="@drawable/square_shape_gif_empty"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp" />
+
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:id="@+id/gif_box3"
+                    android:src="@drawable/square_shape_gif_full" />
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0"
+                android:id="@+id/textViewCount"
+                android:textSize="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_above="@+id/gif_squares"
+                style="@style/SelectBar" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:text="Next picture in X seconds."
+                android:id="@+id/textViewCountDescription"
+                android:layout_above="@+id/textViewCount"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                style="@style/SelectBar" />
+
+
+        </RelativeLayout>
+
         <ImageButton
             android:text="cancel"
             android:textColor="@color/white"
@@ -41,8 +100,7 @@
             android:layout_marginBottom="10dp"
             android:layout_gravity="bottom"
             android:padding="4dp"
-            android:layout_alignParentBottom="true"
-            android:visibility="visible">
+            android:layout_alignParentBottom="true">
 
 
             <FrameLayout

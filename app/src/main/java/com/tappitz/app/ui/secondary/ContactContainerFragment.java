@@ -27,7 +27,7 @@ import com.tappitz.app.app.AppController;
 import com.tappitz.app.model.Contact;
 import com.tappitz.app.rest.service.CallbackMultiple;
 import com.tappitz.app.rest.service.ListFriendsService;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.util.ModelCache;
 
 import java.util.ArrayList;
@@ -65,8 +65,8 @@ public class ContactContainerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d("ContactContainer", "onclick");
-                if(((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage() != null){
-                    ((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage().showPage(Global.MIDDLE_BLANK);
+                if(((MainActivity)getActivity()).getMiddleShowPage() != null){
+                    ((MainActivity)getActivity()).getMiddleShowPage().showPage(Global.MIDDLE_BLANK);
                 }
             }
         });
@@ -146,7 +146,7 @@ public class ContactContainerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        ((ScreenSlidePagerActivity)getActivity()).setReloadAllContactsFragments(new ReloadAllContactsFragments() {
+        ((MainActivity)getActivity()).setReloadAllContactsFragments(new ReloadAllContactsFragments() {
             @Override
             public void onReloadAllContactsFragments() {
                 reloadChildren();
@@ -159,7 +159,7 @@ public class ContactContainerFragment extends Fragment {
     public void onPause(){
         super.onPause();
         searchListener.clear();
-        ((ScreenSlidePagerActivity)getActivity()).setReloadAllContactsFragments(null);
+        ((MainActivity)getActivity()).setReloadAllContactsFragments(null);
     }
 
 

@@ -22,7 +22,7 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.tappitz.app.Global;
 import com.tappitz.app.R;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.util.ListenerPagerStateChange;
 
 
@@ -182,7 +182,7 @@ public class QRCodeDialogFragment extends DialogFragment implements View.OnClick
                 if ((keyCode == android.view.KeyEvent.KEYCODE_BACK)) {
                     // To dismiss the fragment when the back-button is pressed.
                     dismiss();
-                    ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture(true);
+                    ((MainActivity)getActivity()).getmHelper().enableQRCodeCapture(true);
                     return true;
                 }
                 // Otherwise, do nothing else
@@ -310,7 +310,7 @@ public class QRCodeDialogFragment extends DialogFragment implements View.OnClick
 
         showTemporary(vote);
         getDialog().dismiss();
-        ((ScreenSlidePagerActivity)getActivity()).enableQRCodeCapture(true);
+        ((MainActivity)getActivity()).getmHelper().enableQRCodeCapture(true);
 
 
 

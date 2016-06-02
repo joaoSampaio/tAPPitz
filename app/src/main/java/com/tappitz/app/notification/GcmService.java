@@ -20,7 +20,7 @@ import com.tappitz.app.app.AppController;
 import com.tappitz.app.model.Comment;
 import com.tappitz.app.model.ReceivedPhoto;
 import com.tappitz.app.model.UnseenNotifications;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.util.ModelCache;
 import com.tappitz.app.util.NotificationCount;
 
@@ -165,7 +165,7 @@ public class GcmService extends GcmListenerService {
 
         // Creates an Intent for the Activity
         Intent notifyIntent =
-                new Intent(this, ScreenSlidePagerActivity.class);
+                new Intent(this, MainActivity.class);
         // Sets the Activity to start in a new, empty task
         notifyIntent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
         notifyIntent.putExtras(extras);
@@ -241,7 +241,7 @@ public class GcmService extends GcmListenerService {
 //
 //
 //
-//        Intent notificationIntent = new Intent(this, ScreenSlidePagerActivity.class);
+//        Intent notificationIntent = new Intent(this, MainActivity.class);
 //
 //        String xId = UUID.randomUUID().toString();
 //        notificationIntent.putExtra("x_id", xId);

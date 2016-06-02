@@ -34,7 +34,7 @@ import com.tappitz.app.rest.RestClient;
 import com.tappitz.app.rest.RestClientV2;
 import com.tappitz.app.rest.model.CreatePhoto;
 import com.tappitz.app.rest.model.VoteInbox;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.util.ModelCache;
 
 import java.io.File;
@@ -56,7 +56,7 @@ public class BackgroundService extends Service {
     private BackgroundThread run;
     private Context ctx;
     private FutureWorkList work;
-    private ScreenSlidePagerActivity activity;
+    private MainActivity activity;
     private int consecutiveErrors;
     private final IBinder mBinder = new LocalBinder();
     private int width, height;
@@ -75,7 +75,7 @@ public class BackgroundService extends Service {
     }
 
     //Here Activity register to the service as Callbacks client
-    public void registerClient(ScreenSlidePagerActivity activity){
+    public void registerClient(MainActivity activity){
         this.activity = activity;
     }
 

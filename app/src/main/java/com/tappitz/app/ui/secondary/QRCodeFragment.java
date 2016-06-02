@@ -14,7 +14,7 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.tappitz.app.Global;
 import com.tappitz.app.R;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 
 
 public class QRCodeFragment extends Fragment {
@@ -69,8 +69,8 @@ public static QRCodeFragment newInstance() {
             @Override
             public void onClick(View v) {
                 Log.d("ContactContainer", "onclick");
-                if(((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage() != null){
-                    ((ScreenSlidePagerActivity)getActivity()).getMiddleShowPage().showPage(Global.MIDDLE_BLANK);
+                if(((MainActivity)getActivity()).getMiddleShowPage() != null){
+                    ((MainActivity)getActivity()).getMiddleShowPage().showPage(Global.MIDDLE_BLANK);
                 }
             }
         });

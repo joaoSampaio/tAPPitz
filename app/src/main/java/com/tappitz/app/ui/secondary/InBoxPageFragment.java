@@ -15,10 +15,8 @@ import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,7 +34,7 @@ import com.tappitz.app.background.BackgroundService;
 import com.tappitz.app.model.FutureVote;
 import com.tappitz.app.model.ReceivedPhoto;
 import com.tappitz.app.ui.InBoxFragment;
-import com.tappitz.app.ui.ScreenSlidePagerActivity;
+import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.util.ListenerPagerStateChange;
 import com.tappitz.app.util.ModelCache;
 import com.tappitz.app.util.VerticalViewPager;
@@ -321,8 +319,8 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
 
         }
 
-        ((ScreenSlidePagerActivity)getActivity()).getEmojiManager().setEmojiconEditText(editTextComment);
-        ((ScreenSlidePagerActivity)getActivity()).getEmojiManager().setEmojiButton(emoji_btn);
+        ((MainActivity)getActivity()).getEmojiManager().setEmojiconEditText(editTextComment);
+        ((MainActivity)getActivity()).getEmojiManager().setEmojiButton(emoji_btn);
 
         color_background.setBackgroundColor(getResources().getColor(getColor(currentVote)));
         color_background.setVisibility(View.VISIBLE);

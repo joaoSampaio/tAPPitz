@@ -58,20 +58,11 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         try {
 
 
-            previewView = new CameraPreview4(this);
+            //previewView = new CameraPreview4(this);
             frame.addView(previewView);
             layout_after_photo = (RelativeLayout)findViewById(R.id.layout_after_photo);
             layout_before_photo = (RelativeLayout)findViewById(R.id.layout_before_photo);
 
-//            camera = Camera.open(1);
-//            determineDisplayOrientation();
-//            new Handler().postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    previewView.setCamera(camera);
-//                }
-//            },1000);
-//            previewView.setCamera(camera);
         } catch (Exception exception) {
             Log.e(TAG, "Can't open camera with id ", exception);
 
@@ -93,42 +84,42 @@ public class CameraActivity extends Activity implements View.OnClickListener {
         frame.removeAllViews();
     }
 
-    public void determineDisplayOrientation() {
-        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
-        Camera.getCameraInfo(1, cameraInfo);
-
-        int rotation = getWindowManager().getDefaultDisplay().getRotation();
-        int degrees  = 0;
-
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degrees = 0;
-                break;
-
-            case Surface.ROTATION_90:
-                degrees = 90;
-                break;
-
-            case Surface.ROTATION_180:
-                degrees = 180;
-                break;
-
-            case Surface.ROTATION_270:
-                degrees = 270;
-                break;
-        }
-
-        int displayOrientation;
-
-        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            displayOrientation = (cameraInfo.orientation + degrees) % 360;
-            displayOrientation = (360 - displayOrientation) % 360;
-        } else {
-            displayOrientation = (cameraInfo.orientation - degrees + 360) % 360;
-        }
-
-        camera.setDisplayOrientation(displayOrientation);
-    }
+//    public void determineDisplayOrientation() {
+//        Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
+//        Camera.getCameraInfo(1, cameraInfo);
+//
+//        int rotation = getWindowManager().getDefaultDisplay().getRotation();
+//        int degrees  = 0;
+//
+//        switch (rotation) {
+//            case Surface.ROTATION_0:
+//                degrees = 0;
+//                break;
+//
+//            case Surface.ROTATION_90:
+//                degrees = 90;
+//                break;
+//
+//            case Surface.ROTATION_180:
+//                degrees = 180;
+//                break;
+//
+//            case Surface.ROTATION_270:
+//                degrees = 270;
+//                break;
+//        }
+//
+//        int displayOrientation;
+//
+//        if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+//            displayOrientation = (cameraInfo.orientation + degrees) % 360;
+//            displayOrientation = (360 - displayOrientation) % 360;
+//        } else {
+//            displayOrientation = (cameraInfo.orientation - degrees + 360) % 360;
+//        }
+//
+//        camera.setDisplayOrientation(displayOrientation);
+//    }
 
 
 

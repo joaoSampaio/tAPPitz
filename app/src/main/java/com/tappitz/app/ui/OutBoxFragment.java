@@ -71,7 +71,7 @@ public class OutBoxFragment extends Fragment {
 
         loadOffline();
 
-        ((ScreenSlidePagerActivity)getActivity()).setReloadOutbox(new ReloadOutbox() {
+        ((MainActivity)getActivity()).setReloadOutbox(new ReloadOutbox() {
             @Override
             public void updateTemporaryOutbox(SentPicture outbox) {
 
@@ -240,7 +240,7 @@ public class OutBoxFragment extends Fragment {
         //foi encontrada a imagem vamos mostra-la
         if(position >= 0){
             viewPager.setCurrentItem(position);
-            //((ScreenSlidePagerActivity)getActivity()).setInbox_vote_id(-1);
+            //((MainActivity)getActivity()).setInbox_vote_id(-1);
         }
 
     }
@@ -278,13 +278,13 @@ public class OutBoxFragment extends Fragment {
             }
         };
 
-        ((ScreenSlidePagerActivity)getActivity()).addStateChange(stateOut);
+        ((MainActivity)getActivity()).addStateChange(stateOut);
     }
 
     @Override
     public void onPause(){
         super.onPause();
-        ((ScreenSlidePagerActivity)getActivity()).removeStateChange(stateOut);
+        ((MainActivity)getActivity()).removeStateChange(stateOut);
     }
 
 
@@ -302,7 +302,7 @@ public class OutBoxFragment extends Fragment {
                 Log.d("outbox", "refreshUnseenNotification");
                 unseenNotifications.save();
                 if(getActivity() != null)
-                    ((ScreenSlidePagerActivity)getActivity()).refreshUnseenNotification();
+                    ((MainActivity)getActivity()).refreshUnseenNotification();
             }
         }
     }
