@@ -100,7 +100,8 @@
             android:layout_marginBottom="10dp"
             android:layout_gravity="bottom"
             android:padding="4dp"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentBottom="true"
+            android:id="@+id/edittext_next_container">
 
 
             <FrameLayout

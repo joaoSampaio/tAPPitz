@@ -65,10 +65,11 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
     private Handler handler;
     private Runnable gifRunnable, counterRunnable;
     private int numFrames = 0, countTilNext = MAXFRAMES;
-    private View gif_box_container;
+    private View gif_box_container, edittext_next_container;
     private TextView textViewCount, textViewCountDescription;
     final static int[] CLICABLES = {R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept};
     private List<ImageView> gifSequence;
+    private SaveGifThread saveGifThread;
 
     public CameraHelper2(MainActivity act, final CameraPreview4 preview4) {
         this.activity = act;
@@ -82,6 +83,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
         temp_pic = (ImageView) activity.findViewById(R.id.temp_pic);
         btn_flash = (Button) activity.findViewById(R.id.btn_flash);
         gif_box_container = activity.findViewById(R.id.gif_box_container);
+        edittext_next_container = activity.findViewById(R.id.edittext_next_container);
         isLongClickActive = false;
         bitmapsGif = new ArrayList<>();
         gifSequence = new ArrayList<>();
@@ -174,6 +176,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                         (getActivity()).enableSwipe(false);
                         onTakePick(true);
                         getActivity().screenHistory.add(0, 0);
+                        edittext_next_container.setVisibility(View.VISIBLE);
                     }
 
                     @Override
@@ -317,6 +320,8 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
         textMsg.setText("");
         photoPath = "";
         photoData = null;
+        saveGifThread = null;
+        bitmapsGif.clear();
         (getActivity()).enableSwipe(true);
         temp_pic.setVisibility(View.GONE);
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -431,7 +436,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                     bitmapsGif.clear();
                     numFrames = 0;
                     isLongClickActive = true;
-
+                    edittext_next_container.setVisibility(View.GONE);
                     onTakePick(true);
                     getActivity().screenHistory.add(0, 0);
                     (activity).enableSwipe(false);
@@ -461,17 +466,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
             Log.d("gif", "changeColorGif:"+numFrames);
             gifSequence.get(numFrames).setImageResource(R.drawable.square_shape_gif_full);
         }
-//        new Handler(Looper.getMainLooper()).post((new Runnable() {
-//            @Override
-//            public void run() {
-//                if(gifSequence.size() > numFrames ) {
-//                    Log.d("gif", "changeColorGif:"+numFrames);
-//                    gifSequence.get(numFrames).setImageResource(R.drawable.square_shape_gif_full);
-//                }
-//
-//            }
-//        }));
-
     }
 
     private void generateBitmapIfGif(byte[] bitmapdata, int width, int height){
@@ -509,6 +503,16 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
 
         bitmapsGif.add(getResizedBitmap(originalBitmap, originalBitmap.getHeight()/2, originalBitmap.getWidth()/2));
 
+        if(saveGifThread == null) {
+            saveGifThread = new SaveGifThread(bitmapsGif, listenerGif);
+            Thread waiterThread = new Thread(saveGifThread, "waiterThread");
+            waiterThread.start();
+        }
+
+        synchronized (bitmapsGif) {
+            bitmapsGif.notify();
+        }
+
 
         Log.d("gif", "bitmapsGif.add(decoded):"+numFrames);
         if(numFrames == (MAXFRAMES -1)) {
@@ -540,46 +544,52 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
         Log.d("gif", "save gif");
         isLongClickActive = false;
         time1 = System.currentTimeMillis();
-        new SaveGifBackgroundTask(bitmapsGif, new SaveGifBackgroundTask.GifSaved() {
-            @Override
-            public void onGifSaved(Uri uri, String photoPath) {
-                Log.d("gif", "onGifSaved");
-                time2 = System.currentTimeMillis();
-                Log.d("gif", "onGifSaved took:" + ((time2 - time1)/1000) + "seconds to save to disk");
-
-                activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
-                Toast.makeText(AppController.getAppContext(), "Gif saved", Toast.LENGTH_SHORT);
-
-                if (temp_pic != null) {
-                    temp_pic.setVisibility(View.VISIBLE);
-                }
-                showGifContainer(false);
-                Glide.with(getActivity())
-                .load(photoPath)
-                .asGif()
-                .centerCrop()
-                .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-                .priority(Priority.IMMEDIATE)
-                .listener(new RequestListener<String, GifDrawable>() {
-                    @Override
-                    public boolean onException(Exception e, String model, Target<GifDrawable> target, boolean isFirstResource) {
-                        Log.d("glide", "exception");
-                        if(e != null)
-                            Log.d("glide", "exception->"+e.getMessage());
-                        return false;
-                    }
-
-                    @Override
-                    public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                        Log.d("glide", "onResourceReady");
-                        return false;
-                    }
-                })
-                .into(temp_pic);
-
-
-            }
-        }).execute();
+        //new SaveGifBackgroundTask(bitmapsGif, listenerGif).execute();
     }
+
+
+    SaveGifThread.GifSaved listenerGif = new SaveGifThread.GifSaved() {
+        @Override
+        public void onGifSaved(Uri uri, String photoPath) {
+            Log.d("gif", "onGifSaved");
+            time2 = System.currentTimeMillis();
+            Log.d("gif", "onGifSaved took:" + ((time2 - time1)/1000) + "seconds to save to disk");
+
+            activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
+            Toast.makeText(AppController.getAppContext(), "Gif saved", Toast.LENGTH_SHORT);
+
+            saveGifThread = null;
+
+            if (temp_pic != null) {
+                temp_pic.setVisibility(View.VISIBLE);
+            }
+            showGifContainer(false);
+            Glide.with(getActivity())
+                    .load(photoPath)
+                    .asGif()
+                    .centerCrop()
+                    .diskCacheStrategy(DiskCacheStrategy.SOURCE)
+                    .priority(Priority.IMMEDIATE)
+                    .listener(new RequestListener<String, GifDrawable>() {
+                        @Override
+                        public boolean onException(Exception e, String model, Target<GifDrawable> target, boolean isFirstResource) {
+                            Log.d("glide", "exception");
+                            if(e != null)
+                                Log.d("glide", "exception->"+e.getMessage());
+                            return false;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                            Log.d("glide", "onResourceReady");
+                            return false;
+                        }
+                    })
+                    .into(temp_pic);
+            edittext_next_container.setVisibility(View.VISIBLE);
+
+        }
+    };
+
 
 }

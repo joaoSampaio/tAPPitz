@@ -1,17 +1,11 @@
 package com.tappitz.app;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
-import android.util.Pair;
-import android.view.Surface;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -21,16 +15,8 @@ import android.widget.Toast;
 import com.tappitz.app.app.AppController;
 import com.tappitz.app.camera.CallbackCameraAction;
 import com.tappitz.app.camera.CameraPreview4;
-import com.tappitz.app.camera.ControlCameraTask;
-import com.tappitz.app.camera.SavePhotoBackgroundTask;
-import com.tappitz.app.camera.UriPath;
 
 
-/**
- * Activity displaying the camera and mustache preview.
- *
- * @author Sebastian Kaspari <sebastian@androidzeitgeist.com>
- */
 public class CameraActivity extends Activity implements View.OnClickListener {
     public static final String TAG = "CameraActivity";
 
