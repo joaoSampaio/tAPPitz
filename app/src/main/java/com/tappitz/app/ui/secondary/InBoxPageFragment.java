@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
@@ -197,24 +195,15 @@ public class InBoxPageFragment extends Fragment implements View.OnClickListener,
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
 
                     case MotionEvent.ACTION_DOWN:
-                        Log.d("myapp", "inbox ACTION_DOWN");
-//                        showButtonsAndBackground(false);
-//                        //imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
-//                        return true;
+
                     case MotionEvent.ACTION_POINTER_DOWN:
-                        Log.d("myapp", "inbox ACTION_POINTER_DOWN");
-                        //=====Write down your Finger Pressed code here
-//                        imm.hideSoftInputFromWindow(emoji_btn.getWindowToken(), 0);
                         showButtonsAndBackground(false);
-                        //imm.hideSoftInputFromWindow(rootView.getWindowToken(), 0);
                         return true;
 
                     case MotionEvent.ACTION_UP:
-                        Log.d("myapp", "inbox ACTION_UP");
                         showButtonsAndBackground(true);
                         break;
                     case MotionEvent.ACTION_POINTER_UP:
-                        Log.d("myapp", "inbox ACTION_POINTER_UP");
                         //=====Write down you code Finger Released code here
                         break;
 

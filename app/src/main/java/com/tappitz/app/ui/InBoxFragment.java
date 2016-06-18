@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -47,9 +46,6 @@ public class InBoxFragment extends Fragment {
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_in_box, container, false);
 
-        Log.d("inbox", "**--new InBoxFragment:");
-
-
         photos = new ArrayList<>();
         adapter = new InBoxPagerAdapter(getChildFragmentManager(), photos);
         viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
@@ -63,7 +59,6 @@ public class InBoxFragment extends Fragment {
 
             @Override
             public void onPageScrollStateChanged(int state) {
-                Log.d("myapp2", "**--onPageScrollStateChanged inBoxFragment:" + state);
                 if (stateChange != null) {
                     for (ListenerPagerStateChange s : stateChange) {
                         s.onPageScrollStateChanged(state);
@@ -167,16 +162,6 @@ public class InBoxFragment extends Fragment {
                     photos.addAll(ReceivedPhoto.join(response));
                     adapter.notifyDataSetChanged();
                     showPage(showPage);
-//                    if(((MainActivity) getActivity()).getInbox_vote_id() >= 0){
-//                        showPage(((MainActivity) getActivity()).getInbox_vote_id());
-//                    }else{
-//                        currentPage = (currentPage >= photos.size()) ? 0 : currentPage;
-//                        viewPager.setCurrentItem(currentPage);
-//                    }
-
-
-
-                    //showPage(((MainActivity) getActivity()).getInbox_vote_id());
 
                     new ModelCache<List<ReceivedPhoto>>().saveModel(getActivity(), photos, Global.OFFLINE_INBOX);
                 }
@@ -217,7 +202,6 @@ public class InBoxFragment extends Fragment {
             UnseenNotifications unseenNotifications = UnseenNotifications.load();
             if(unseenNotifications.getReceivedPhotos().remove(pictureId) != null){
                 //já apagmos agora vamso fazer refresh
-                Log.d("inbox", "refreshUnseenNotification");
                 unseenNotifications.save();
                 ((MainActivity)getActivity()).refreshUnseenNotification();
             }
@@ -322,7 +306,6 @@ public class InBoxFragment extends Fragment {
     }
 
     public void removeUnseenNotification(){
-        Log.d("inbox", "removeUnseenNotification");
         if (!photos.isEmpty()) {
             int index = viewPager.getCurrentItem();
             ReceivedPhoto receivedPhoto = photos.get(index);
@@ -331,7 +314,6 @@ public class InBoxFragment extends Fragment {
             UnseenNotifications unseenNotifications = UnseenNotifications.load();
             if(unseenNotifications.getReceivedPhotos().remove(pictureId) != null){
                 //já apagmos agora vamso fazer refresh
-                Log.d("inbox", "refreshUnseenNotification");
                 unseenNotifications.save();
                 ((MainActivity)getActivity()).refreshUnseenNotification();
             }

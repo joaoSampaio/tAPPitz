@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -99,7 +98,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
         layout_out_description  = rootView.findViewById(R.id.layout_out_description);
         action_go_back = rootView.findViewById(R.id.action_go_back);
         descriptionText = (EmojiconTextView) rootView.findViewById(R.id.photo_description);
-        Log.d("myapp", "out dateSentTimeAgo:" + dateSentTimeAgo);
         descriptionText.setText("You - " + dateSentTimeAgo  + ((text.length() > 0) ? ( "\n" +"\"" + text) : ""));
 
 //        commentText = (TextView) rootView.findViewById(R.id.photo_comment);
@@ -111,7 +109,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             }
         });
         image = (ImageView) rootView.findViewById(R.id.picture);
-        Log.d("myapp", "out isTemporary:" + isTemporary);
         if(!isTemporary) {
 
             loadVotesOffline();
@@ -142,13 +139,9 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             public boolean onTouch(View v, MotionEvent event) {
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_CANCEL:
-                        Log.d("myapp", "inbox ACTION_CANCEL");
-                        //showButtonsAndBackground(true);
                         break;
                     case MotionEvent.ACTION_DOWN:
-                        Log.d("myapp", "inbox ACTION_DOWN");
                     case MotionEvent.ACTION_POINTER_DOWN:
-                        Log.d("myapp", "inbox ACTION_POINTER_DOWN");
                         //=====Write down your Finger Pressed code here
                         if (!color_background.isShown()) {
                             layout_out_description.setVisibility(View.GONE);
@@ -312,7 +305,6 @@ public class OutBoxPageFragment extends Fragment implements View.OnClickListener
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
                     //voltamos a mostrar as opções
-                    Log.d("myapp2", "**--outboxpage  :" + state);
                     showButtonsAndBackground(true);
                     showNumVotes();
                 }

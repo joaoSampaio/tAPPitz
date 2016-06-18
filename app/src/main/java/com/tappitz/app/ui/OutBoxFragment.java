@@ -48,7 +48,6 @@ public class OutBoxFragment extends Fragment {
         //depois de pedir ao servidor um json com os dados crio uma lista de modelos e crio o pageview
         photos = new ArrayList<>();
         adapter = new OutBoxPagerAdapter(getChildFragmentManager(), photos);
-        Log.d("myapp2", "**--new OutBoxFragment:");
         viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
         viewPager.setAdapter(adapter);
         viewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
@@ -117,7 +116,6 @@ public class OutBoxFragment extends Fragment {
 
             @Override
             public void openPageId(int id) {
-                Log.d("app", "showPage outbox:");
                 showPage(id);
             }
 
@@ -235,7 +233,6 @@ public class OutBoxFragment extends Fragment {
             }
             current++;
         }
-        Log.d("myapp", "**--showPage id"+id+" page:" + position);
 
         //foi encontrada a imagem vamos mostra-la
         if(position >= 0){
@@ -268,7 +265,6 @@ public class OutBoxFragment extends Fragment {
             public void onPageScrollStateChanged(int state) {
                 if (state == ViewPager.SCROLL_STATE_IDLE) {
                     //voltamos a mostrar as opções
-                    Log.d("myapp2", "**--outboxpage  :" + state);
                     if (stateChange != null) {
                         for (ListenerPagerStateChange s : stateChange) {
                             s.onPageScrollStateChanged(state);
@@ -290,7 +286,6 @@ public class OutBoxFragment extends Fragment {
 
 
     public void removeUnseenNotification(){
-        Log.d("outbox", "removeUnseenNotification");
         if (!photos.isEmpty()) {
             int index = viewPager.getCurrentItem();
             SentPicture sentPhoto = photos.get(index);
@@ -299,7 +294,6 @@ public class OutBoxFragment extends Fragment {
             UnseenNotifications unseenNotifications = UnseenNotifications.load();
             if(unseenNotifications.getReceivedComment().remove(pictureId) != null){
                 //já apagmos agora vamso fazer refresh
-                Log.d("outbox", "refreshUnseenNotification");
                 unseenNotifications.save();
                 if(getActivity() != null)
                     ((MainActivity)getActivity()).refreshUnseenNotification();

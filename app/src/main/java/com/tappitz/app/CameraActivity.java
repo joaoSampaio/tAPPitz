@@ -120,7 +120,6 @@ public class CameraActivity extends Activity implements View.OnClickListener {
                 break;
             case R.id.btn_shutter:
 
-                Log.d("myapp", "btn_shutter");
                 previewView.takePhoto(mPicture, new CallbackCameraAction() {
                     @Override
                     public void onSuccess() {
@@ -138,13 +137,11 @@ public class CameraActivity extends Activity implements View.OnClickListener {
 
             case R.id.btnPhotoDelete:
 
-                Log.d("myapp", "btnPhotoDelete");
                 deletePhoto();
 
                 break;
 
             case R.id.btn_flash:
-                Log.d("myapp", "btn_flash:");
 //                enableCameraButtons(false);
                 previewView.toggleFlash(new CallbackCameraAction() {
                     @Override

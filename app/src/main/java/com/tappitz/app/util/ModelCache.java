@@ -23,11 +23,30 @@ public class ModelCache<T> {
 
         //mudamos a tag para ser unica para cada utilizador
         TAG = email+"|"+TAG;
-        String json = new Gson().toJson(list);
-        SharedPreferences.Editor editor = sp.edit();
-        editor.putString(TAG, json);
-        editor.commit();
+//        synchronized(list){
+            String json = new Gson().toJson(list);
+            Log.d("myapp", "**--!json:"+json);
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(TAG, json);
+            editor.commit();
+        //}
     }
+
+    public void saveString(Context cxt,String json, String TAG){
+        String email = AppController.getInstance().email;
+        SharedPreferences sp = cxt.getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        if(email == null || email.length() == 0){
+            email = sp.getString(Global.KEY_USER, "");
+        }
+
+        //mudamos a tag para ser unica para cada utilizador
+        TAG = email+"|"+TAG;
+
+            SharedPreferences.Editor editor = sp.edit();
+            editor.putString(TAG, json);
+            editor.commit();
+
+}
 
     public T loadModel(Context cxt,Type type, String TAG){
         String email = AppController.getInstance().email;

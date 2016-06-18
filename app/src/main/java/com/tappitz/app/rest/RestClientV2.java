@@ -1,22 +1,14 @@
 package com.tappitz.app.rest;
 
 import android.content.Context;
-import android.util.Log;
 
-//import com.squareup.okhttp.Interceptor;
-//import com.squareup.okhttp.OkHttpClient;
-//import com.squareup.okhttp.Request;
-//import com.squareup.okhttp.Response;
 import com.tappitz.app.Global;
 import com.tappitz.app.app.AppController;
 
 import org.apache.http.conn.ssl.X509HostnameVerifier;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -27,20 +19,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.concurrent.TimeUnit;
 
-//import retrofit.RequestInterceptor;
-//import retrofit.RestAdapter;
-//import retrofit.client.OkClient;
-//import retrofit.converter.GsonConverter;
-//import okhttp3.ConnectionPool;
-//import okhttp3.Dispatcher;
-//import okhttp3.Interceptor;
-//import okhttp3.OkHttpClient;
-//import okhttp3.Request;
-//import okhttp3.Response;
-//import okhttp3.logging.HttpLoggingInterceptor;
-//import retrofit.client.OkClient;
 import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSession;
@@ -59,9 +38,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-/**
- * Created by sampaio on 26-03-2015.
- */
+
 public class RestClientV2 {
 
     private static String sessionId;
@@ -136,13 +113,12 @@ public class RestClientV2 {
                     if (null != sessionId && sessionId.length() > 0) {
                         newRequest.addHeader("Session-Id", sessionId);
                     }
-                    Log.d("servico", "COOKIES_REQUEST_INTERCEPTOR");
                     return chain.proceed(newRequest.build());
                 }
             };
 
             HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-            interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+            //interceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
             OkHttpClient.Builder client = new OkHttpClient.Builder();
             client.readTimeout(60, TimeUnit.SECONDS)
                     .writeTimeout(120, TimeUnit.SECONDS)
@@ -177,7 +153,6 @@ public class RestClientV2 {
                     if (null != sessionId && sessionId.length() > 0) {
                         newRequest.addHeader("Session-Id", sessionId);
                     }
-                    Log.d("servico", "COOKIES_REQUEST_INTERCEPTOR");
                     return chain.proceed(newRequest.build());
                 }
             };
@@ -257,10 +232,7 @@ public class RestClientV2 {
             CertificateFactory cf = CertificateFactory.getInstance("X.509");
             caInput = context.getAssets().open("tappitz.cer");
 //            InputStream caInput = new BufferedInputStream(new FileInputStream("load-der.crt"));
-
             ca = cf.generateCertificate(caInput);
-            Log.d("Pedro", "ca=" + ((X509Certificate) ca).getSubjectDN());
-//            System.out.println("ca=" + ((X509Certificate) ca).getSubjectDN());
 
 
             // Create a KeyStore containing our trusted CAs

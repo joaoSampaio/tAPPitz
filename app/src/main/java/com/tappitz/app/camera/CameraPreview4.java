@@ -17,9 +17,7 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import com.tappitz.app.CameraActivity;
 import com.tappitz.app.Global;
 import com.tappitz.app.app.AppController;
 import com.tappitz.app.model.CameraFrame;
@@ -97,7 +95,6 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        Log.d("MyCameraApp", "onMeasure:"+ (mSupportedPreviewSizes != null));
         // We purposely disregard child measurements because act as a
         // wrapper to a SurfaceView that centers the camera preview instead
         // of stretching it.
@@ -132,9 +129,10 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
         Resources resources = getResources();
         int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
         if (resourceId > 0) {
+            Log.d("preview", "navigation_bar_height before height:"+height + " after height:" + (height + resources.getDimensionPixelSize(resourceId)));
             height =  height + resources.getDimensionPixelSize(resourceId);
         }
-
+        Log.d("preview", "getSize w:"+width + " height:" + height);
         return new Pair<Integer, Integer>(width, height);
 
     }
@@ -153,7 +151,6 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
                 previewWidth = mPreviewSize.width;
                 previewHeight = mPreviewSize.height;
             }
-            Log.d(TAG, "onLayout previewWidth:"+previewWidth + " preview previewHeight:"+previewHeight);
             if(previewWidth > previewHeight) {
                 int tmpWidth = previewWidth;
                 previewWidth = previewHeight;
@@ -175,7 +172,6 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
 
 
     public void surfaceCreated(SurfaceHolder holder) {
-        Log.d(TAG, "onLayout surfaceCreated:" + (mCamera != null));
         // The Surface has been created, acquire the camera and tell it where
         // to draw.
         try {
@@ -207,7 +203,6 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
         }
     }
     private Size getOptimalPreviewSize(List<Size> sizes, int w, int h) {
-        Log.d(TAG, "w:"+w + " h:"+h);
         if(h > w){
             int tmpWidth = w;
             w = h;
@@ -215,7 +210,6 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
         }
         final double ASPECT_TOLERANCE = 0.1;
         double targetRatio = (double) w / h;
-        Log.d(TAG, "targetRatio:"+targetRatio );
         if (sizes == null) return null;
         Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
@@ -296,7 +290,6 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
             AppController.getInstance().mCameraReady = true;
             mSupportedPreviewSizes = mCamera.getParameters().getSupportedPreviewSizes();
             mSupportedPictureSizes = mCamera.getParameters().getSupportedPictureSizes();
-            Log.d("MyCameraApp", "mSupportedPreviewSizes:"+mSupportedPreviewSizes.size());
             requestLayout();
             mCamera.setPreviewDisplay(mHolder);
 
@@ -479,7 +472,6 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
     @Override
     public void enableFrameCapture(boolean enable) {
         captureFrame = enable;
-        Log.d("gif", "enableFrameCapture:" + (enable));
         if (enable) {
             barcodeScanned = true;
             getmCamera().setPreviewCallback(previewCb);

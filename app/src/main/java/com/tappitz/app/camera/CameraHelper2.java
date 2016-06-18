@@ -10,9 +10,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.hardware.Camera;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
@@ -141,12 +139,10 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                 InputMethodManager imm = (InputMethodManager) activity.getSystemService(Context.INPUT_METHOD_SERVICE);
                 switch (event.getAction() & MotionEvent.ACTION_MASK) {
                     case MotionEvent.ACTION_POINTER_DOWN:
-                        Log.d("myapp2", "ACTION_POINTER_DOWN");
                         imm.hideSoftInputFromWindow(layout_after_photo.getWindowToken(), 0);
                         layout_after_photo.setVisibility(View.INVISIBLE);
                         return true;
                     case MotionEvent.ACTION_POINTER_UP:
-                        Log.d("myapp2", "ACTION_POINTER_UP");
                         layout_after_photo.setVisibility(View.VISIBLE);
                         layout_after_photo.bringToFront();
                         return true;
@@ -169,7 +165,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                 break;
             case R.id.btn_shutter:
 
-                Log.d("myapp", "btn_shutter");
                 previewView.takePhoto(mPicture, new CallbackCameraAction() {
                     @Override
                     public void onSuccess() {
@@ -188,13 +183,11 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
 
             case R.id.btnPhotoDelete:
 
-                Log.d("myapp", "btnPhotoDelete");
                 deletePhoto();
 
                 break;
 
             case R.id.btn_flash:
-                Log.d("myapp", "btn_flash:");
                 enableCameraButtons(false);
                 previewView.toggleFlash(new CallbackCameraAction() {
                     @Override
@@ -232,13 +225,11 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                         }
                     }).execute();
                 }else {
-                    Log.d("myapp", "photoPath has uri");
                     showDialog();
                 }
 
                 break;
             case R.id.btn_toggle_camera:
-                Log.d("myapp", "btn_toggle_camera:");
                 enableCameraButtons(false);
                 PackageManager pm = getActivity().getPackageManager();
 
@@ -250,7 +241,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                 previewView.turnCamera(new CallbackCameraAction() {
                     @Override
                     public void onSuccess() {
-                        Log.d("myapp", "btn_toggle_camera onDone:");
                         enableCameraButtons(true);
                     }
 
@@ -295,7 +285,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
 //                        loadBitmapFile(temp_pic, photoPath, AppController.getInstance().width, AppController.getInstance().height);
                         activity.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, uri));
                         photoData = null;
-                        Log.d("myapp", "1 setEnabled(true)");
                         Toast.makeText(activity, "done", Toast.LENGTH_LONG);
 //                        btn_back.setEnabled(true);
 
@@ -308,7 +297,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
     };
 
     public void showBtnOptions(boolean show){
-        Log.d("myapp", "showBtnOptions:"+show);
         getActivity().findViewById(R.id.camera_options).setVisibility(!show ? View.GONE : View.VISIBLE);
         getActivity().findViewById(R.id.layout_camera).setVisibility(View.GONE);
     }
@@ -332,7 +320,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
 
     public void onTakePick(final boolean takePhoto)
     {
-        Log.d("myapp", "onTakePick " + takePhoto);
         //este metodo esconde o menu da camera ou mostra o botao para tirar foto, simplesmente tem animações porque era codigo que ja tinha feito para outra app
         if(!takePhoto){
             temp_pic.setVisibility(View.GONE);
@@ -348,7 +335,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
         layout_before_photo.setVisibility(takePhoto ? View.GONE : View.VISIBLE);
         layout_after_photo.setVisibility(takePhoto ? View.VISIBLE : View.GONE);
 
-        Log.d("MyCameraApp", "layout_after_photo5:" + layout_after_photo.isShown());
     }
 
     private void showDialog() {
@@ -432,7 +418,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
         switch (view.getId()){
             case R.id.btn_shutter:
                 if(handler != null && !isLongClickActive) {
-                    Log.d("gif", "OnLongClickListener gif");
                     bitmapsGif.clear();
                     numFrames = 0;
                     isLongClickActive = true;
@@ -463,24 +448,16 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
 
         Toast.makeText(getActivity(), "frame:"+numFrames, Toast.LENGTH_SHORT).show();
         if(gifSequence.size() > numFrames ) {
-            Log.d("gif", "changeColorGif:"+numFrames);
             gifSequence.get(numFrames).setImageResource(R.drawable.square_shape_gif_full);
         }
     }
 
     private void generateBitmapIfGif(byte[] bitmapdata, int width, int height){
-        Log.d("gif", "bitmapdata:"+(bitmapdata != null));
         Bitmap originalBitmap = PhotoSave.getBitmapImageFromYUV(bitmapdata, width, height );
 
         changeColorGif();
-        Log.d("gif", "generateBitmapIfGif:"+numFrames);
-        Log.d("gif", "bitmapdata.length:"+bitmapdata.length);
-        Log.d("gif", "originalBitmap!=null:"+ (originalBitmap!=null));
-        int orientation = Exif.getOrientation(bitmapdata);
 
-        Log.d("gif", "orientation:"+ orientation);
-        Log.d("gif", "width:"+ originalBitmap.getWidth());
-        Log.d("gif", "height:"+ originalBitmap.getHeight());
+        int orientation = Exif.getOrientation(bitmapdata);
 
         if(width > height) {
             if(AppController.getInstance().currentCameraId == 0)
@@ -497,9 +474,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                 break;
 
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            Log.d("gif", "originalBitmap.getAllocationByteCount():"+originalBitmap.getAllocationByteCount());
-        }
+
 
         bitmapsGif.add(getResizedBitmap(originalBitmap, originalBitmap.getHeight()/2, originalBitmap.getWidth()/2));
 
@@ -513,8 +488,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
             bitmapsGif.notify();
         }
 
-
-        Log.d("gif", "bitmapsGif.add(decoded):"+numFrames);
         if(numFrames == (MAXFRAMES -1)) {
             previewView.enableFrameCapture(false);
             saveGifToFile();
@@ -551,7 +524,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
     SaveGifThread.GifSaved listenerGif = new SaveGifThread.GifSaved() {
         @Override
         public void onGifSaved(Uri uri, String photoPath) {
-            Log.d("gif", "onGifSaved");
             time2 = System.currentTimeMillis();
             Log.d("gif", "onGifSaved took:" + ((time2 - time1)/1000) + "seconds to save to disk");
 
@@ -573,7 +545,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                     .listener(new RequestListener<String, GifDrawable>() {
                         @Override
                         public boolean onException(Exception e, String model, Target<GifDrawable> target, boolean isFirstResource) {
-                            Log.d("glide", "exception");
                             if(e != null)
                                 Log.d("glide", "exception->"+e.getMessage());
                             return false;
@@ -581,7 +552,6 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
 
                         @Override
                         public boolean onResourceReady(GifDrawable resource, String model, Target<GifDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                            Log.d("glide", "onResourceReady");
                             return false;
                         }
                     })

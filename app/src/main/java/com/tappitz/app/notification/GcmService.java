@@ -35,52 +35,58 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Service used for receiving GCM messages. When a message is received this service will log it.
  */
 public class GcmService extends GcmListenerService {
 
-
+    private ReentrantLock lock;
     public GcmService() {
     }
 
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String message = data.getString("message");
-        Log.d("updateMyActivity", "From: " + from);
-        Log.d("updateMyActivity", "Message: " + message);
 
-        for (String key : data.keySet()) {
-            Log.d("notification", " " + key + " => " + data.get(key) + ";");
+        if(lock == null){
+            Log.d("updateMyActivity", "lock == null");
+            lock = new ReentrantLock();
         }
 
-//        authorName => João Sampaio;
-//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  action => NEW_PICTURE_RECEIVED;
-//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  pictureId => 13;
-//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  date => Sun Mar 13 21:56:26 UTC 2016;
-//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  comment => ;
-//        03-13 21:55:48.365 32089-32107/com.tappitz.tappitz D/notification:  authorId => 2;
+        lock.lock();  // block until condition holds
+        try {
+            String message = data.getString("message");
+            Log.d("updateMyActivity", "From: " + from);
+            Log.d("updateMyActivity", "Message: " + message);
 
-
-        String action = "";
-
-        action = data.getString("action", "");
-        UnseenNotifications unseenNotifications = UnseenNotifications.load();
-        if(action != null) {
-            switch (action) {
-                case Global.NEW_PICTURE_RECEIVED:
-                    saveReceivedPictureOffline(data);
-                    break;
-                case Global.NEW_PICTURE_VOTE:
-                    saveVotesOffline(data);
-
-                    break;
+            for (String key : data.keySet()) {
+                Log.d("notification", " " + key + " => " + data.get(key) + ";");
             }
+
+            String action = "";
+
+            action = data.getString("action", "");
+            UnseenNotifications unseenNotifications = UnseenNotifications.load();
+            if(action != null) {
+                switch (action) {
+                    case Global.NEW_PICTURE_RECEIVED:
+                        saveReceivedPictureOffline(data);
+                        break;
+                    case Global.NEW_PICTURE_VOTE:
+                        saveVotesOffline(data);
+
+                        break;
+                }
+            }
+            saveUnseenNotification(data);
+            updateMyActivity(data);
+            sendNotification( data);
+        } finally {
+            lock.unlock();
         }
-        saveUnseenNotification(data);
-        updateMyActivity(data);
-        sendNotification( data);
+
+
 
     }
 
@@ -381,15 +387,13 @@ public class GcmService extends GcmListenerService {
                 authorName, sentDate, isHasVoted,
                 votedDate, myComment, 0);
         tmp.setIsVoteTemporary(false);
-        Log.d("myapp", "**--sentDate "+sentDate);
-        List<ReceivedPhoto> inbox = new ModelCache<List<ReceivedPhoto>>().loadModel(AppController.getAppContext(), new TypeToken<List<ReceivedPhoto>>() {
-        }.getType(), Global.OFFLINE_INBOX);
 
-        if(!ReceivedPhoto.hasId(inbox, pictureIdInt)){
-            Log.d("myapp", "**--ReceivedPhoto  !hasId "+pictureIdInt);
-            inbox.add(0, tmp);
-            new ModelCache<List<ReceivedPhoto>>().saveModel(AppController.getAppContext(), inbox, Global.OFFLINE_INBOX);
-        }
+
+
+
+
+        AppController.getInstance().addToInbox(tmp);
+
 
     }
 

@@ -6,7 +6,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -43,8 +42,6 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.fragment_middle_container, container, false);
-
-        Log.d("myapp2", "**--new InBoxFragment:");
 
         adapter = new MiddlePagerAdapter(getChildFragmentManager());
         viewPager = (VerticalViewPager) rootView.findViewById(R.id.viewPager);
@@ -86,7 +83,6 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
         ((MainActivity)getActivity()).setMiddleShowPage(new MiddleShowPage() {
             @Override
             public void showPage(int page) {
-                Log.d("MIddle", "showPage:" + page);
 
                 viewPager.setPageTransformer(true, null);
 //                viewPager.setOnPageChangeListener(null);
@@ -130,7 +126,6 @@ public class MiddleContainerFragment extends Fragment implements ViewPager.OnPag
 
     @Override
     public void onPageSelected(int position) {
-        Log.d("ss", "onPageSelected:" + position);
         if(getActivity() != null){
             ((MainActivity)getActivity()).getmHelper().enableQRCodeCapture((position == Global.MIDDLE_QRCODE));
             if(((MainActivity)getActivity()).getmPager() != null)

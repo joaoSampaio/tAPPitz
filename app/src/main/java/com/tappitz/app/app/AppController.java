@@ -7,14 +7,15 @@ import android.content.pm.PackageManager;
 import android.hardware.Camera;
 import android.os.Build;
 import android.util.Log;
-import android.view.SurfaceHolder;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.google.gson.reflect.TypeToken;
+import com.tappitz.app.Global;
 import com.tappitz.app.R;
+import com.tappitz.app.model.ReceivedPhoto;
 import com.tappitz.app.rest.RestClientV2;
 import com.tappitz.app.rest.model.ErrorLogEntry;
-import com.tappitz.app.rest.model.GoogleId;
+import com.tappitz.app.util.ModelCache;
 
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
@@ -22,7 +23,10 @@ import org.acra.annotation.ReportsCrashes;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 import retrofit2.Call;
 
@@ -41,11 +45,9 @@ public class AppController extends Application {
     private static Context context;
 
     public Camera mCamera;
-    public SurfaceHolder surfaceHolder;
     public int currentCameraId = 1;
     public int width;
     public int height;
-    private String sessionId;
     public boolean turnLightOn;
 
     public boolean mCameraReady;
@@ -53,6 +55,8 @@ public class AppController extends Application {
 
     private static AppController mInstance;
 
+    private static List<ReceivedPhoto> inbox;
+    private final ReentrantLock lock = new ReentrantLock();
 
     @Override
     public void onCreate() {
@@ -121,8 +125,33 @@ public class AppController extends Application {
         return AppController.context;
     }
 
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
+    public void addToInbox(ReceivedPhoto receivedPhoto){
+        if(inbox == null){
+            Log.d("myapp", "inbox == null");
+            inbox = Collections.synchronizedList(new ModelCache<List<ReceivedPhoto>>().loadModel(AppController.getAppContext(),
+                    new TypeToken<List<ReceivedPhoto>>() {}.getType(), Global.OFFLINE_INBOX));
+        }
+        Log.d("myapp", "**--!ReceivedPhoto.hasId(inbox, receivedPhoto.getPictureId()) "+!ReceivedPhoto.hasId(inbox, receivedPhoto.getPictureId()));
+        if(!ReceivedPhoto.hasId(inbox, receivedPhoto.getPictureId())){
+
+            inbox.add(0, receivedPhoto);
+            if(inbox.size() > 1 && inbox.get(0).getPictureId() < inbox.get(1).getPictureId()){
+                //ordenar
+                sortDesc(inbox);
+            }
+            new ModelCache<List<ReceivedPhoto>>().saveModel(AppController.getAppContext(), inbox, Global.OFFLINE_INBOX);
+
+        }
+
+    }
+
+    public static void sortDesc(List<ReceivedPhoto> list){
+        Collections.sort(list, new Comparator<ReceivedPhoto>() {
+            @Override
+            public int compare(ReceivedPhoto obj1, ReceivedPhoto obj2) {
+                return ((Integer) obj2.getPictureId()).compareTo(obj1.getPictureId());
+            }
+        });
     }
 
 }

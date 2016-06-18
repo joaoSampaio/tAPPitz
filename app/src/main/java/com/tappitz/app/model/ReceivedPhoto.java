@@ -12,6 +12,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 public class ReceivedPhoto {
@@ -153,7 +154,10 @@ public class ReceivedPhoto {
 
 
     public static ReceivedPhoto getPhotoWithId(List<ReceivedPhoto> received, int id){
-        for (ReceivedPhoto rec: received) {
+
+        List<ReceivedPhoto> copy = new ArrayList<>(received);
+        for(Iterator<ReceivedPhoto> it = copy.iterator(); it.hasNext();) {
+            ReceivedPhoto rec = it.next();
             if(rec.getPictureId() == id)
                 return rec;
         }

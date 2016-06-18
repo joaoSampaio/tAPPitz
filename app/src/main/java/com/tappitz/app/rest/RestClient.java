@@ -1,13 +1,11 @@
 package com.tappitz.app.rest;
 
-import android.util.Log;
+import retrofit.RequestInterceptor;
 
 //import com.squareup.okhttp.Interceptor;
 //import com.squareup.okhttp.OkHttpClient;
 //import com.squareup.okhttp.Request;
 //import com.squareup.okhttp.Response;
-
-import retrofit.RequestInterceptor;
 
 /**
  * Created by sampaio on 26-03-2015.
@@ -38,7 +36,6 @@ public class RestClient {
     private static final RequestInterceptor COOKIES_REQUEST_INTERCEPTOR = new RequestInterceptor() {
         @Override
         public void intercept(RequestFacade request) {
-            Log.d("myapp", "***************RequestInterceptor:" + sessionId);
             if (null != sessionId && sessionId.length() > 0) {
                 request.addHeader("Session-Id", sessionId);
             }

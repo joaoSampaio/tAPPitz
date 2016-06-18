@@ -56,8 +56,6 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
     private ReloadContacts reloadContacts;
 
 
-
-
     private View progress_search, searchContainer, contact_search, progressOperation;
     private TextView mName, mUsername, mCircle, text_no_contact_search;
 
@@ -89,7 +87,6 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         rootView = inflater.inflate(R.layout.contacts_fragment, container, false);
-        Log.d("ContactsFragment", "ContactsFragment TYPE: "+TYPE );
         loadUI();
         refresh();
         return rootView;
@@ -150,9 +147,7 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
             public void onTextChanged(final CharSequence s, int start, int before, int count) {
                 Log.d("onTextChanged", " ->" + new String(s.toString()) + "  getItemCount:"+adapter.getItemCount());
                 adapter.getFilter().filter(s);
-                for(Contact c : adapter.getContacts()){
-                    Log.d("contact", " ---------->" + c.getEmail() + " getUsername:"+c.getUsername());
-                }
+
                 text_no_contact_search.setVisibility(View.GONE);
                 handler.postDelayed(new Runnable() {
                     @Override
@@ -189,12 +184,6 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
 
         text_no_contact = (TextView)rootView.findViewById(R.id.text_no_contact);
 
-
-        //swipeLayout = (SwipeRefreshLayout) rootView.findViewById(R.id.swipe_container);
-        //swipeLayout.setOnRefreshListener(this);
-
-
-        Log.d("ContactsFragment", "ContactsFragment: end");
     }
 
 
@@ -296,7 +285,6 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
     }
 
     private void checkIfHasContacts(int size) {
-        Log.d("myapp", "checkIfHasContacts: " + allContactsList.size());
         if(TYPE != FOLLOWING)
             text_no_contact.setVisibility(size > 0 ? View.GONE : View.VISIBLE);
     }
@@ -315,11 +303,9 @@ public class ContactsFragment extends Fragment implements SwipeRefreshLayout.OnR
         new SearchContactService(searchParam, new CallbackMultiple<Contact, String>() {
             @Override
             public void success(final Contact contact) {
-                Log.d("myapp", "searchContact success: ");
                 if(getActivity() != null && contact != null) {
                     contact_search.setVisibility(View.VISIBLE);
                     progress_search.setVisibility(View.GONE);
-                    Log.d("myapp", "searchContact success: dentro ");
                     text_no_contact_search.setVisibility(View.GONE);
                     contact.setIsFollower(false);
                     contact.setIsFriend(false);

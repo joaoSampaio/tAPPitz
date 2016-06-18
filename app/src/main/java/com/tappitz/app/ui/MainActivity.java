@@ -9,11 +9,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.graphics.Matrix;
-import android.graphics.Point;
-import android.graphics.SurfaceTexture;
-import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -23,17 +18,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.util.Pair;
-import android.view.Display;
-import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-//import com.bumptech.glide.integration.okhttp.OkHttpUrlLoader;
 import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader;
 import com.bumptech.glide.load.model.GlideUrl;
 import com.google.gson.reflect.TypeToken;
@@ -43,7 +32,6 @@ import com.tappitz.app.adapter.ScreenSlidePagerAdapter;
 import com.tappitz.app.app.AppController;
 import com.tappitz.app.background.BackgroundService;
 import com.tappitz.app.camera.CallbackCameraAction;
-import com.tappitz.app.camera.CameraHelper;
 import com.tappitz.app.camera.CameraHelper2;
 import com.tappitz.app.camera.CameraPreview4;
 import com.tappitz.app.model.ActivityResult;
@@ -64,10 +52,11 @@ import com.tappitz.app.util.ModelCache;
 import com.tappitz.app.util.NotificationCount;
 import com.tappitz.app.util.RefreshUnseenNotifications;
 
-
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+
+//import com.bumptech.glide.integration.okhttp.OkHttpUrlLoader;
 
 
 public class MainActivity extends FragmentActivity{
@@ -77,7 +66,6 @@ public class MainActivity extends FragmentActivity{
     private boolean signIn;
 //    View frame;
     View camera_buttons;
-    private String sessionId;
     private HomeToBlankListener listenerCamera;
     private CameraBackPressed cameraBackPressed;
     private OutBoxFragment.ReloadOutbox reloadOutbox;
@@ -85,13 +73,6 @@ public class MainActivity extends FragmentActivity{
     private ContactContainerFragment.ReloadAllContactsFragments reloadAllContactsFragments;
     private InBoxFragment.ReloadInbox reloadInboxListener;
     private BlankFragment.ButtonEnable buttonEnable;
-    private int afterLoginAction = -1;
-
-    //indica qual a picture a ser mostrada no inbox
-    private int inbox_vote_id = -1;
-//    private PhotoInbox newPhoto;
-//    private Comment commentVote;
-//    private int outbox_id = -1;
 
     public List<Integer> screenHistory = new ArrayList<>();
 
@@ -223,7 +204,6 @@ public class MainActivity extends FragmentActivity{
     @Override
     public void onResume(){
         super.onResume();
-        Log.d("myapp_new", "****onResume onResume onResume: ");
         findViewById(R.id.splashScreen).bringToFront();
         findViewById(R.id.splashScreen).setVisibility(View.VISIBLE);
         handler = new Handler();
@@ -237,7 +217,6 @@ public class MainActivity extends FragmentActivity{
         LocalBroadcastManager.getInstance(this).registerReceiver(mMessageReceiver, new IntentFilter("tAPPitz_1"));
         signIn = false;
         cameraReady = false;
-        afterLoginAction = -1;
 
         String sessionid = sp.getString("sessionId", "");
         if (Global.VERSION_V2) {
@@ -323,20 +302,16 @@ public class MainActivity extends FragmentActivity{
             extras = intent.getExtras();
             if(isRunning) {
                 String action = intent.getExtras().getString("action", "");
-                Log.d("myapp", "****onNewIntent action: " + action);
 
                 switch (action){
                     case Global.NEW_PICTURE_RECEIVED:
-                        Log.d("myapp", "****onNewIntent NEW_PICTURE_RECEIVED: antes ");
                         showPage(Global.INBOX);
                         break;
                     case Global.NEW_PICTURE_VOTE:
-                        Log.d("myapp", "**** onNewIntent NEW_PICTURE_VOTE: antes ");
                         showPage(Global.OUTBOX);
 
                         break;
                     default:
-                        Log.d("myapp", "**** onNewIntent HOME: antes ");
                         showPage(Global.HOME);
                 }
             }else {
@@ -357,8 +332,6 @@ public class MainActivity extends FragmentActivity{
         public void onReceive(Context context, Intent intent) {
 
             //Isto é chamado quando a app está aberta e chega uma notificação, o utilizador não clicou ainda na notificação
-            Log.d("myapp_new", "onReceive mMessageReceiver");
-            //do other stuff here
             NotificationCount.resetCount(getApplicationContext());
             String action = "", pictureId;
 
@@ -408,16 +381,13 @@ public class MainActivity extends FragmentActivity{
 
         SharedPreferences sp = getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
         String sessionid = sp.getString("sessionId", "");
+        Log.d("session", "sessionid:"+sessionid);
         if (Global.VERSION_V2) {
             RestClientV2.setSessionId(sessionid);
         } else {
             RestClient.setSessionId(sessionid);
         }
         if(BackgroundService.isWifiAvailable()) {
-
-            final String email = sp.getString(Global.KEY_USER, "");
-            final String password = sp.getString(Global.KEY_PASS, "");
-            this.sessionId = sessionid;
 
             new CheckLoggedStateService(new CallbackMultiple() {
                 @Override
@@ -448,7 +418,7 @@ public class MainActivity extends FragmentActivity{
             action = extras.getString("action","");
 
         signIn = true;
-        AppController.getInstance().setSessionId(sessionId);
+        //AppController.getInstance().setSessionId(sessionId);
 
         if(Global.VERSION_V2)
                 Glide.get(this).register(GlideUrl.class, InputStream.class, new OkHttpUrlLoader.Factory(RestClientV2.getOk()));
@@ -585,7 +555,6 @@ public class MainActivity extends FragmentActivity{
                 }
             }
         }catch (Exception e){
-            Log.d("myapp", "onback error");
             super.onBackPressed();
         }
 
@@ -632,7 +601,6 @@ public class MainActivity extends FragmentActivity{
     }
 
     public void notifyCameraReady(){
-        Log.d("myapp", "****notifyCameraReady " );
         setCameraReady(true);
         if(signIn)
             closeSplashScreen();
@@ -641,21 +609,10 @@ public class MainActivity extends FragmentActivity{
     }
 
     private void closeSplashScreen(){
-        Log.d("myapp", "****closeSplashScreen ");
 
-//        if(handler == null)
-//            handler = new Handler();
         findViewById(R.id.splashScreen).setVisibility(View.GONE);
         signIn = false;
         cameraReady = false;
-//        handler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                findViewById(R.id.splashScreen).setVisibility(View.GONE);
-//                signIn = false;
-//                cameraReady = false;
-//            }
-//        }, 1000);
     }
 
 
@@ -694,7 +651,6 @@ public class MainActivity extends FragmentActivity{
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("myapp", "onActivityResult main: " + requestCode);
 
         super.onActivityResult(requestCode, resultCode, data);
 
