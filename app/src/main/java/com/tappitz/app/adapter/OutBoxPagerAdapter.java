@@ -35,6 +35,7 @@ public class OutBoxPagerAdapter extends FragmentStatePagerAdapter {
         args.putInt(Global.ID_RESOURCE, photos.get(position).getId());
         args.putBoolean(Global.IS_TEMPORARY_RESOURCE, photos.get(position).isTemporary());
         args.putString(Global.TEMP_FINAL_RESOURCE, photos.get(position).getPathPictureTemporary());
+        args.putBoolean(Global.IS_GIF, photos.get(position).isGif());
 
 
 

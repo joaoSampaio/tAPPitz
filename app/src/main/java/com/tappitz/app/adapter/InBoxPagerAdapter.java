@@ -40,7 +40,7 @@ public class InBoxPagerAdapter extends FragmentStatePagerAdapter {
         args.putBoolean(Global.HAS_VOTED_RESOURCE, photos.get(position).isHasVoted());
         args.putInt(Global.CHOICE_RESOURCE, photos.get(position).getVote());
         args.putBoolean(Global.IS_TEMPORARY_RESOURCE, photos.get(position).isVoteTemporary());
-
+        args.putBoolean(Global.IS_GIF, photos.get(position).isGif());
 
 
         return InBoxPageFragment.newInstance(args);

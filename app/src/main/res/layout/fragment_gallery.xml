@@ -18,7 +18,18 @@
         android:layout_below="@+id/topbar"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/action_refresh"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@android:drawable/ic_popup_sync"
+        android:tint="@color/abc_background_cache_hint_selector_material_dark"
+        android:layout_alignTop="@+id/topbar"
+        android:layout_alignBottom="@+id/topbar"
+        android:layout_marginRight="15dp" />
 
 
 </RelativeLayout>

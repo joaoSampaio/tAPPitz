@@ -13,11 +13,12 @@ public class CreatePhoto {
     private List<Integer> friendIds;
     private boolean isGif;
 
-    public CreatePhoto(String comment, List<Integer> contacts, String picture, boolean sendToFollowers) {
+    public CreatePhoto(String comment, List<Integer> contacts, String picture, boolean sendToFollowers, boolean isGif) {
         this.comment = comment;
         this.friendIds = contacts;
         this.picture = picture;
         this.sendToFollowers = sendToFollowers;
+        this.isGif = isGif;
     }
 
     public String getComment() {
@@ -58,5 +59,13 @@ public class CreatePhoto {
 
     public void setSendToFollowers(boolean sendToFollowers) {
         this.sendToFollowers = sendToFollowers;
+    }
+
+    public boolean isGif() {
+        return isGif;
+    }
+
+    public void setGif(boolean gif) {
+        isGif = gif;
     }
 }

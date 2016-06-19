@@ -114,6 +114,14 @@ public class PhotoInbox {
         this.vote = vote;
     }
 
+    public boolean isGif() {
+        return isGif;
+    }
+
+    public void setGif(boolean gif) {
+        isGif = gif;
+    }
+
     public long getTimeMilliseconds(String dateTime){
         long time = 0;
         try {

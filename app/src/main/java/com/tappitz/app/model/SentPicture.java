@@ -24,11 +24,12 @@ public class SentPicture {
     private String createdDate;
     private boolean isGif;
 
-    public SentPicture(int id, String comment, String createdDate, boolean isTemporary){
+    public SentPicture(int id, String comment, String createdDate, boolean isTemporary, boolean isGif){
         this.id = id;
         this.comment = comment;
         this.createdDate = createdDate;
         this.isTemporary = isTemporary;
+        this.isGif = isGif;
     }
 
     public SentPicture( int id, String comment, boolean isTemporary) {
@@ -37,13 +38,14 @@ public class SentPicture {
         this.comment = comment;
     }
 
-    public SentPicture(String comment, String pathPictureTemporary) {
+    public SentPicture(String comment, String pathPictureTemporary, boolean isGif) {
         Random rand = new Random();
 
         this.id =  - rand.nextInt();
         this.comment = comment;
         this.pathPictureTemporary = pathPictureTemporary;
         this.isTemporary = true;
+        this.isGif = isGif;
     }
 
     public String getUrl() {
@@ -104,6 +106,14 @@ public class SentPicture {
         this.pathPictureTemporary = pathPictureTemporary;
     }
 
+    public boolean isGif() {
+        return isGif;
+    }
+
+    public void setGif(boolean gif) {
+        isGif = gif;
+    }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -122,7 +132,7 @@ public class SentPicture {
     }
 
     public FutureUpload generateFutureWork(List<Integer> friendIds, boolean sendToFollowers){
-        return new FutureUpload(this.getId(), this.getPathPictureTemporary(), friendIds, this.getText(), sendToFollowers);
+        return new FutureUpload(this.getId(), this.getPathPictureTemporary(), friendIds, this.getText(), sendToFollowers, this.isGif);
     }
 
     //este metodo adiciona às fotos vindas do servidor aquelas que ainda estao temporarias e nao foram enviadas

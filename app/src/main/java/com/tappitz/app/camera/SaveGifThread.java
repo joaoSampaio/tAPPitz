@@ -49,7 +49,7 @@ public class SaveGifThread implements Runnable {
                     bos = new BufferedOutputStream(outStream);
 
                     AnimatedGifEncoder encoder = new AnimatedGifEncoder();
-                    encoder.setDelay(1000);
+                    encoder.setDelay(300);
                     encoder.setQuality(20);
                     encoder.start(bos);
 

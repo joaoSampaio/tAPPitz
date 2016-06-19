@@ -107,6 +107,25 @@ public class GalleryFragment extends DialogFragment {
                 getDialog().dismiss();
             }
         });
+        rootView.findViewById(R.id.action_refresh).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(type == ImageModel.TYPE_INBOX || type == ImageModel.TYPE_INBOX_NOTIFICATION){
+                    if(getActivity() != null && ((MainActivity)getActivity()).getReloadInboxListener() != null) {
+                        ((MainActivity) getActivity()).getReloadInboxListener().refreshOnline();
+                    }
+                }else{
+                    if(getActivity() != null && ((MainActivity)getActivity()).getReloadOutbox() != null ) {
+                        ((MainActivity) getActivity()).getReloadOutbox().refreshOnline();
+                    }
+                }
+
+
+
+
+            }
+        });
 
         if(data == null && !dataList.equals("")){
 

@@ -43,6 +43,7 @@ public class Global {
     public static final String KEY_PASS = "KEY_PASS";
 
     public static final String IMAGE_RESOURCE_URL = "IMAGE_RESOURCE_URL";
+    public static final String IS_GIF = "IS_GIF";
     public static final String TEXT_RESOURCE = "TEXT_RESOURCE";
     public static final String ID_RESOURCE = "ID_RESOURCE";
     public static final String OWNER_RESOURCE = "OWNER_RESOURCE";

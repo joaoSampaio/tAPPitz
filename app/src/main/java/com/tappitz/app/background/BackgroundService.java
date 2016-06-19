@@ -422,7 +422,7 @@ public class BackgroundService extends Service {
                 Gson gson = new Gson();
                 Log.d("sendPhoto", "getFriendIds: ->"+ gson.toJson(upload.getFriendIds()));
                 Log.d("sendPhoto", "isSendToFollowers: ->"+ upload.isSendToFollowers());
-                call = RestClientV2.getService().sendphoto(new CreatePhoto(upload.getComment(), upload.getFriendIds(), imageBase64, upload.isSendToFollowers()));
+                call = RestClientV2.getService().sendphoto(new CreatePhoto(upload.getComment(), upload.getFriendIds(), imageBase64, upload.isSendToFollowers(), upload.isGif()));
                 try {
                     json = call.execute().body();
                     final int oldId = upload.getTmpId();

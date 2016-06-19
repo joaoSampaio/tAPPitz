@@ -68,6 +68,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
     final static int[] CLICABLES = {R.id.camera_options, R.id.btn_load, R.id.btn_flash, R.id.btn_toggle_camera, R.id.btnPhotoDelete, R.id.btnPhotoAccept};
     private List<ImageView> gifSequence;
     private SaveGifThread saveGifThread;
+    private boolean isGif = false;
 
     public CameraHelper2(MainActivity act, final CameraPreview4 preview4) {
         this.activity = act;
@@ -165,6 +166,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
                 break;
             case R.id.btn_shutter:
 
+                isGif = false;
                 previewView.takePhoto(mPicture, new CallbackCameraAction() {
                     @Override
                     public void onSuccess() {
@@ -352,7 +354,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
             @Override
             public void sendPhoto(final List<Integer> contacts, boolean sendFollowers) {
 
-                SentPicture out = new SentPicture(comment, photoPath);
+                SentPicture out = new SentPicture(comment, photoPath, isGif);
                 //actualiza e guarda offline
                 if (getActivity().getReloadOutbox() != null) {
                     getActivity().getReloadOutbox().updateTemporaryOutbox(out);
@@ -417,6 +419,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
     public boolean onLongClick(View view) {
         switch (view.getId()){
             case R.id.btn_shutter:
+                isGif = true;
                 if(handler != null && !isLongClickActive) {
                     bitmapsGif.clear();
                     numFrames = 0;
@@ -523,7 +526,7 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
 
     SaveGifThread.GifSaved listenerGif = new SaveGifThread.GifSaved() {
         @Override
-        public void onGifSaved(Uri uri, String photoPath) {
+        public void onGifSaved(Uri uri, String photoPath2) {
             time2 = System.currentTimeMillis();
             Log.d("gif", "onGifSaved took:" + ((time2 - time1)/1000) + "seconds to save to disk");
 
@@ -535,6 +538,8 @@ public class CameraHelper2 implements View.OnClickListener, View.OnLongClickList
             if (temp_pic != null) {
                 temp_pic.setVisibility(View.VISIBLE);
             }
+
+            photoPath = photoPath2;
             showGifContainer(false);
             Glide.with(getActivity())
                     .load(photoPath)

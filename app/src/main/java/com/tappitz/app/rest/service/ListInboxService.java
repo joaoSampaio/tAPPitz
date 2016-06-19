@@ -61,7 +61,7 @@ public class ListInboxService extends ServerCommunicationService {
                                                        pic.getAuthorName(), pic.getSentDate(), pic.isHasVoted(),
                                                        pic.getVotedDate(), pic.getComment(), pic.getVote());
                                     tmp.setIsVoteTemporary(false);
-
+                                    tmp.setGif(pic.isGif());
                                     result.add(tmp);
                                 }
 

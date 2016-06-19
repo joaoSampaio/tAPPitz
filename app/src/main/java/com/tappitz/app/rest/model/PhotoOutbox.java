@@ -31,6 +31,13 @@ public class PhotoOutbox {
         return comment;
     }
 
+    public boolean isGif() {
+        return isGif;
+    }
+
+    public void setGif(boolean gif) {
+        isGif = gif;
+    }
 
     public long getTimeMilliseconds(){
         long time = 0;

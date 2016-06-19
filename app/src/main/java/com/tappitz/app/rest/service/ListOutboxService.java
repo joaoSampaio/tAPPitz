@@ -44,7 +44,7 @@ public class ListOutboxService extends ServerCommunicationService {
 
                             List<SentPicture> result = new ArrayList<SentPicture>();
                             for (PhotoOutbox pic: outbox) {
-                                result.add(new SentPicture(pic.getId(), pic.getText(), pic.getCreatedDate(), false));
+                                result.add(new SentPicture(pic.getId(), pic.getText(), pic.getCreatedDate(), false, pic.isGif()));
                             }
                             callback.success(result);
                         } else {

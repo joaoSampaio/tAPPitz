@@ -123,6 +123,14 @@ public class ReceivedPhoto {
         this.vote = vote;
     }
 
+    public boolean isGif() {
+        return isGif;
+    }
+
+    public void setGif(boolean gif) {
+        isGif = gif;
+    }
+
     public static long getTimeMilliseconds(String dateTime){
         long time = 0;
         Log.d("myapp", "**--Received getTimeMilliseconds  ");

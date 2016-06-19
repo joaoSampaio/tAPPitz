@@ -368,6 +368,7 @@ public class GcmService extends GcmListenerService {
         String pictureId = extras.getString("pictureId", "-1");
         String pictureSentence = extras.getString("comment", "");
         String authorName = extras.getString("authorName", "");
+
         int pictureIdInt = Integer.parseInt(pictureId);
         boolean isHasVoted = false;
 

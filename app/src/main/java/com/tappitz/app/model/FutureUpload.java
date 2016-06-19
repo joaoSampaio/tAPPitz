@@ -20,13 +20,15 @@ public class FutureUpload {
     private String path;
     private List<Integer> friendIds;
     private String comment;
+    private boolean isGif;
 
-    public FutureUpload(int tmpId, String path, List<Integer> friendIds, String comment, boolean sendToFollowers) {
+    public FutureUpload(int tmpId, String path, List<Integer> friendIds, String comment, boolean sendToFollowers, boolean isGif) {
         this.tmpId = tmpId;
         this.path = path;
         this.friendIds = friendIds;
         this.comment = comment;
         this.sendToFollowers = sendToFollowers;
+        this.isGif = isGif;
     }
 
     public int getTmpId() {
@@ -96,5 +98,13 @@ public class FutureUpload {
 
     public void setSendToFollowers(boolean sendToFollowers) {
         this.sendToFollowers = sendToFollowers;
+    }
+
+    public boolean isGif() {
+        return isGif;
+    }
+
+    public void setGif(boolean gif) {
+        isGif = gif;
     }
 }

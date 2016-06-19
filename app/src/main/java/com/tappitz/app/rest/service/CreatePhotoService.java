@@ -34,7 +34,7 @@ public class CreatePhotoService extends ServerCommunicationService {
     @Override
     public void execute() {
         if(Global.VERSION_V2) {
-            Call<JsonElement> call = RestClientV2.getService().sendphoto(new CreatePhoto(comment, contacts, picture, true));
+            Call<JsonElement> call = RestClientV2.getService().sendphoto(new CreatePhoto(comment, contacts, picture, true, false));
             call.enqueue(new retrofit2.Callback<JsonElement>() {
                 @Override
                 public void onResponse(Call<JsonElement> call, retrofit2.Response<JsonElement> response) {
@@ -59,7 +59,7 @@ public class CreatePhotoService extends ServerCommunicationService {
                 }
             });
         }else {
-            RestClient.getService().sendphoto(new CreatePhoto(comment, contacts, picture, true), new Callback<JsonElement>() {
+            RestClient.getService().sendphoto(new CreatePhoto(comment, contacts, picture, true, false), new Callback<JsonElement>() {
                 @Override
                 public void success(JsonElement json, Response response2) {
 
