@@ -297,8 +297,8 @@ public class MainActivity extends FragmentActivity{
     //determina o que acontece quando clica na notificação
     @Override
     protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
         try {
+            super.onNewIntent(intent);
             extras = intent.getExtras();
             if(isRunning) {
                 String action = intent.getExtras().getString("action", "");

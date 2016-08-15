@@ -1,29 +1,39 @@
 package com.tappitz.app.camera;
 
+import android.app.Activity;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.graphics.PixelFormat;
 import android.graphics.Point;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.Pair;
 import android.view.Display;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.tappitz.app.Global;
 import com.tappitz.app.app.AppController;
 import com.tappitz.app.model.CameraFrame;
 import com.tappitz.app.model.ReceivedPhoto;
 import com.tappitz.app.ui.MainActivity;
 import com.tappitz.app.ui.secondary.QRCodeDialogFragment;
+import com.tappitz.app.util.ModelCache;
 
 import net.sourceforge.zbar.Config;
 import net.sourceforge.zbar.Image;
@@ -126,12 +136,18 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
         int width = size.x;
         int height = size.y;
 
-        Resources resources = getResources();
-        int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            Log.d("preview", "navigation_bar_height before height:"+height + " after height:" + (height + resources.getDimensionPixelSize(resourceId)));
-            height =  height + resources.getDimensionPixelSize(resourceId);
+
+        if(hasSoftKeys()){
+            Log.d("preview222", "hasSoftKeys:");
+            Resources resources = getResources();
+            int resourceId = resources.getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                Log.d("preview", "navigation_bar_height before height:"+height + " after height:" + (height + resources.getDimensionPixelSize(resourceId)));
+                height =  height + resources.getDimensionPixelSize(resourceId);
+            }
         }
+
+
         Log.d("preview", "getSize w:"+width + " height:" + height);
         return new Pair<Integer, Integer>(width, height);
 
@@ -557,6 +573,55 @@ public class CameraPreview4 extends ViewGroup implements SurfaceHolder.Callback,
     };
 
 
+
+    public boolean hasSoftKeys(){
+        boolean hasSoftwareKeys = true;
+        boolean isSaved = false;
+        SharedPreferences sp = AppController.getAppContext().getSharedPreferences("tAPPitz", Activity.MODE_PRIVATE);
+        try {
+            Boolean hasKeys = new ModelCache<Boolean>().loadModel(AppController.getAppContext(), new TypeToken<Boolean>() {
+            }.getType(), "hasSoftKeys");
+            if(hasKeys != null) {
+                Log.d("preview222", "hasKeys != null:");
+                hasSoftwareKeys = hasKeys;
+                isSaved = true;
+            }
+
+        }catch (Exception e){
+
+        }
+
+
+        if(!isSaved && Build.VERSION.SDK_INT>= Build.VERSION_CODES.JELLY_BEAN_MR1){
+            Display d = activity.getWindowManager().getDefaultDisplay();
+
+            DisplayMetrics realDisplayMetrics = new DisplayMetrics();
+            d.getRealMetrics(realDisplayMetrics);
+
+            int realHeight = realDisplayMetrics.heightPixels;
+            int realWidth = realDisplayMetrics.widthPixels;
+
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            d.getMetrics(displayMetrics);
+
+            int displayHeight = displayMetrics.heightPixels;
+            int displayWidth = displayMetrics.widthPixels;
+
+            hasSoftwareKeys =  (realWidth - displayWidth) > 0 || (realHeight - displayHeight) > 0;
+        }else if(!isSaved){
+            boolean hasMenuKey = ViewConfiguration.get(activity).hasPermanentMenuKey();
+            boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+            hasSoftwareKeys = !hasMenuKey && !hasBackKey;
+        }
+
+        if(!isSaved){
+            new ModelCache<Boolean>().saveString(activity, new Gson().toJson(hasSoftwareKeys), "hasSoftKeys");
+        }
+
+
+        Log.d("preview222", "hasSoftKeys:" + hasSoftwareKeys);
+        return hasSoftwareKeys;
+    }
 
 
 }

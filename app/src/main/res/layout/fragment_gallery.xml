@@ -26,7 +26,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true"
         android:src="@android:drawable/ic_popup_sync"
-        android:tint="@color/abc_background_cache_hint_selector_material_dark"
+        android:tint="#303030"
         android:layout_alignTop="@+id/topbar"
         android:layout_alignBottom="@+id/topbar"
         android:layout_marginRight="15dp" />

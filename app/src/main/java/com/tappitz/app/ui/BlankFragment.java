@@ -74,6 +74,10 @@ public class BlankFragment extends Fragment  {
                 View view;
                 Log.d("myapp", "click:" + v.getId());
                 switch (v.getId()) {
+                    case R.id.btn_shutter:
+                        view = rootView.findViewById(R.id.btn_shutter);
+                        view.setVisibility(View.GONE);
+                        break;
                     case R.id.camera_options:
                         v.setTag(null);
                         view = rootView.findViewById(R.id.layout_camera);
